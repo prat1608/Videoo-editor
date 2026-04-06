@@ -24,7 +24,6 @@ import {
   SkipBack,
   SkipForward,
   Sparkles,
-  SquarePen,
   Trash2,
   Type,
   Undo2,
@@ -34,7 +33,7 @@ import {
 } from "lucide-react";
 import logoMark from "@/assets/Logo.svg";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -42,7 +41,6 @@ import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
@@ -410,6 +408,11 @@ function PanelContent({ panel }) {
 }
 
 export default function EditorScreen() {
+  const onlineCollaborators = [
+    { id: "pratiksha", initials: "P", label: "Pratiksha (You)" },
+    { id: "am", initials: "AM", label: "Aman" },
+    { id: "rk", initials: "RK", label: "Riya" },
+  ];
   const [activePanel, setActivePanel] = useState("files");
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
@@ -419,19 +422,22 @@ export default function EditorScreen() {
   const [syncState] = useState("saved");
   const [interactionMode, setInteractionMode] = useState("hand");
   const [canvasZoom, setCanvasZoom] = useState(80);
+  const [zoomMenuOpen, setZoomMenuOpen] = useState(false);
   const [timelineScale, setTimelineScale] = useState(100);
   const [timelineRulerWidth, setTimelineRulerWidth] = useState(0);
-  const [playhead, setPlayhead] = useState(18);
+  const [playhead, setPlayhead] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [chatThreadName, setChatThreadName] = useState("Design Technical dash");
-  const [chatDraft, setChatDraft] = useState("");
+  const [chatThreads, setChatThreads] = useState([{ id: "chat-1", title: "New chat", draft: "" }]);
+  const [activeChatId, setActiveChatId] = useState("chat-1");
 
   const timelineRulerRef = useRef(null);
   const workspaceBodyRef = useRef(null);
   const canvasStageRef = useRef(null);
   const canvasArtboardRef = useRef(null);
   const chatPromptRef = useRef(null);
+  const nextChatIdRef = useRef(2);
+  const focusChatComposerRef = useRef(false);
   const playheadDragRef = useRef({
     pointerId: null,
   });
@@ -459,6 +465,10 @@ export default function EditorScreen() {
   const allSectionsVisible = isLeftPanelVisible && rightPanelOpen;
   const LeftPanelIcon = PanelLeftGlyph;
   const TimelinePanelIcon = PanelBottomGlyph;
+  const activeChat = chatThreads.find((thread) => thread.id === activeChatId) ?? chatThreads[0] ?? null;
+  const chatDraft = activeChat?.draft ?? "";
+  const visibleCollaborators = onlineCollaborators.slice(0, 3);
+  const extraCollaboratorCount = Math.max(0, onlineCollaborators.length - visibleCollaborators.length);
 
   const timelineStepSeconds = useMemo(() => {
     if (timelineScale <= 80) return 6;
@@ -483,13 +493,23 @@ export default function EditorScreen() {
       const width = timelineRulerRef.current?.getBoundingClientRect().width ?? 0;
       if (!width) return;
       setTimelineRulerWidth(width);
-      setPlayhead((current) => clamp(current, 18, width - 18));
+      setPlayhead((current) => clamp(current, 0, Math.max(0, width - 2)));
     }
 
     syncPlayhead();
     window.addEventListener("resize", syncPlayhead);
     return () => window.removeEventListener("resize", syncPlayhead);
   }, [timelineOpen, timelineScale]);
+
+  useEffect(() => {
+    if (!chatPromptRef.current) return;
+    chatPromptRef.current.textContent = activeChat?.draft ?? "";
+
+    if (focusChatComposerRef.current) {
+      chatPromptRef.current.focus();
+      focusChatComposerRef.current = false;
+    }
+  }, [activeChatId]);
 
   function togglePanel(nextPanel) {
     if (activePanel === nextPanel) {
@@ -629,11 +649,13 @@ export default function EditorScreen() {
     if (!event.ctrlKey && !event.metaKey) return;
 
     event.preventDefault();
-    setCanvasZoom((current) => clamp(current - Math.sign(event.deltaY) * 4, 60, 160));
+    setCanvasZoom((current) => clamp(current - Math.sign(event.deltaY) * 4, 25, 200));
   }
 
   function applyZoom(nextZoom, { recenter = true } = {}) {
-    setCanvasZoom(clamp(nextZoom, 25, 200));
+    setCanvasZoom((current) =>
+      clamp(typeof nextZoom === "function" ? nextZoom(current) : nextZoom, 25, 200)
+    );
     if (recenter) {
       setPan({ x: 0, y: 0 });
     }
@@ -643,12 +665,17 @@ export default function EditorScreen() {
     applyZoom(value);
   }
 
+  function runZoomAction(action) {
+    action();
+    setZoomMenuOpen(false);
+  }
+
   function zoomIn() {
-    applyZoom(canvasZoom + 10);
+    applyZoom((current) => current + 10);
   }
 
   function zoomOut() {
-    applyZoom(canvasZoom - 10);
+    applyZoom((current) => current - 10);
   }
 
   function zoomToFit() {
@@ -660,8 +687,10 @@ export default function EditorScreen() {
       return;
     }
 
-    const artboardWidth = artboard.offsetWidth;
-    const artboardHeight = artboard.offsetHeight;
+    const currentScale = canvasZoom / 100 || 1;
+    const artboardBounds = artboard.getBoundingClientRect();
+    const artboardWidth = artboardBounds.width / currentScale;
+    const artboardHeight = artboardBounds.height / currentScale;
 
     if (!artboardWidth || !artboardHeight) {
       applyZoom(rightPanelOpen ? 104 : 96);
@@ -680,7 +709,7 @@ export default function EditorScreen() {
   function updatePlayhead(clientX) {
     const bounds = timelineRulerRef.current?.getBoundingClientRect();
     if (!bounds) return;
-    setPlayhead(clamp(clientX - bounds.left, 18, bounds.width - 18));
+    setPlayhead(clamp(clientX - bounds.left, 0, Math.max(0, bounds.width - 2)));
   }
 
   function startPlayheadDrag(event) {
@@ -691,41 +720,77 @@ export default function EditorScreen() {
     event.stopPropagation();
   }
 
-  function startNewChat() {
-    setChatThreadName("");
-    setChatDraft("");
+  function createChatThread(threads) {
+    const untitledCount = threads.filter(
+      (thread) => thread.title === "New Chat" || /^New Chat \d+$/.test(thread.title)
+    ).length;
+    const nextTitle = untitledCount === 0 ? "New Chat" : `New Chat ${untitledCount + 1}`;
 
-    requestAnimationFrame(() => {
-      if (!chatPromptRef.current) return;
-      chatPromptRef.current.textContent = "";
-      chatPromptRef.current.focus();
-    });
+    return {
+      id: `chat-${nextChatIdRef.current++}`,
+      title: nextTitle,
+      draft: "",
+    };
+  }
+
+  function startNewChat() {
+    const nextThread = createChatThread(chatThreads);
+    focusChatComposerRef.current = true;
+    setChatThreads((current) => [...current, nextThread]);
+    setActiveChatId(nextThread.id);
+    setRightPanelOpen(true);
+  }
+
+  function selectChatThread(threadId) {
+    setActiveChatId(threadId);
+    setRightPanelOpen(true);
+  }
+
+  function closeChatThread(threadId) {
+    const threadIndex = chatThreads.findIndex((thread) => thread.id === threadId);
+    if (threadIndex === -1) return;
+
+    if (chatThreads.length === 1) {
+      const replacementThread = createChatThread([]);
+      focusChatComposerRef.current = true;
+      setChatThreads([replacementThread]);
+      setActiveChatId(replacementThread.id);
+      return;
+    }
+
+    const nextThreads = chatThreads.filter((thread) => thread.id !== threadId);
+    setChatThreads(nextThreads);
+
+    if (threadId === activeChatId) {
+      const fallbackThread = nextThreads[Math.max(0, threadIndex - 1)] ?? nextThreads[0];
+      setActiveChatId(fallbackThread.id);
+    }
   }
 
   const zoomMenuItems = (
     <>
-      <DropdownMenuItem onSelect={zoomIn}>
+      <button type="button" role="menuitem" className="zoom-menu-button" onClick={() => runZoomAction(zoomIn)}>
         <span>Zoom in</span>
         <DropdownMenuShortcut>&#8984; +</DropdownMenuShortcut>
-      </DropdownMenuItem>
-      <DropdownMenuItem onSelect={zoomOut}>
+      </button>
+      <button type="button" role="menuitem" className="zoom-menu-button" onClick={() => runZoomAction(zoomOut)}>
         <span>Zoom out</span>
         <DropdownMenuShortcut>&#8984; -</DropdownMenuShortcut>
-      </DropdownMenuItem>
+      </button>
       <DropdownMenuSeparator />
-      <DropdownMenuItem onSelect={() => setZoom(100)}>
+      <button type="button" role="menuitem" className="zoom-menu-button" onClick={() => runZoomAction(() => setZoom(100))}>
         <span>Zoom to 100%</span>
         <DropdownMenuShortcut>&#8984; 0</DropdownMenuShortcut>
-      </DropdownMenuItem>
-      <DropdownMenuItem onSelect={() => setZoom(200)}>
+      </button>
+      <button type="button" role="menuitem" className="zoom-menu-button" onClick={() => runZoomAction(() => setZoom(200))}>
         <span>Zoom to 200%</span>
         <DropdownMenuShortcut>Shift + 2</DropdownMenuShortcut>
-      </DropdownMenuItem>
+      </button>
       <DropdownMenuSeparator />
-      <DropdownMenuItem onSelect={zoomToFit}>
+      <button type="button" role="menuitem" className="zoom-menu-button" onClick={() => runZoomAction(zoomToFit)}>
         <span>Zoom to Fit</span>
         <DropdownMenuShortcut>Shift + F</DropdownMenuShortcut>
-      </DropdownMenuItem>
+      </button>
     </>
   );
 
@@ -807,47 +872,73 @@ export default function EditorScreen() {
                   </div>
                 </div>
 
-                <div className={cn("topbar-trailing", compactTopbar && "is-compact", denseTopbar && "is-dense")}>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button type="button" variant="ghost" className="topbar-credits" aria-label="Credits details">
-                        <Sparkles />
-                        <span>1760 credits</span>
+                <div
+                  className={cn(
+                    "topbar-trailing",
+                    compactTopbar && "is-compact",
+                    denseTopbar && "is-dense",
+                    !rightPanelOpen && "is-chat-collapsed"
+                  )}
+                >
+                  <div className="file-presence" aria-label="Online collaborators">
+                    <AvatarGroup className="file-presence-list">
+                      {extraCollaboratorCount > 0 ? (
+                        <AvatarGroupCount className="file-presence-count">{`+${extraCollaboratorCount}`}</AvatarGroupCount>
+                      ) : null}
+                      {visibleCollaborators.map((person) => (
+                        <Tooltip key={person.id}>
+                          <TooltipTrigger asChild>
+                            <Avatar className="file-presence-avatar">
+                              <AvatarFallback className="file-presence-fallback">{person.initials}</AvatarFallback>
+                            </Avatar>
+                          </TooltipTrigger>
+                          <TooltipContent>{person.label}</TooltipContent>
+                        </Tooltip>
+                      ))}
+                    </AvatarGroup>
+                  </div>
+                  {!rightPanelOpen ? (
+                    <>
+                      <div className="topbar-divider" aria-hidden="true" />
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button type="button" variant="ghost" className="topbar-credits" aria-label="Credits details">
+                            <Sparkles />
+                            <span>1760 credits</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="credits-menu">
+                          <div className="credits-menu-top">
+                            <div>
+                              <div className="credits-plan">Pro</div>
+                            </div>
+                            <Button type="button" variant="default" className="credits-upgrade-button">
+                              Upgrade
+                            </Button>
+                          </div>
+                          <div className="credits-menu-divider" />
+                          <div className="credits-menu-body">
+                            <div className="credits-copy">
+                              <strong>Credits</strong>
+                              <span>2,000 per month on your plan</span>
+                            </div>
+                            <div className="credits-amount">1,760</div>
+                          </div>
+                          <button type="button" className="credits-usage-link">
+                            <span>View usage</span>
+                            <span aria-hidden="true">›</span>
+                          </button>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <Button type="button" variant="ghost" className="share-button">
+                        Share
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="credits-menu">
-                      <div className="credits-menu-top">
-                        <div>
-                          <div className="credits-plan">Pro</div>
-                        </div>
-                        <Button type="button" variant="default" className="credits-upgrade-button">
-                          Upgrade
-                        </Button>
-                      </div>
-                      <div className="credits-menu-divider" />
-                      <div className="credits-menu-body">
-                        <div className="credits-copy">
-                          <strong>Credits</strong>
-                          <span>2,000 per month on your plan</span>
-                        </div>
-                        <div className="credits-amount">1,760</div>
-                      </div>
-                      <button type="button" className="credits-usage-link">
-                        <span>View usage</span>
-                        <span aria-hidden="true">›</span>
-                      </button>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  <Avatar className="h-8 w-8 border border-[var(--border)]">
-                    <AvatarFallback>P</AvatarFallback>
-                  </Avatar>
-                  <Button type="button" variant="ghost" className="share-button">
-                    Share
-                  </Button>
-                  <Button type="button" variant="default" className="publish-button">
-                    Publish
-                    <ChevronDown />
-                  </Button>
+                      <Button type="button" variant="default" className="publish-button">
+                        Publish
+                        <ChevronDown />
+                      </Button>
+                    </>
+                  ) : null}
                   {!compactTopbar ? (
                     <div className="topbar-layout-cluster" aria-label="Layout panels">
                       <Button
@@ -855,10 +946,10 @@ export default function EditorScreen() {
                         variant="ghost"
                         size="icon"
                         aria-label={rightPanelOpen ? "Hide right panel" : "Show right panel"}
-                        className={cn("icon-button", "icon-button-ghost", "layout-toggle", rightPanelOpen && "is-selected")}
+                        className={cn("icon-button", "icon-button-ghost", "chat-header-button")}
                         onClick={() => setRightPanelOpen((current) => !current)}
                       >
-                        <PanelRightGlyph open={rightPanelOpen} />
+                        <PanelRightGlyph open />
                       </Button>
                     </div>
                   ) : null}
@@ -905,15 +996,22 @@ export default function EditorScreen() {
                   <div
                     className="canvas-world"
                     style={{
-                      transform: `translate(${pan.x}px, ${pan.y}px) scale(${canvasZoom / 100})`,
+                      transform: `translate(${pan.x}px, ${pan.y}px)`,
                     }}
                   >
-                    <div className="infinite-grid" />
-                    <div className="canvas-content">
-                      <div ref={canvasArtboardRef} className="canvas-artboard" aria-label="Canvas" />
+                    <div
+                      className="canvas-zoom-layer"
+                      style={{
+                        transform: `scale(${canvasZoom / 100})`,
+                      }}
+                    >
+                      <div className="infinite-grid" />
+                      <div className="canvas-content">
+                        <div ref={canvasArtboardRef} className="canvas-artboard" aria-label="Canvas" />
+                      </div>
                     </div>
                   </div>
-                  <DropdownMenu>
+                  <DropdownMenu open={zoomMenuOpen} onOpenChange={setZoomMenuOpen}>
                     <DropdownMenuTrigger asChild>
                       <Button type="button" variant="outline" className="floating-zoom-trigger">
                         <span>{canvasZoom}%</span>
@@ -1065,37 +1163,91 @@ export default function EditorScreen() {
                   aria-label="Resize chat panel"
                   onPointerDown={handleChatResizeStart}
                 />
+                <div className="chat-panel-header">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button type="button" variant="ghost" className="topbar-credits" aria-label="Credits details">
+                        <Sparkles />
+                        <span>1760 credits</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="credits-menu">
+                      <div className="credits-menu-top">
+                        <div>
+                          <div className="credits-plan">Pro</div>
+                        </div>
+                        <Button type="button" variant="default" className="credits-upgrade-button">
+                          Upgrade
+                        </Button>
+                      </div>
+                      <div className="credits-menu-divider" />
+                      <div className="credits-menu-body">
+                        <div className="credits-copy">
+                          <strong>Credits</strong>
+                          <span>2,000 per month on your plan</span>
+                        </div>
+                        <div className="credits-amount">1,760</div>
+                      </div>
+                      <button type="button" className="credits-usage-link">
+                        <span>View usage</span>
+                        <span aria-hidden="true">›</span>
+                      </button>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <div className="chat-panel-header-actions">
+                    <Button type="button" variant="ghost" className="share-button">
+                      Share
+                    </Button>
+                    <Button type="button" variant="default" className="publish-button">
+                      Publish
+                      <ChevronDown />
+                    </Button>
+                  </div>
+                </div>
                 <div className="chat-subbar">
-                  {chatThreadName ? (
-                    <button type="button" className="chat-thread-pill">
-                      <span>{chatThreadName}</span>
-                      <span
-                        className="chat-thread-pill-dismiss"
-                        role="button"
-                        aria-label="Remove chat from history"
-                        tabIndex={0}
-                        onClick={(event) => {
-                          event.preventDefault();
-                          event.stopPropagation();
-                          setChatThreadName("");
-                        }}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            setChatThreadName("");
-                          }
-                        }}
-                      >
-                        <X />
-                      </span>
-                    </button>
-                  ) : null}
+                  <div className="chat-thread-list" aria-label="Chat tabs" role="tablist">
+                    {chatThreads.map((thread) => (
+                      <div key={thread.id} className={cn("chat-thread-pill", thread.id === activeChatId && "is-active")}>
+                        <button
+                          type="button"
+                          role="tab"
+                          aria-selected={thread.id === activeChatId}
+                          className="chat-thread-pill-trigger"
+                          onClick={() => selectChatThread(thread.id)}
+                        >
+                          <span>{thread.title}</span>
+                        </button>
+                        <button
+                          type="button"
+                          className="chat-thread-pill-dismiss"
+                          aria-label={`Close ${thread.title}`}
+                          onClick={() => closeChatThread(thread.id)}
+                        >
+                          <X />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                   <div className="chat-subbar-actions">
-                    <button type="button" className="chat-new-thread" onClick={startNewChat}>
-                      <SquarePen />
-                      <span>New Chat</span>
-                    </button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Start a new chat"
+                      className={cn("icon-button", "icon-button-ghost", "chat-new-thread-button")}
+                      onClick={startNewChat}
+                    >
+                      <Plus />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Open chat history"
+                      className={cn("icon-button", "icon-button-ghost", "chat-new-thread-button", "chat-history-button")}
+                    >
+                      <History />
+                    </Button>
                     <Button
                       type="button"
                       variant="ghost"
@@ -1122,7 +1274,17 @@ export default function EditorScreen() {
                           aria-multiline="true"
                           aria-label="Video prompt input"
                           onInput={(event) => {
-                            setChatDraft(event.currentTarget.textContent?.trim() ?? "");
+                            const nextDraft = event.currentTarget.textContent ?? "";
+                            setChatThreads((current) =>
+                              current.map((thread) =>
+                                thread.id === activeChatId
+                                  ? {
+                                    ...thread,
+                                    draft: nextDraft,
+                                  }
+                                  : thread
+                              )
+                            );
                           }}
                         />
                         <div className="chat-prompt-overlay" style={{ opacity: chatDraft ? 0 : 1 }}>
