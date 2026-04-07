@@ -853,14 +853,15 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 0;
   height: 28px;
   padding: 0 14px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.06);
+  background: transparent !important;
   color: rgba(250, 250, 250, 0.92);
-  border: 0.6px solid rgba(255, 255, 255, 0.1);
-  font-size: 11.8px;
+  border: none !important;
+  box-shadow: none;
+  font-size: 12px;
   font-weight: 400;
   transition:
     background 180ms ease,
@@ -877,110 +878,55 @@ svg {
   min-width: max-content;
 }
 
-.share-button svg,
-.publish-split-main svg,
-.publish-split-caret svg {
+.share-button svg {
   width: 13px;
   height: 13px;
 }
 
 .share-button {
-  min-width: 68px;
+  min-width: 57.41px;
 }
 
 .share-button:hover {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.14);
-
+  background: rgb(56, 56, 56) !important;
+  border: none !important;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 1);
 }
 
-.publish-split-group {
-  display: inline-flex;
-  align-items: stretch;
-  flex: 0 0 auto;
-  white-space: nowrap;
-  overflow: hidden;
-  border-radius: 8px;
+.share-button:focus-visible {
+  background: rgb(56, 56, 56) !important;
+  border: none !important;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 1);
 }
 
-.publish-split-main,
-.publish-split-caret {
-  height: 28px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 0.6px solid rgba(255, 255, 255, 0.1);
-  color: rgba(250, 250, 250, 0.92);
-  font-size: 11.8px;
-  font-weight: 400;
-}
-
-.publish-split-main {
-  min-width: 0;
-  padding-inline: 10px 14px;
-  justify-content: center;
-  border-top-left-radius: 0px;
-  border-bottom-left-radius: 0px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.publish-split-caret {
-  width: 28px;
-  min-width: 28px;
-  padding: 0;
-  margin-left: 0;
-  border-left: 0.6px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-dim);
-  border-top-right-radius: 0px;
-  border-bottom-right-radius: 0px;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-
-.publish-split-main:hover,
-.publish-split-main:focus-visible,
-.publish-split-caret:hover,
-.publish-split-caret:focus-visible {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: 0.6px rgba(255, 255, 255, 0.14);
-}
-
-.publish-split-main svg,
-.publish-split-caret svg {
-  width: 13px;
-  height: 13px;
-}
-
-.publish-split-caret svg {
-  width: 12px;
-  height: 12px;
-}
-
-.publish-menu {
-  width: 180px;
-}
-
-.publish-menu-item {
+.publish-button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  width: 100%;
-  padding: 9px 10px;
-  border-radius: 10px;
-  color: rgba(250, 250, 250, 0.86);
-  font-size: 0.88rem;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: rgb(47, 47, 47) !important;
+  color: rgb(223, 223, 223) !important;
+  border: none !important;
+  font-size: 12px;
   font-weight: 500;
-  text-align: left;
 }
 
-.publish-menu-item:hover,
-.publish-menu-item:focus-visible {
-  background: rgba(255, 255, 255, 0.06);
+.publish-button:hover,
+.publish-button:focus-visible {
+  background: rgb(56, 56, 56) !important;
+  border: none !important;
+  color: rgba(255, 255, 255, 1) !important;
 }
 
-.publish-menu-item svg {
+.publish-button svg {
   width: 14px;
   height: 14px;
-  color: var(--text-dim);
+  opacity: 0.92;
 }
 
 .more-trigger {

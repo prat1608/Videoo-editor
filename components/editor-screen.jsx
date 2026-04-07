@@ -18,7 +18,6 @@ import {
   Pipette,
   Plus,
   Redo2,
-  Rocket,
   Scissors,
   Settings2,
   Shapes,
@@ -36,14 +35,11 @@ import logoMark from "@/assets/Logo.svg";
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
@@ -188,33 +184,12 @@ function PanelButton({ children, className, variant = "surface", ...props }) {
   );
 }
 
-function PublishMenuButton() {
+function PublishButton() {
   return (
-    <ButtonGroup className="publish-split-group">
-      <Button type="button" variant="outline" className="publish-split-main">
-        <Rocket />
-        <span>Publish</span>
-      </Button>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button type="button" variant="outline" className="publish-split-caret" aria-label="Open publish menu">
-            <ChevronDown />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="publish-menu">
-          <DropdownMenuGroup>
-            <DropdownMenuItem className="publish-menu-item">
-              <Upload />
-              <span>Export</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="publish-menu-item">
-              <History />
-              <span>Export history</span>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </ButtonGroup>
+    <Button type="button" variant="ghost" className="publish-button">
+      <span>Publish</span>
+      <ChevronDown />
+    </Button>
   );
 }
 
@@ -943,10 +918,9 @@ export default function EditorScreen() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                       <Button type="button" variant="ghost" className="share-button">
-                        <Upload />
                         Share
                       </Button>
-                      <PublishMenuButton />
+                      <PublishButton />
                     </>
                   ) : null}
                   {!compactTopbar ? (
@@ -1206,10 +1180,9 @@ export default function EditorScreen() {
                   </DropdownMenu>
                   <div className="chat-panel-header-actions">
                     <Button type="button" variant="ghost" className="share-button">
-                      <Upload />
                       Share
                     </Button>
-                    <PublishMenuButton />
+                    <PublishButton />
                   </div>
                 </div>
                 <div className="chat-subbar">
