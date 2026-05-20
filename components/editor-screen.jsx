@@ -81,83 +81,80 @@ const editorSuggestions = [
 ];
 
 const imageStyles = [
-  { name: "3D Render",       photoId: 3862132 },
-  { name: "Monochrome",      photoId: 1266808 },
-  { name: "Minecraft",       photoId: 1462726 },
-  { name: "Anime",           photoId: 2110951 },
-  { name: "Oil Painting",    photoId: 1568607 },
-  { name: "Watercolor",      photoId: 1269968 },
-  { name: "Comic Book",      photoId: 1762851 },
-  { name: "Neon Noir",       photoId: 1183992 },
-  { name: "Cyberpunk",       photoId: 2007647 },
-  { name: "Vintage Film",    photoId: 1209843 },
-  { name: "Pencil Sketch",   photoId: 958164  },
-  { name: "Pixel Art",       photoId: 1563356 },
-  { name: "Cinematic",       photoId: 1552212 },
-  { name: "Surreal",         photoId: 1252869 },
-  { name: "Studio Ghibli",   photoId: 1287145 },
-  { name: "Impressionist",   photoId: 3621344 },
+  { name: "3D Render", photoId: 3862132 },
+  { name: "Monochrome", photoId: 1266808 },
+  { name: "Minecraft", photoId: 1462726 },
+  { name: "Anime", photoId: 2110951 },
+  { name: "Oil Painting", photoId: 1568607 },
+  { name: "Watercolor", photoId: 1269968 },
+  { name: "Comic Book", photoId: 1762851 },
+  { name: "Neon Noir", photoId: 1183992 },
+  { name: "Cyberpunk", photoId: 2007647 },
+  { name: "Vintage Film", photoId: 1209843 },
+  { name: "Pencil Sketch", photoId: 958164 },
+  { name: "Pixel Art", photoId: 1563356 },
+  { name: "Cinematic", photoId: 1552212 },
+  { name: "Surreal", photoId: 1252869 },
+  { name: "Studio Ghibli", photoId: 1287145 },
+  { name: "Impressionist", photoId: 3621344 },
 ];
 
 const videoClips = [
-  { id: 856396,  name: "Urban Timelapse", ratio: "16 / 9" },
-  { id: 1093662, name: "Ocean Waves",     ratio: "16 / 9" },
-  { id: 2795750, name: "Forest Trail",    ratio: "16 / 9" },
-  { id: 3195394, name: "Abstract",        ratio: "1 / 1"  },
-  { id: 3584816, name: "Lifestyle",       ratio: "1 / 1"  },
-  { id: 4098981, name: "Close Up",        ratio: "1 / 1"  },
-  { id: 4226768, name: "Street Style",    ratio: "9 / 16" },
-  { id: 6782462, name: "Portrait",        ratio: "9 / 16" },
-  { id: 4207907, name: "Urban Walk",      ratio: "9 / 16" },
-  { id: 5489782, name: "Vertical",        ratio: "9 / 16" },
+  { id: 856396,  name: "Urban Timelapse", ratio: "16 / 9", prompt: "A cinematic urban timelapse of a busy city intersection at night, streaking car lights, glowing storefronts, time-lapse motion blur, 4K" },
+  { id: 1093662, name: "Ocean Waves",     ratio: "16 / 9", prompt: "Slow-motion ocean waves crashing against jagged coastal rocks at golden hour, sea spray catching sunlight, cinematic wide shot" },
+  { id: 2795750, name: "Forest Trail",    ratio: "16 / 9", prompt: "A peaceful walk along a misty forest trail at dawn, soft dappled light filtering through tall trees, gentle camera dolly forward" },
+  { id: 3195394, name: "Abstract",        ratio: "1 / 1",  prompt: "Abstract macro footage of iridescent liquid bubbles and shifting colors, slow flowing movement, dreamlike bokeh atmosphere" },
+  { id: 3584816, name: "Lifestyle",       ratio: "1 / 1",  prompt: "Bright lifestyle scene of a person enjoying a morning coffee at a sunlit café table, warm tones, shallow depth of field, candid feel" },
+  { id: 4098981, name: "Close Up",        ratio: "1 / 1",  prompt: "Extreme close-up of human eye reflecting a city skyline, dramatic lighting, cinematic color grade, ultra-sharp detail" },
+  { id: 4226768, name: "Street Style",    ratio: "9 / 16", prompt: "Street style fashion video, slow-motion walk through a vibrant urban market, bold colors, dynamic handheld camera, editorial mood" },
+  { id: 6782462, name: "Portrait",        ratio: "9 / 16", prompt: "Cinematic vertical portrait of a person in soft studio lighting, subtle wind effect on hair, smooth rack focus, elegant and minimal" },
+  { id: 4207907, name: "Urban Walk",      ratio: "9 / 16", prompt: "First-person POV walk through a busy city street at dusk, neon signs reflecting on wet pavement, immersive and energetic pace" },
+  { id: 5489782, name: "Vertical",        ratio: "9 / 16", prompt: "Vertical cinematic clip of autumn forest with falling leaves, golden hour light shafts through trees, gentle slow-motion drift" },
 ];
 
 const toolsSections = [
   {
     id: "generation",
     title: "Generation Tools",
-    accent: "#7c3aed",
     tools: [
-      { id: "generate-image",     name: "Generate Image",     desc: "Create from text prompt", icon: ImageUp  },
-      { id: "generate-video",     name: "Generate Video",     desc: "Text or image to video",  icon: Film     },
-      { id: "generate-music",     name: "Generate Music",     desc: "AI background tracks",    icon: Music4   },
-      { id: "generate-voiceover", name: "Generate Voiceover", desc: "Natural AI narration",    icon: Mic      },
-      { id: "generate-sfx",       name: "Generate SFX",       desc: "Sound effects on demand", icon: Volume2  },
+      { id: "generate-image", name: "Generate Image", desc: "Create from text prompt", icon: ImageUp },
+      { id: "generate-video", name: "Generate Video", desc: "Text or image to video", icon: Film },
+      { id: "generate-music", name: "Generate Music", desc: "AI background tracks", icon: Music4 },
+      { id: "generate-voiceover", name: "Generate Voiceover", desc: "Natural AI narration", icon: Mic },
+      { id: "generate-sfx", name: "Generate SFX", desc: "Sound effects on demand", icon: Volume2 },
     ],
   },
   {
     id: "skills",
     title: "Skills",
-    accent: "#0891b2",
     tools: [
-      { id: "autodemo",  name: "Autodemo",  desc: "Auto-generate product demos", icon: Zap       },
-      { id: "roughcuts", name: "Roughcuts", desc: "AI-assembled rough edit",     icon: Scissors  },
-      { id: "clipping",  name: "Clipping",  desc: "Extract best moments",        icon: Film      },
+      { id: "autodemo", name: "Autodemo", desc: "Auto-generate product demos", icon: Zap },
+      { id: "roughcuts", name: "Roughcuts", desc: "AI-assembled rough edit", icon: Scissors },
+      { id: "clipping", name: "Clipping", desc: "Extract best moments", icon: Film },
     ],
   },
   {
     id: "basic",
     title: "Basic Tools",
-    accent: "#16a34a",
     tools: [
-      { id: "trim",    name: "Trim",    desc: "Cut clip in & out points", icon: Scissors  },
-      { id: "merge",   name: "Merge",   desc: "Join clips together",      icon: GitMerge  },
-      { id: "speed",   name: "Speed",   desc: "Ramp or constant speed",   icon: Gauge     },
-      { id: "reverse", name: "Reverse", desc: "Play footage backwards",   icon: RotateCcw },
-      { id: "rotate",  name: "Rotate",  desc: "Flip or rotate frame",     icon: RotateCw  },
-      { id: "crop",    name: "Crop",    desc: "Trim frame edges",         icon: Crop      },
+      { id: "trim", name: "Trim", desc: "Cut clip in & out points", icon: Scissors },
+      { id: "merge", name: "Merge", desc: "Join clips together", icon: GitMerge },
+      { id: "speed", name: "Speed", desc: "Ramp or constant speed", icon: Gauge },
+      { id: "reverse", name: "Reverse", desc: "Play footage backwards", icon: RotateCcw },
+      { id: "rotate", name: "Rotate", desc: "Flip or rotate frame", icon: RotateCw },
+      { id: "crop", name: "Crop", desc: "Trim frame edges", icon: Crop },
     ],
   },
 ];
 
 const railItems = [
-  { key: "files",    label: "Files",           icon: FileText  },
-  { key: "media",    label: "Media",           icon: ImageUp   },
-  { key: "audio",    label: "Audio",           icon: Music4    },
-  { key: "text",     label: "Text",            icon: Type      },
-  { key: "elements", label: "Elements",        icon: Shapes    },
-  { key: "tools",    label: "Tools & Skills",  icon: Zap       },
-  { key: "settings", label: "Settings",        icon: Settings2 },
+  { key: "files", label: "Files", icon: FileText },
+  { key: "media", label: "Media", icon: ImageUp },
+  { key: "audio", label: "Audio", icon: Music4 },
+  { key: "text", label: "Text", icon: Type },
+  { key: "elements", label: "Elements", icon: Shapes },
+  { key: "tools", label: "Tools & Skills", icon: Zap },
+  { key: "settings", label: "Settings", icon: Settings2 },
 ];
 
 function PanelBottomGlyph() {
@@ -206,7 +203,7 @@ function AutoplayVideo({ src, poster, className }) {
     const el = ref.current;
     if (!el) return;
     el.muted = true;
-    el.play().catch(() => {});
+    el.play().catch(() => { });
   }, [src]);
   return (
     <video
@@ -532,7 +529,7 @@ function ToolsPanel({ selectedTools, onToggle }) {
                 className={cn("tool-card", selectedTools?.some((t) => t.id === tool.id) && "is-selected")}
                 onClick={() => onToggle?.(tool)}
               >
-                <span className="tool-card-icon" style={{ background: `${section.accent}22`, color: section.accent }}>
+                <span className="tool-card-icon">
                   <tool.icon />
                 </span>
                 <span className="tool-card-body">
@@ -574,6 +571,8 @@ export default function EditorScreen() {
   const [chatModelOpen, setChatModelOpen] = useState(false);
   const [chatSelectedModel, setChatSelectedModel] = useState(editorModels[0]);
   const [selectedAttachment, setSelectedAttachment] = useState(null);
+  const [videoStartImage, setVideoStartImage] = useState(null);
+  const [videoEndImage, setVideoEndImage] = useState(null);
   const [activeGrid, setActiveGrid] = useState(null);
   const [selectedTools, setSelectedTools] = useState([]);
   const [videoSettings, setVideoSettings] = useState({
@@ -583,23 +582,42 @@ export default function EditorScreen() {
     duration: "15s",
     audio: false,
   });
+  const [imageSettings, setImageSettings] = useState({
+    model: "Imagen 4",
+    ratio: "1:1",
+    resolution: "1024px",
+    quality: "Standard",
+  });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [chatNarrow, setChatNarrow] = useState(false);
   const [openChip, setOpenChip] = useState(null);
+  const [vsdModelOpen, setVsdModelOpen] = useState(false);
 
-  const videoModels      = ["Veo 3.1 Lite", "Veo 3.0", "Kling 1.6 Pro", "Wan 2.1", "Hailuo"];
-  const ratioOptions     = ["16:9", "1:1", "9:16"];
+  const videoModels = ["Veo 3.1 Lite", "Veo 3.0", "Kling 1.6 Pro", "Wan 2.1", "Hailuo"];
+  const ratioOptions = ["16:9", "1:1", "9:16"];
   const resolutionOptions = ["480p", "720p", "1080p", "4K"];
-  const durationOptions  = ["5s", "8s", "10s", "15s", "20s", "30s"];
+  const durationOptions = ["5s", "8s", "10s", "15s", "20s", "30s"];
+
+  const imageModels = ["Imagen 4", "Flux 1.1 Pro", "DALL·E 3", "Stable Diffusion 3.5"];
+  const imageRatioOptions = ["1:1", "4:3", "3:4", "16:9", "9:16"];
+  const imageResolutionOptions = ["512px", "768px", "1024px", "2048px"];
+  const imageQualityOptions = ["Standard", "HD"];
 
   function setVideoSetting(key, value) {
     setVideoSettings((s) => ({ ...s, [key]: value }));
+  }
+
+  function setImageSetting(key, value) {
+    setImageSettings((s) => ({ ...s, [key]: value }));
   }
 
   function toggleChip(key) {
     setOpenChip((c) => (c === key ? null : key));
   }
 
+  const imageRefInputRef = useRef(null);
+  const videoStartInputRef = useRef(null);
+  const videoEndInputRef = useRef(null);
   const timelineRulerRef = useRef(null);
   const workspaceBodyRef = useRef(null);
   const canvasStageRef = useRef(null);
@@ -1471,6 +1489,10 @@ export default function EditorScreen() {
                   <div className="chat-content-area">
                     {showVideoGrid && (
                       <div className="video-style-panel">
+                        <div className="image-style-header">
+                          <span className="image-style-title">Video Templates</span>
+                          <span className="image-style-subtitle">Choose a template style for your generated video</span>
+                        </div>
                         <div className="video-bento-grid">
                           {videoClips.map((vid, i) => {
                             const poster = `https://images.pexels.com/videos/${vid.id}/free-video-${vid.id}.jpg?auto=compress&cs=tinysrgb&dpr=1&fit=crop`;
@@ -1480,7 +1502,20 @@ export default function EditorScreen() {
                                 key={vid.id}
                                 type="button"
                                 className={cn("video-style-card", `bento-item-${i}`, selectedAttachment?.id === vid.id && "is-selected")}
-                                onClick={() => setSelectedAttachment({ type: "video", id: vid.id, name: vid.name, poster, src })}
+                                onClick={() => {
+                                  setSelectedAttachment({ type: "video", id: vid.id, name: vid.name, poster, src });
+                                  setChatThreads((cur) => cur.map((t) => t.id === activeChatId ? { ...t, draft: vid.prompt } : t));
+                                  if (chatPromptRef.current) {
+                                    chatPromptRef.current.textContent = vid.prompt;
+                                    chatPromptRef.current.focus();
+                                    const range = document.createRange();
+                                    range.selectNodeContents(chatPromptRef.current);
+                                    range.collapse(false);
+                                    const sel = window.getSelection();
+                                    sel.removeAllRanges();
+                                    sel.addRange(range);
+                                  }
+                                }}
                               >
                                 <AutoplayVideo src={src} poster={poster} className="video-style-clip" />
                                 <span className="image-style-label">{vid.name}</span>
@@ -1492,6 +1527,10 @@ export default function EditorScreen() {
                     )}
                     {showImageGrid && (
                       <div className="image-style-panel">
+                        <div className="image-style-header">
+                          <span className="image-style-title">Image Styles</span>
+                          <span className="image-style-subtitle">Choose a style for your generated image</span>
+                        </div>
                         <div className="image-style-grid">
                           {imageStyles.map((style) => (
                             <button
@@ -1527,21 +1566,101 @@ export default function EditorScreen() {
                   </div>
 
                   <Card className="chat-card">
-                    {(selectedAttachment || selectedTools.length > 0) && (
+                    <div className="chat-card-scroll">
+                    {(selectedAttachment || selectedTools.length > 0 || showImageGrid || showVideoGrid) && (
                       <div className="chat-prompt-refs">
-                        {selectedAttachment && (
+
+                        {/* Video: start + end image placeholders / thumbnails */}
+                        {showVideoGrid && (
+                          <>
+                            <input ref={videoStartInputRef} type="file" accept="image/*" className="sr-only"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                setVideoStartImage({ name: file.name, url: URL.createObjectURL(file) });
+                                e.target.value = "";
+                              }}
+                            />
+                            <input ref={videoEndInputRef} type="file" accept="image/*" className="sr-only"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                setVideoEndImage({ name: file.name, url: URL.createObjectURL(file) });
+                                e.target.value = "";
+                              }}
+                            />
+
+                            {/* Start image */}
+                            {videoStartImage ? (
+                              <div className="chat-attachment-card">
+                                <div className="chat-attachment-inner">
+                                  <img src={videoStartImage.url} alt={videoStartImage.name} className="chat-attachment-thumb" />
+                                  <span className="chat-attachment-label">Start</span>
+                                </div>
+                                <button type="button" className="chat-attachment-remove" aria-label="Remove start image" onClick={() => setVideoStartImage(null)}><X /></button>
+                              </div>
+                            ) : (
+                              <button type="button" className="chat-image-ref-placeholder" aria-label="Add start image" onClick={() => videoStartInputRef.current?.click()}>
+                                <ImageUp className="chat-image-ref-icon" />
+                                <span className="chat-image-ref-label">Start image</span>
+                                <span className="chat-image-ref-optional">(Optional)</span>
+                              </button>
+                            )}
+
+                            {/* End image */}
+                            {videoEndImage ? (
+                              <div className="chat-attachment-card">
+                                <div className="chat-attachment-inner">
+                                  <img src={videoEndImage.url} alt={videoEndImage.name} className="chat-attachment-thumb" />
+                                  <span className="chat-attachment-label">End</span>
+                                </div>
+                                <button type="button" className="chat-attachment-remove" aria-label="Remove end image" onClick={() => setVideoEndImage(null)}><X /></button>
+                              </div>
+                            ) : (
+                              <button type="button" className="chat-image-ref-placeholder" aria-label="Add end image" onClick={() => videoEndInputRef.current?.click()}>
+                                <ImageUp className="chat-image-ref-icon" />
+                                <span className="chat-image-ref-label">End image</span>
+                                <span className="chat-image-ref-optional">(Optional)</span>
+                              </button>
+                            )}
+                          </>
+                        )}
+
+                        {/* Image mode: single ref placeholder / thumbnail */}
+                        {showImageGrid && !selectedAttachment && (
+                          <>
+                            <input
+                              ref={imageRefInputRef}
+                              type="file"
+                              accept="image/*"
+                              className="sr-only"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const url = URL.createObjectURL(file);
+                                setSelectedAttachment({ type: "image", name: file.name, url });
+                                e.target.value = "";
+                              }}
+                            />
+                            <button
+                              type="button"
+                              className="chat-image-ref-placeholder"
+                              aria-label="Add image reference"
+                              onClick={() => imageRefInputRef.current?.click()}
+                            >
+                              <ImageUp className="chat-image-ref-icon" />
+                              <span className="chat-image-ref-label">Image refs</span>
+                            </button>
+                          </>
+                        )}
+                        {showImageGrid && selectedAttachment && (
                           <div className="chat-attachment-card">
                             <div className="chat-attachment-inner">
                               <img
-                                src={selectedAttachment.poster ?? selectedAttachment.url}
+                                src={selectedAttachment.url}
                                 alt={selectedAttachment.name}
                                 className="chat-attachment-thumb"
                               />
-                              {selectedAttachment.type === "video" && (
-                                <div className="chat-attachment-play">
-                                  <PlayFilledGlyph />
-                                </div>
-                              )}
                               <span className="chat-attachment-label">{selectedAttachment.name}</span>
                             </div>
                             <button
@@ -1569,29 +1688,29 @@ export default function EditorScreen() {
                         ))}
                       </div>
                     )}
-                    <div className="chat-prompt-input-shell">
-                      <div className="chat-prompt-editor-wrap">
-                        <div
-                          ref={chatPromptRef}
-                          contentEditable
-                          suppressContentEditableWarning
-                          className="chat-prompt-editor"
-                          role="textbox"
-                          aria-multiline="true"
-                          aria-label="Video prompt input"
-                          onInput={(event) => {
-                            const text = event.currentTarget.textContent ?? "";
-                            setChatThreads((current) =>
-                              current.map((thread) =>
-                                thread.id === activeChatId ? { ...thread, draft: text } : thread
-                              )
-                            );
-                          }}
-                        />
-                        <div className="chat-prompt-overlay" style={{ opacity: chatDraft ? 0 : 1 }}>
-                          Write your idea or edit instructions...
-                        </div>
+                    <div className="chat-prompt-editor-wrap">
+                      <div
+                        ref={chatPromptRef}
+                        contentEditable
+                        suppressContentEditableWarning
+                        className="chat-prompt-editor"
+                        role="textbox"
+                        aria-multiline="true"
+                        aria-label="Video prompt input"
+                        onInput={(event) => {
+                          const text = event.currentTarget.textContent ?? "";
+                          setChatThreads((current) =>
+                            current.map((thread) =>
+                              thread.id === activeChatId ? { ...thread, draft: text } : thread
+                            )
+                          );
+                        }}
+                      />
+                      <div className="chat-prompt-overlay" style={{ opacity: chatDraft ? 0 : 1 }}>
+                        Write your idea or edit instructions...
                       </div>
+                    </div>
+                    </div>{/* end chat-card-scroll */}
 
                       <div className="chat-prompt-actions" ref={chatActionsRef}>
                         <div className="chat-prompt-left">
@@ -1613,17 +1732,29 @@ export default function EditorScreen() {
                                   <div className="video-settings-dialog">
                                     <div className="vsd-row">
                                       <span className="vsd-label">Model</span>
-                                      <div className="vsd-res-pills">
-                                        {videoModels.map((m) => (
-                                          <button
-                                            key={m}
-                                            type="button"
-                                            className={cn("vsd-res-btn", videoSettings.model === m && "is-active")}
-                                            onClick={() => setVideoSetting("model", m)}
-                                          >
-                                            {m}
-                                          </button>
-                                        ))}
+                                      <div className="vsd-dropdown-wrap">
+                                        <button
+                                          type="button"
+                                          className={cn("vsd-dropdown-trigger", vsdModelOpen && "is-open")}
+                                          onClick={() => setVsdModelOpen((v) => !v)}
+                                        >
+                                          <span>{videoSettings.model}</span>
+                                          <ChevronDown className="vsd-dropdown-chevron" />
+                                        </button>
+                                        {vsdModelOpen && (
+                                          <div className="vsd-dropdown-menu">
+                                            {videoModels.map((m) => (
+                                              <button
+                                                key={m}
+                                                type="button"
+                                                className={cn("vsd-dropdown-item", videoSettings.model === m && "is-active")}
+                                                onClick={() => { setVideoSetting("model", m); setVsdModelOpen(false); }}
+                                              >
+                                                {m}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
                                     <div className="vsd-row">
@@ -1816,6 +1947,196 @@ export default function EditorScreen() {
                               </div>
                             )
                           )}
+                          {showImageGrid && (
+                            chatNarrow ? (
+                              <div className="video-settings-wrap" ref={settingsRef}>
+                                <button
+                                  type="button"
+                                  className={cn("video-settings-trigger", settingsOpen && "is-open")}
+                                  onClick={() => setSettingsOpen((v) => !v)}
+                                  aria-label="Image settings"
+                                >
+                                  <SlidersHorizontal />
+                                </button>
+                                {settingsOpen && (
+                                  <div className="video-settings-dialog">
+                                    <div className="vsd-row">
+                                      <span className="vsd-label">Model</span>
+                                      <div className="vsd-dropdown-wrap">
+                                        <button
+                                          type="button"
+                                          className={cn("vsd-dropdown-trigger", vsdModelOpen && "is-open")}
+                                          onClick={() => setVsdModelOpen((v) => !v)}
+                                        >
+                                          <span>{imageSettings.model}</span>
+                                          <ChevronDown className="vsd-dropdown-chevron" />
+                                        </button>
+                                        {vsdModelOpen && (
+                                          <div className="vsd-dropdown-menu">
+                                            {imageModels.map((m) => (
+                                              <button
+                                                key={m}
+                                                type="button"
+                                                className={cn("vsd-dropdown-item", imageSettings.model === m && "is-active")}
+                                                onClick={() => { setImageSetting("model", m); setVsdModelOpen(false); }}
+                                              >
+                                                {m}
+                                              </button>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="vsd-row">
+                                      <span className="vsd-label">Ratio</span>
+                                      <div className="vsd-ratio-pills">
+                                        {imageRatioOptions.map((r) => (
+                                          <button
+                                            key={r}
+                                            type="button"
+                                            className={cn("vsd-ratio-btn", imageSettings.ratio === r && "is-active")}
+                                            onClick={() => setImageSetting("ratio", r)}
+                                          >
+                                            <span className={cn("vsd-ratio-shape", `vsd-ratio-${r.replace(":", "-")}`)} />
+                                            <span>{r}</span>
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <div className="vsd-row">
+                                      <span className="vsd-label">Resolution</span>
+                                      <div className="vsd-res-pills">
+                                        {imageResolutionOptions.map((r) => (
+                                          <button
+                                            key={r}
+                                            type="button"
+                                            className={cn("vsd-res-btn", imageSettings.resolution === r && "is-active")}
+                                            onClick={() => setImageSetting("resolution", r)}
+                                          >
+                                            {r}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <div className="vsd-row">
+                                      <span className="vsd-label">Quality</span>
+                                      <div className="vsd-res-pills">
+                                        {imageQualityOptions.map((q) => (
+                                          <button
+                                            key={q}
+                                            type="button"
+                                            className={cn("vsd-res-btn", imageSettings.quality === q && "is-active")}
+                                            onClick={() => setImageSetting("quality", q)}
+                                          >
+                                            {q}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="video-gen-settings" ref={!showVideoGrid ? chipSettingsRef : undefined}>
+                                {/* Model chip */}
+                                <div className="video-chip-wrap">
+                                  <button
+                                    type="button"
+                                    className={cn("video-gen-chip", openChip === "img-model" && "is-active")}
+                                    onClick={() => toggleChip("img-model")}
+                                  >
+                                    <LayoutGrid /><span>{imageSettings.model}</span><ChevronDown />
+                                  </button>
+                                  {openChip === "img-model" && (
+                                    <div className="video-chip-dropdown">
+                                      {imageModels.map((m) => (
+                                        <button
+                                          key={m}
+                                          type="button"
+                                          className={cn("video-chip-option", imageSettings.model === m && "is-active")}
+                                          onClick={() => { setImageSetting("model", m); setOpenChip(null); }}
+                                        >
+                                          {m}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                {/* Ratio chip */}
+                                <div className="video-chip-wrap">
+                                  <button
+                                    type="button"
+                                    className={cn("video-gen-chip", openChip === "img-ratio" && "is-active")}
+                                    onClick={() => toggleChip("img-ratio")}
+                                  >
+                                    <RectangleHorizontal /><span>{imageSettings.ratio}</span><ChevronDown />
+                                  </button>
+                                  {openChip === "img-ratio" && (
+                                    <div className="video-chip-dropdown">
+                                      {imageRatioOptions.map((r) => (
+                                        <button
+                                          key={r}
+                                          type="button"
+                                          className={cn("video-chip-option", imageSettings.ratio === r && "is-active")}
+                                          onClick={() => { setImageSetting("ratio", r); setOpenChip(null); }}
+                                        >
+                                          {r}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                {/* Resolution chip */}
+                                <div className="video-chip-wrap">
+                                  <button
+                                    type="button"
+                                    className={cn("video-gen-chip", openChip === "img-resolution" && "is-active")}
+                                    onClick={() => toggleChip("img-resolution")}
+                                  >
+                                    <ArrowUpDown /><span>{imageSettings.resolution}</span><ChevronDown />
+                                  </button>
+                                  {openChip === "img-resolution" && (
+                                    <div className="video-chip-dropdown">
+                                      {imageResolutionOptions.map((r) => (
+                                        <button
+                                          key={r}
+                                          type="button"
+                                          className={cn("video-chip-option", imageSettings.resolution === r && "is-active")}
+                                          onClick={() => { setImageSetting("resolution", r); setOpenChip(null); }}
+                                        >
+                                          {r}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                {/* Quality chip */}
+                                <div className="video-chip-wrap">
+                                  <button
+                                    type="button"
+                                    className={cn("video-gen-chip", openChip === "img-quality" && "is-active")}
+                                    onClick={() => toggleChip("img-quality")}
+                                  >
+                                    <Sparkles /><span>{imageSettings.quality}</span><ChevronDown />
+                                  </button>
+                                  {openChip === "img-quality" && (
+                                    <div className="video-chip-dropdown">
+                                      {imageQualityOptions.map((q) => (
+                                        <button
+                                          key={q}
+                                          type="button"
+                                          className={cn("video-chip-option", imageSettings.quality === q && "is-active")}
+                                          onClick={() => { setImageSetting("quality", q); setOpenChip(null); }}
+                                        >
+                                          {q}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          )}
                         </div>
 
                         <div className="chat-prompt-right">
@@ -1853,7 +2174,6 @@ export default function EditorScreen() {
                           </Button>
                         </div>
                       </div>
-                    </div>
                   </Card>
                 </CollapsibleContent>
               </aside>

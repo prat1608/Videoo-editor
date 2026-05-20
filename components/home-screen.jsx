@@ -30,6 +30,12 @@ import {
   Music,
   Clapperboard,
   Crop,
+  ImageUp,
+  LayoutGrid,
+  RectangleHorizontal,
+  ArrowUpDown,
+  Clock,
+  X,
 } from "lucide-react";
 import logoMark from "@/assets/Logo.svg";
 import { cn } from "@/lib/utils";
@@ -101,6 +107,16 @@ const toolsAndSkills = [
   { key: "crop", label: "Smart Crop", icon: Crop },
 ];
 
+const imageModels = ["Imagen 4", "Flux 1.1 Pro", "DALL·E 3", "Stable Diffusion 3.5"];
+const imageRatioOptions = ["1:1", "4:3", "3:4", "16:9", "9:16"];
+const imageResolutionOptions = ["512px", "768px", "1024px", "2048px"];
+const imageQualityOptions = ["Standard", "HD"];
+
+const videoModels = ["Sora", "Runway Gen-3", "Kling 1.6", "Luma Dream Machine"];
+const videoRatioOptions = ["16:9", "9:16", "1:1", "4:3"];
+const videoDurationOptions = ["5s", "10s", "15s", "30s"];
+const videoQualityOptions = ["360p", "720p", "1080p", "4K"];
+
 const modelProviders = [
   {
     id: "claude",
@@ -155,10 +171,22 @@ export default function HomeScreen() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeGrid, setActiveGrid] = useState(null);
   const [selectedStyle, setSelectedStyle] = useState(null);
+  const [imageSettings, setImageSettings] = useState({ model: "Imagen 4", ratio: "1:1", resolution: "1024px", quality: "Standard" });
+  const [videoSettings, setVideoSettings] = useState({ model: "Sora", ratio: "16:9", duration: "5s", quality: "1080p" });
+  const [selectedAttachment, setSelectedAttachment] = useState(null);
+  const [openChip, setOpenChip] = useState(null);
+  const [chipDropdownPos, setChipDropdownPos] = useState(null);
+  const chipRefs = useRef({});
+  const chipDropdownRef = useRef(null);
   const modelRef = useRef(null);
   const dropdownRef = useRef(null);
   const [dropdownPos, setDropdownPos] = useState(null);
   const promptCardRef = useRef(null);
+  const imageRefInputRef = useRef(null);
+  const [videoStartAttachment, setVideoStartAttachment] = useState(null);
+  const [videoEndAttachment, setVideoEndAttachment] = useState(null);
+  const videoStartInputRef = useRef(null);
+  const videoEndInputRef = useRef(null);
 
   useLayoutEffect(() => {
     if (!prompt) { setActiveGrid(null); return; }
@@ -201,6 +229,26 @@ export default function HomeScreen() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isFocused]);
+
+  useEffect(() => {
+    if (!openChip) return;
+    function handleClickOutside(e) {
+      const inChipBtn = Object.values(chipRefs.current).some((el) => el?.contains(e.target));
+      const inChipDropdown = chipDropdownRef.current?.contains(e.target);
+      if (!inChipBtn && !inChipDropdown) setOpenChip(null);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openChip]);
+
+  function openChipFn(key) {
+    const el = chipRefs.current[key];
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      setChipDropdownPos({ bottom: window.innerHeight - rect.top + 8, left: rect.left });
+    }
+    setOpenChip((prev) => (prev === key ? null : key));
+  }
 
   return (
     <div className={cn("home-shell", isFocused && "is-focused", activeGrid && "has-grid")}>
@@ -332,6 +380,73 @@ export default function HomeScreen() {
           <h1 className="home-greeting">Ready to direct, Pratiksha?</h1>
 
           <div className="home-prompt-card" ref={promptCardRef}>
+            {activeGrid === "image" && (
+              <div className="home-image-ref-row">
+                {selectedAttachment ? (
+                  <div className="chat-attachment-card">
+                    <div className="chat-attachment-inner">
+                      <img src={selectedAttachment.url} alt="ref" className="chat-attachment-thumb" />
+                      <span className="chat-attachment-label">{selectedAttachment.name}</span>
+                      <button type="button" className="chat-attachment-remove" onClick={() => setSelectedAttachment(null)}>
+                        <X size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button type="button" className="chat-image-ref-placeholder" onClick={() => imageRefInputRef.current?.click()}>
+                    <ImageUp size={14} className="chat-image-ref-icon" />
+                    <span className="chat-image-ref-label">Add image reference</span>
+                    <span className="chat-image-ref-optional">Optional</span>
+                  </button>
+                )}
+                <input ref={imageRefInputRef} type="file" accept="image/*" style={{ display: "none" }}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) setSelectedAttachment({ name: f.name, url: URL.createObjectURL(f) }); e.target.value = ""; }} />
+              </div>
+            )}
+
+            {activeGrid === "video" && (
+              <div className="home-image-ref-row home-video-ref-row">
+                {videoStartAttachment ? (
+                  <div className="chat-attachment-card">
+                    <div className="chat-attachment-inner">
+                      <img src={videoStartAttachment.url} alt="start" className="chat-attachment-thumb" />
+                      <span className="chat-attachment-label">{videoStartAttachment.name}</span>
+                      <button type="button" className="chat-attachment-remove" onClick={() => setVideoStartAttachment(null)}>
+                        <X size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button type="button" className="chat-image-ref-placeholder" onClick={() => videoStartInputRef.current?.click()}>
+                    <ImageUp size={14} className="chat-image-ref-icon" />
+                    <span className="chat-image-ref-label">Start image</span>
+                    <span className="chat-image-ref-optional">Optional</span>
+                  </button>
+                )}
+                <input ref={videoStartInputRef} type="file" accept="image/*" style={{ display: "none" }}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) setVideoStartAttachment({ name: f.name, url: URL.createObjectURL(f) }); e.target.value = ""; }} />
+
+                {videoEndAttachment ? (
+                  <div className="chat-attachment-card">
+                    <div className="chat-attachment-inner">
+                      <img src={videoEndAttachment.url} alt="end" className="chat-attachment-thumb" />
+                      <span className="chat-attachment-label">{videoEndAttachment.name}</span>
+                      <button type="button" className="chat-attachment-remove" onClick={() => setVideoEndAttachment(null)}>
+                        <X size={12} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button type="button" className="chat-image-ref-placeholder" onClick={() => videoEndInputRef.current?.click()}>
+                    <ImageUp size={14} className="chat-image-ref-icon" />
+                    <span className="chat-image-ref-label">End image</span>
+                    <span className="chat-image-ref-optional">Optional</span>
+                  </button>
+                )}
+                <input ref={videoEndInputRef} type="file" accept="image/*" style={{ display: "none" }}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) setVideoEndAttachment({ name: f.name, url: URL.createObjectURL(f) }); e.target.value = ""; }} />
+              </div>
+            )}
             <div className="home-prompt-editor-wrap">
               <textarea
                 className="home-prompt-editor"
@@ -346,6 +461,46 @@ export default function HomeScreen() {
               <button type="button" className="home-prompt-plus" aria-label="Attach">
                 <Plus />
               </button>
+              {(activeGrid === "image" || activeGrid === "video") && (
+                <div className="video-gen-settings home-image-settings">
+                  <div className="video-chip-wrap">
+                    <button ref={(el) => { chipRefs.current.model = el; }} type="button"
+                      className={cn("video-gen-chip", openChip === "model" && "is-active")}
+                      onClick={() => openChipFn("model")}>
+                      <LayoutGrid size={13} />
+                      <span>{activeGrid === "image" ? imageSettings.model : videoSettings.model}</span>
+                      <ChevronDown size={11} />
+                    </button>
+                  </div>
+                  <div className="video-chip-wrap">
+                    <button ref={(el) => { chipRefs.current.ratio = el; }} type="button"
+                      className={cn("video-gen-chip", openChip === "ratio" && "is-active")}
+                      onClick={() => openChipFn("ratio")}>
+                      <RectangleHorizontal size={13} />
+                      <span>{activeGrid === "image" ? imageSettings.ratio : videoSettings.ratio}</span>
+                      <ChevronDown size={11} />
+                    </button>
+                  </div>
+                  <div className="video-chip-wrap">
+                    <button ref={(el) => { chipRefs.current.third = el; }} type="button"
+                      className={cn("video-gen-chip", openChip === "third" && "is-active")}
+                      onClick={() => openChipFn("third")}>
+                      {activeGrid === "image" ? <ArrowUpDown size={13} /> : <Clock size={13} />}
+                      <span>{activeGrid === "image" ? imageSettings.resolution : videoSettings.duration}</span>
+                      <ChevronDown size={11} />
+                    </button>
+                  </div>
+                  <div className="video-chip-wrap">
+                    <button ref={(el) => { chipRefs.current.quality = el; }} type="button"
+                      className={cn("video-gen-chip", openChip === "quality" && "is-active")}
+                      onClick={() => openChipFn("quality")}>
+                      <Sparkles size={13} />
+                      <span>{activeGrid === "image" ? imageSettings.quality : videoSettings.quality}</span>
+                      <ChevronDown size={11} />
+                    </button>
+                  </div>
+                </div>
+              )}
               <div className="home-prompt-right">
                 <div className="home-model-selector-wrap" ref={modelRef}>
                   <button
@@ -452,73 +607,45 @@ export default function HomeScreen() {
 
         {activeGrid === "image" && (
           <div className="home-style-grid-wrap">
-            {[
-              { ratio: "16 / 9", label: "16:9", w: 320, h: 180 },
-              { ratio: "1 / 1",  label: "1:1",  w: 300, h: 300 },
-              { ratio: "9 / 16", label: "9:16", w: 180, h: 320 },
-            ].map(({ ratio, label, w, h }) => {
-              const styles = homeImageStyles.filter((s) => s.ratio === ratio);
-              if (!styles.length) return null;
-              return (
-                <div key={ratio} className="video-ratio-section">
-                  <span className="video-ratio-label">{label}</span>
-                  <div className="video-ratio-row" data-ratio={label}>
-                    {styles.map((style) => (
-                      <button
-                        key={style.name}
-                        type="button"
-                        className={cn("image-style-card", selectedStyle === style.name && "is-selected")}
-                        style={{ aspectRatio: ratio }}
-                        onClick={() => setSelectedStyle(style.name === selectedStyle ? null : style.name)}
-                      >
-                        <img
-                          src={`https://images.pexels.com/photos/${style.photoId}/pexels-photo-${style.photoId}.jpeg?auto=compress&cs=tinysrgb&w=${w}&h=${h}&fit=crop`}
-                          alt={style.name}
-                          className="image-style-thumb"
-                        />
-                        <span className="image-style-label">{style.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+            <div className="video-bento-grid">
+              {homeImageStyles.slice(0, 10).map((style, i) => (
+                <button
+                  key={style.name}
+                  type="button"
+                  className={cn("image-style-card", `bento-item-${i}`, selectedStyle === style.name && "is-selected")}
+                  onClick={() => setSelectedStyle(style.name === selectedStyle ? null : style.name)}
+                >
+                  <img
+                    src={`https://images.pexels.com/photos/${style.photoId}/pexels-photo-${style.photoId}.jpeg?auto=compress&cs=tinysrgb&w=600&h=600&fit=crop`}
+                    alt={style.name}
+                    className="image-style-thumb"
+                  />
+                  <span className="image-style-label">{style.name}</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         {activeGrid === "video" && (
           <div className="home-style-grid-wrap">
-            {[
-              { ratio: "16 / 9", label: "16:9" },
-              { ratio: "1 / 1",  label: "1:1"  },
-              { ratio: "9 / 16", label: "9:16" },
-            ].map(({ ratio, label }) => {
-              const clips = homeVideoClips.filter((v) => v.ratio === ratio);
-              if (!clips.length) return null;
-              return (
-                <div key={ratio} className="video-ratio-section">
-                  <span className="video-ratio-label">{label}</span>
-                  <div className="video-ratio-row" data-ratio={label}>
-                    {clips.map((vid) => {
-                      const poster = `https://images.pexels.com/videos/${vid.id}/free-video-${vid.id}.jpg?auto=compress&cs=tinysrgb&dpr=1&fit=crop`;
-                      const src    = `https://videos.pexels.com/video-files/${vid.id}/free-${vid.id}-hd_1920_1080_25fps.mp4`;
-                      return (
-                        <button
-                          key={vid.id}
-                          type="button"
-                          className={cn("video-style-card", selectedStyle === String(vid.id) && "is-selected")}
-                          style={{ aspectRatio: ratio }}
-                          onClick={() => setSelectedStyle(String(vid.id) === selectedStyle ? null : String(vid.id))}
-                        >
-                          <video src={src} poster={poster} muted loop playsInline autoPlay className="video-style-clip" />
-                          <span className="image-style-label">{vid.name}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })}
+            <div className="video-bento-grid">
+              {homeVideoClips.map((vid, i) => {
+                const poster = `https://images.pexels.com/videos/${vid.id}/free-video-${vid.id}.jpg?auto=compress&cs=tinysrgb&dpr=1&fit=crop`;
+                const src    = `https://videos.pexels.com/video-files/${vid.id}/free-${vid.id}-hd_1920_1080_25fps.mp4`;
+                return (
+                  <button
+                    key={vid.id}
+                    type="button"
+                    className={cn("video-style-card", `bento-item-${i}`, selectedStyle === String(vid.id) && "is-selected")}
+                    onClick={() => setSelectedStyle(String(vid.id) === selectedStyle ? null : String(vid.id))}
+                  >
+                    <video src={src} poster={poster} muted loop playsInline autoPlay className="video-style-clip" />
+                    <span className="image-style-label">{vid.name}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -571,6 +698,63 @@ export default function HomeScreen() {
           </div>
         </div>
       </main>
+
+      {openChip && chipDropdownPos && createPortal(
+        <div
+          ref={chipDropdownRef}
+          className="video-chip-dropdown"
+          style={{ position: "fixed", bottom: chipDropdownPos.bottom, left: chipDropdownPos.left }}
+        >
+          {openChip === "model" && (activeGrid === "image" ? imageModels : videoModels).map((m) => {
+            const active = activeGrid === "image" ? imageSettings.model === m : videoSettings.model === m;
+            const setter = activeGrid === "image" ? setImageSettings : setVideoSettings;
+            return (
+              <button key={m} type="button"
+                className={cn("video-chip-option", active && "is-active")}
+                onClick={() => { setter((s) => ({ ...s, model: m })); setOpenChip(null); }}>
+                {m}{active && <Check size={12} />}
+              </button>
+            );
+          })}
+          {openChip === "ratio" && (activeGrid === "image" ? imageRatioOptions : videoRatioOptions).map((r) => {
+            const active = activeGrid === "image" ? imageSettings.ratio === r : videoSettings.ratio === r;
+            const setter = activeGrid === "image" ? setImageSettings : setVideoSettings;
+            return (
+              <button key={r} type="button"
+                className={cn("video-chip-option", active && "is-active")}
+                onClick={() => { setter((s) => ({ ...s, ratio: r })); setOpenChip(null); }}>
+                {r}{active && <Check size={12} />}
+              </button>
+            );
+          })}
+          {openChip === "third" && activeGrid === "image" && imageResolutionOptions.map((res) => (
+            <button key={res} type="button"
+              className={cn("video-chip-option", imageSettings.resolution === res && "is-active")}
+              onClick={() => { setImageSettings((s) => ({ ...s, resolution: res })); setOpenChip(null); }}>
+              {res}{imageSettings.resolution === res && <Check size={12} />}
+            </button>
+          ))}
+          {openChip === "third" && activeGrid === "video" && videoDurationOptions.map((d) => (
+            <button key={d} type="button"
+              className={cn("video-chip-option", videoSettings.duration === d && "is-active")}
+              onClick={() => { setVideoSettings((s) => ({ ...s, duration: d })); setOpenChip(null); }}>
+              {d}{videoSettings.duration === d && <Check size={12} />}
+            </button>
+          ))}
+          {openChip === "quality" && (activeGrid === "image" ? imageQualityOptions : videoQualityOptions).map((q) => {
+            const active = activeGrid === "image" ? imageSettings.quality === q : videoSettings.quality === q;
+            const setter = activeGrid === "image" ? setImageSettings : setVideoSettings;
+            return (
+              <button key={q} type="button"
+                className={cn("video-chip-option", active && "is-active")}
+                onClick={() => { setter((s) => ({ ...s, quality: q })); setOpenChip(null); }}>
+                {q}{active && <Check size={12} />}
+              </button>
+            );
+          })}
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
