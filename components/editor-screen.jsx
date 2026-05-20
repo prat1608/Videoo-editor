@@ -1,39 +1,54 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
+  ArrowUpDown,
   ChevronDown,
+  Clock,
+  Crop,
   CloudCheck,
   CloudUpload,
   FileText,
+  Film,
+  Gauge,
+  GitMerge,
   Hand,
   History,
   ImageUp,
-  Inbox,
+  LayoutGrid,
   LoaderCircle,
+  Mic,
   Minus,
   MousePointer2,
   Music4,
   Pipette,
   Plus,
+  RectangleHorizontal,
   Redo2,
+  RotateCcw,
+  RotateCw,
   Scissors,
   Settings2,
   Shapes,
   SkipBack,
   SkipForward,
+  SlidersHorizontal,
   Sparkles,
   Trash2,
   Type,
   Undo2,
   Upload,
+  Volume2,
+  VolumeX,
   WandSparkles,
+  X,
+  Zap,
 } from "lucide-react";
 import logoMark from "@/assets/Logo.svg";
 
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
@@ -45,29 +60,105 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-const railItems = [
-  { key: "files", label: "Files", icon: FileText },
-  { key: "media", label: "Media", icon: ImageUp },
-  { key: "audio", label: "Audio", icon: Music4 },
-  { key: "text", label: "Text", icon: Type },
-  { key: "elements", label: "Elements", icon: Shapes },
-  { key: "settings", label: "Settings", icon: Settings2 },
+const editorModels = [
+  { id: "deepseek-v4-pro", label: "DeepSeek V4 Pro", tag: "Recommended", gradient: "linear-gradient(135deg, #0ea5e9 0%, #6366f1 60%, #8b5cf6 100%)" },
+  { id: "deepseek-v3", label: "DeepSeek V3", gradient: "linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)" },
+  { id: "gpt-4o", label: "GPT-4o", gradient: "linear-gradient(135deg, #10b981 0%, #059669 100%)" },
+  { id: "claude-sonnet-4", label: "Claude Sonnet 4", gradient: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)" },
+  { id: "gemini-2-pro", label: "Gemini 2.0 Pro", gradient: "linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%)" },
 ];
 
-function PanelLeftGlyph() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <rect x="2" y="2" width="12" height="12" rx="3" />
-      <path d="M5.5 4.5v7" />
-    </svg>
-  );
-}
+const editorSuggestions = [
+  { key: "review", label: "Review this project", icon: FileText },
+  { key: "captions", label: "Add animated captions", icon: Type },
+  { key: "music", label: "Create background music", icon: Music4 },
+  { key: "reframe", label: "Reframe for 9:16", icon: Crop },
+];
+
+const imageStyles = [
+  { name: "3D Render",       photoId: 3862132 },
+  { name: "Monochrome",      photoId: 1266808 },
+  { name: "Minecraft",       photoId: 1462726 },
+  { name: "Anime",           photoId: 2110951 },
+  { name: "Oil Painting",    photoId: 1568607 },
+  { name: "Watercolor",      photoId: 1269968 },
+  { name: "Comic Book",      photoId: 1762851 },
+  { name: "Neon Noir",       photoId: 1183992 },
+  { name: "Cyberpunk",       photoId: 2007647 },
+  { name: "Vintage Film",    photoId: 1209843 },
+  { name: "Pencil Sketch",   photoId: 958164  },
+  { name: "Pixel Art",       photoId: 1563356 },
+  { name: "Cinematic",       photoId: 1552212 },
+  { name: "Surreal",         photoId: 1252869 },
+  { name: "Studio Ghibli",   photoId: 1287145 },
+  { name: "Impressionist",   photoId: 3621344 },
+];
+
+const videoClips = [
+  { id: 856396,  name: "Urban Timelapse", ratio: "16 / 9" },
+  { id: 1093662, name: "Ocean Waves",     ratio: "16 / 9" },
+  { id: 2795750, name: "Forest Trail",    ratio: "16 / 9" },
+  { id: 3195394, name: "Abstract",        ratio: "1 / 1"  },
+  { id: 3584816, name: "Lifestyle",       ratio: "1 / 1"  },
+  { id: 4098981, name: "Close Up",        ratio: "1 / 1"  },
+  { id: 4226768, name: "Street Style",    ratio: "9 / 16" },
+  { id: 6782462, name: "Portrait",        ratio: "9 / 16" },
+  { id: 4207907, name: "Urban Walk",      ratio: "9 / 16" },
+  { id: 5489782, name: "Vertical",        ratio: "9 / 16" },
+];
+
+const toolsSections = [
+  {
+    id: "generation",
+    title: "Generation Tools",
+    accent: "#7c3aed",
+    tools: [
+      { id: "generate-image",     name: "Generate Image",     desc: "Create from text prompt", icon: ImageUp  },
+      { id: "generate-video",     name: "Generate Video",     desc: "Text or image to video",  icon: Film     },
+      { id: "generate-music",     name: "Generate Music",     desc: "AI background tracks",    icon: Music4   },
+      { id: "generate-voiceover", name: "Generate Voiceover", desc: "Natural AI narration",    icon: Mic      },
+      { id: "generate-sfx",       name: "Generate SFX",       desc: "Sound effects on demand", icon: Volume2  },
+    ],
+  },
+  {
+    id: "skills",
+    title: "Skills",
+    accent: "#0891b2",
+    tools: [
+      { id: "autodemo",  name: "Autodemo",  desc: "Auto-generate product demos", icon: Zap       },
+      { id: "roughcuts", name: "Roughcuts", desc: "AI-assembled rough edit",     icon: Scissors  },
+      { id: "clipping",  name: "Clipping",  desc: "Extract best moments",        icon: Film      },
+    ],
+  },
+  {
+    id: "basic",
+    title: "Basic Tools",
+    accent: "#16a34a",
+    tools: [
+      { id: "trim",    name: "Trim",    desc: "Cut clip in & out points", icon: Scissors  },
+      { id: "merge",   name: "Merge",   desc: "Join clips together",      icon: GitMerge  },
+      { id: "speed",   name: "Speed",   desc: "Ramp or constant speed",   icon: Gauge     },
+      { id: "reverse", name: "Reverse", desc: "Play footage backwards",   icon: RotateCcw },
+      { id: "rotate",  name: "Rotate",  desc: "Flip or rotate frame",     icon: RotateCw  },
+      { id: "crop",    name: "Crop",    desc: "Trim frame edges",         icon: Crop      },
+    ],
+  },
+];
+
+const railItems = [
+  { key: "files",    label: "Files",           icon: FileText  },
+  { key: "media",    label: "Media",           icon: ImageUp   },
+  { key: "audio",    label: "Audio",           icon: Music4    },
+  { key: "text",     label: "Text",            icon: Type      },
+  { key: "elements", label: "Elements",        icon: Shapes    },
+  { key: "tools",    label: "Tools & Skills",  icon: Zap       },
+  { key: "settings", label: "Settings",        icon: Settings2 },
+];
 
 function PanelBottomGlyph() {
   return (
@@ -99,17 +190,6 @@ function PlayFilledGlyph() {
   );
 }
 
-function ClaudeGlyph() {
-  return (
-    <svg viewBox="0 0 100 100" aria-hidden="true" fill="currentColor" stroke="none">
-      <path
-        fill="currentColor"
-        stroke="none"
-        d="m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3L14 53l-9.5-.5-2.4-.5L0 49l.2-1.5 2-1.3 2.9.2 6.3.5 9.5.6 6.9.4L38 49.1h1.6l.2-.7-.5-.4-.4-.4L29 41l-10.6-7-5.6-4.1-3-2-1.5-2-.6-4.2 2.7-3 3.7.3.9.2 3.7 2.9 8 6.1L37 36l1.5 1.2.6-.4.1-.3-.7-1.1L33 25l-6-10.4-2.7-4.3-.7-2.6c-.3-1-.4-2-.4-3l3-4.2L28 0l4.2.6L33.8 2l2.6 6 4.1 9.3L47 29.9l2 3.8 1 3.4.3 1h.7v-.5l.5-7.2 1-8.7 1-11.2.3-3.2 1.6-3.8 3-2L61 2.6l2 2.9-.3 1.8-1.1 7.7L59 27.1l-1.5 8.2h.9l1-1.1 4.1-5.4 6.9-8.6 3-3.5L77 13l2.3-1.8h4.3l3.1 4.7-1.4 4.9-4.4 5.6-3.7 4.7-5.3 7.1-3.2 5.7.3.4h.7l12-2.6 6.4-1.1 7.6-1.3 3.5 1.6.4 1.6-1.4 3.4-8.2 2-9.6 2-14.3 3.3-.2.1.2.3 6.4.6 2.8.2h6.8l12.6 1 3.3 2 1.9 2.7-.3 2-5.1 2.6-6.8-1.6-16-3.8-5.4-1.3h-.8v.4l4.6 4.5 8.3 7.5L89 80.1l.5 2.4-1.3 2-1.4-.2-9.2-7-3.6-3-8-6.8h-.5v.7l1.8 2.7 9.8 14.7.5 4.5-.7 1.4-2.6 1-2.7-.6-5.8-8-6-9-4.7-8.2-.5.4-2.9 30.2-1.3 1.5-3 1.2-2.5-2-1.4-3 1.4-6.2 1.6-8 1.3-6.4 1.2-7.9.7-2.6v-.2H49L43 72l-9 12.3-7.2 7.6-1.7.7-3-1.5.3-2.8L24 86l10-12.8 6-7.9 4-4.6-.1-.5h-.3L17.2 77.4l-4.7.6-2-2 .2-3 1-1 8-5.5Z"
-      />
-    </svg>
-  );
-}
 
 function SendArrowGlyph() {
   return (
@@ -117,6 +197,27 @@ function SendArrowGlyph() {
       <path d="m5 12 7-7 7 7" />
       <path d="M12 19V5" />
     </svg>
+  );
+}
+
+function AutoplayVideo({ src, poster, className }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.muted = true;
+    el.play().catch(() => {});
+  }, [src]);
+  return (
+    <video
+      ref={ref}
+      src={src}
+      poster={poster}
+      muted
+      loop
+      playsInline
+      className={className}
+    />
   );
 }
 
@@ -357,7 +458,7 @@ function MediaPanel() {
   );
 }
 
-function PanelContent({ panel }) {
+function PanelContent({ panel, selectedTools, onToggle }) {
   switch (panel) {
     case "media":
       return <MediaPanel />;
@@ -399,6 +500,8 @@ function PanelContent({ panel }) {
           ))}
         </section>
       );
+    case "tools":
+      return <ToolsPanel selectedTools={selectedTools} onToggle={onToggle} />;
     case "settings":
       return (
         <SimpleCardPanel
@@ -413,6 +516,36 @@ function PanelContent({ panel }) {
     default:
       return <FilesPanel />;
   }
+}
+
+function ToolsPanel({ selectedTools, onToggle }) {
+  return (
+    <>
+      {toolsSections.map((section) => (
+        <section className="panel-section" key={section.id}>
+          <p className="section-title">{section.title}</p>
+          <div className="tools-grid">
+            {section.tools.map((tool) => (
+              <button
+                key={tool.id}
+                type="button"
+                className={cn("tool-card", selectedTools?.some((t) => t.id === tool.id) && "is-selected")}
+                onClick={() => onToggle?.(tool)}
+              >
+                <span className="tool-card-icon" style={{ background: `${section.accent}22`, color: section.accent }}>
+                  <tool.icon />
+                </span>
+                <span className="tool-card-body">
+                  <span className="tool-card-name">{tool.name}</span>
+                  <span className="tool-card-desc">{tool.desc}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      ))}
+    </>
+  );
 }
 
 export default function EditorScreen() {
@@ -438,12 +571,44 @@ export default function EditorScreen() {
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [chatThreads, setChatThreads] = useState([{ id: "chat-1", title: "New chat", draft: "" }]);
   const [activeChatId, setActiveChatId] = useState("chat-1");
+  const [chatModelOpen, setChatModelOpen] = useState(false);
+  const [chatSelectedModel, setChatSelectedModel] = useState(editorModels[0]);
+  const [selectedAttachment, setSelectedAttachment] = useState(null);
+  const [activeGrid, setActiveGrid] = useState(null);
+  const [selectedTools, setSelectedTools] = useState([]);
+  const [videoSettings, setVideoSettings] = useState({
+    model: "Veo 3.1 Lite",
+    ratio: "16:9",
+    resolution: "1080p",
+    duration: "15s",
+    audio: false,
+  });
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [chatNarrow, setChatNarrow] = useState(false);
+  const [openChip, setOpenChip] = useState(null);
+
+  const videoModels      = ["Veo 3.1 Lite", "Veo 3.0", "Kling 1.6 Pro", "Wan 2.1", "Hailuo"];
+  const ratioOptions     = ["16:9", "1:1", "9:16"];
+  const resolutionOptions = ["480p", "720p", "1080p", "4K"];
+  const durationOptions  = ["5s", "8s", "10s", "15s", "20s", "30s"];
+
+  function setVideoSetting(key, value) {
+    setVideoSettings((s) => ({ ...s, [key]: value }));
+  }
+
+  function toggleChip(key) {
+    setOpenChip((c) => (c === key ? null : key));
+  }
 
   const timelineRulerRef = useRef(null);
   const workspaceBodyRef = useRef(null);
   const canvasStageRef = useRef(null);
   const canvasArtboardRef = useRef(null);
   const chatPromptRef = useRef(null);
+  const chatModelRef = useRef(null);
+  const chatActionsRef = useRef(null);
+  const settingsRef = useRef(null);
+  const chipSettingsRef = useRef(null);
   const nextChatIdRef = useRef(2);
   const focusChatComposerRef = useRef(false);
   const playheadDragRef = useRef({
@@ -471,10 +636,23 @@ export default function EditorScreen() {
   const compactTopbar = rightPanelOpen;
   const denseTopbar = compactTopbar && isLeftPanelVisible;
   const allSectionsVisible = isLeftPanelVisible && rightPanelOpen;
-  const LeftPanelIcon = PanelLeftGlyph;
   const TimelinePanelIcon = PanelBottomGlyph;
   const activeChat = chatThreads.find((thread) => thread.id === activeChatId) ?? chatThreads[0] ?? null;
   const chatDraft = activeChat?.draft ?? "";
+  const showVideoGrid = activeGrid === "video";
+  const showImageGrid = activeGrid === "image";
+
+  useLayoutEffect(() => {
+    if (!chatDraft) {
+      setActiveGrid(null);
+      return;
+    }
+    const videoMatch = /\bvideo\b/i.test(chatDraft);
+    const imageMatch = /\bimage\b/i.test(chatDraft);
+    if (videoMatch) setActiveGrid("video");
+    else if (imageMatch) setActiveGrid("image");
+    // Keep current grid if text exists but neither keyword is present
+  }, [chatDraft]); // eslint-disable-line react-hooks/exhaustive-deps
   const visibleCollaborators = onlineCollaborators.slice(0, 3);
   const extraCollaboratorCount = Math.max(0, onlineCollaborators.length - visibleCollaborators.length);
 
@@ -518,6 +696,16 @@ export default function EditorScreen() {
       focusChatComposerRef.current = false;
     }
   }, [activeChatId]);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (chatModelRef.current && !chatModelRef.current.contains(e.target)) {
+        setChatModelOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   function togglePanel(nextPanel) {
     if (activePanel === nextPanel) {
@@ -600,6 +788,38 @@ export default function EditorScreen() {
       window.removeEventListener("pointercancel", handlePlayheadDragEnd);
     };
   }, []);
+
+  useEffect(() => {
+    const el = chatActionsRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      setChatNarrow(entry.contentRect.width < 400);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!settingsOpen) return;
+    function handleOutside(e) {
+      if (settingsRef.current && !settingsRef.current.contains(e.target)) {
+        setSettingsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [settingsOpen]);
+
+  useEffect(() => {
+    if (!openChip) return;
+    function handleOutside(e) {
+      if (chipSettingsRef.current && !chipSettingsRef.current.contains(e.target)) {
+        setOpenChip(null);
+      }
+    }
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [openChip]);
 
   function handleChatResizeStart(event) {
     if (event.button !== 0) return;
@@ -754,6 +974,19 @@ export default function EditorScreen() {
     setRightPanelOpen(true);
   }
 
+  function toggleToolChip(tool) {
+    const isSelected = selectedTools.some((t) => t.id === tool.id);
+    setSelectedTools(isSelected ? [] : [tool]);
+    if (tool.id === "generate-video") setActiveGrid(isSelected ? null : "video");
+    if (tool.id === "generate-image") setActiveGrid(isSelected ? null : "image");
+  }
+
+  function removeToolChip(toolId) {
+    setSelectedTools((current) => current.filter((t) => t.id !== toolId));
+    if (toolId === "generate-video") setActiveGrid(null);
+    if (toolId === "generate-image") setActiveGrid(null);
+  }
+
   const zoomMenuItems = (
     <>
       <button type="button" role="menuitem" className="zoom-menu-button" onClick={() => runZoomAction(zoomIn)}>
@@ -786,9 +1019,9 @@ export default function EditorScreen() {
       <div className={cn("app-shell", isLeftPanelVisible && "left-panel-open", allSectionsVisible && "is-all-sections-visible")}>
         <aside className={cn("left-sidebar-shell", !isLeftPanelVisible && "is-collapsed")}>
           <div className="left-rail">
-            <div className="brand">
+            <Link href="/" className="brand" aria-label="Go to home">
               <Image src={logoMark} alt="Videoo" priority />
-            </div>
+            </Link>
 
             <nav className="rail-nav" aria-label="Editor tools">
               {railItems.map((item) => (
@@ -823,7 +1056,7 @@ export default function EditorScreen() {
               </div>
 
               <CollapsibleContent forceMount className="panel-scroll">
-                {activePanel ? <PanelContent panel={activePanel} /> : null}
+                {activePanel ? <PanelContent panel={activePanel} selectedTools={selectedTools} onToggle={toggleToolChip} /> : null}
               </CollapsibleContent>
             </div>
           </Collapsible>
@@ -1235,7 +1468,107 @@ export default function EditorScreen() {
                 </div>
 
                 <CollapsibleContent forceMount className="min-h-0 chat-panel-content">
+                  <div className="chat-content-area">
+                    {showVideoGrid && (
+                      <div className="video-style-panel">
+                        <div className="video-bento-grid">
+                          {videoClips.map((vid, i) => {
+                            const poster = `https://images.pexels.com/videos/${vid.id}/free-video-${vid.id}.jpg?auto=compress&cs=tinysrgb&dpr=1&fit=crop`;
+                            const src = `https://videos.pexels.com/video-files/${vid.id}/free-${vid.id}-hd_1920_1080_25fps.mp4`;
+                            return (
+                              <button
+                                key={vid.id}
+                                type="button"
+                                className={cn("video-style-card", `bento-item-${i}`, selectedAttachment?.id === vid.id && "is-selected")}
+                                onClick={() => setSelectedAttachment({ type: "video", id: vid.id, name: vid.name, poster, src })}
+                              >
+                                <AutoplayVideo src={src} poster={poster} className="video-style-clip" />
+                                <span className="image-style-label">{vid.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {showImageGrid && (
+                      <div className="image-style-panel">
+                        <div className="image-style-grid">
+                          {imageStyles.map((style) => (
+                            <button
+                              key={style.name}
+                              type="button"
+                              className={cn("image-style-card", selectedAttachment?.name === style.name && "is-selected")}
+                              onClick={() => setSelectedAttachment({ type: "image", name: style.name, url: `https://images.pexels.com/photos/${style.photoId}/pexels-photo-${style.photoId}.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop` })}
+                            >
+                              <img
+                                src={`https://images.pexels.com/photos/${style.photoId}/pexels-photo-${style.photoId}.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop`}
+                                alt={style.name}
+                                className="image-style-thumb"
+                              />
+                              <span className="image-style-label">{style.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {!showVideoGrid && !showImageGrid && (
+                      <div className="chat-empty-state">
+                        <h2 className="chat-empty-heading">What would you like to do?</h2>
+                        <div className="chat-suggestions">
+                          {editorSuggestions.map((s) => (
+                            <button key={s.key} type="button" className="chat-suggestion-item">
+                              <s.icon />
+                              <span>{s.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <Card className="chat-card">
+                    {(selectedAttachment || selectedTools.length > 0) && (
+                      <div className="chat-prompt-refs">
+                        {selectedAttachment && (
+                          <div className="chat-attachment-card">
+                            <div className="chat-attachment-inner">
+                              <img
+                                src={selectedAttachment.poster ?? selectedAttachment.url}
+                                alt={selectedAttachment.name}
+                                className="chat-attachment-thumb"
+                              />
+                              {selectedAttachment.type === "video" && (
+                                <div className="chat-attachment-play">
+                                  <PlayFilledGlyph />
+                                </div>
+                              )}
+                              <span className="chat-attachment-label">{selectedAttachment.name}</span>
+                            </div>
+                            <button
+                              type="button"
+                              className="chat-attachment-remove"
+                              aria-label={`Remove ${selectedAttachment.name}`}
+                              onClick={() => setSelectedAttachment(null)}
+                            >
+                              <X />
+                            </button>
+                          </div>
+                        )}
+                        {selectedTools.map((tool) => (
+                          <div key={tool.id} className="chat-tool-chip">
+                            <span>{tool.name}</span>
+                            <button
+                              type="button"
+                              className="chat-tool-chip-remove"
+                              aria-label={`Remove ${tool.name}`}
+                              onClick={() => removeToolChip(tool.id)}
+                            >
+                              <X />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <div className="chat-prompt-input-shell">
                       <div className="chat-prompt-editor-wrap">
                         <div
@@ -1247,42 +1580,272 @@ export default function EditorScreen() {
                           aria-multiline="true"
                           aria-label="Video prompt input"
                           onInput={(event) => {
-                            const nextDraft = event.currentTarget.textContent ?? "";
+                            const text = event.currentTarget.textContent ?? "";
                             setChatThreads((current) =>
                               current.map((thread) =>
-                                thread.id === activeChatId
-                                  ? {
-                                    ...thread,
-                                    draft: nextDraft,
-                                  }
-                                  : thread
+                                thread.id === activeChatId ? { ...thread, draft: text } : thread
                               )
                             );
                           }}
                         />
                         <div className="chat-prompt-overlay" style={{ opacity: chatDraft ? 0 : 1 }}>
-                          Describe your next shot…
+                          Write your idea or edit instructions...
                         </div>
                       </div>
 
-                      <div className="chat-prompt-actions">
+                      <div className="chat-prompt-actions" ref={chatActionsRef}>
                         <div className="chat-prompt-left">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="chat-plus"
-                            aria-label="Attach or record"
-                          >
+                          <Button type="button" variant="ghost" size="icon" className="chat-plus" aria-label="Attach or record">
                             <Plus />
                           </Button>
+                          {showVideoGrid && (
+                            chatNarrow ? (
+                              <div className="video-settings-wrap" ref={settingsRef}>
+                                <button
+                                  type="button"
+                                  className={cn("video-settings-trigger", settingsOpen && "is-open")}
+                                  onClick={() => setSettingsOpen((v) => !v)}
+                                  aria-label="Video settings"
+                                >
+                                  <SlidersHorizontal />
+                                </button>
+                                {settingsOpen && (
+                                  <div className="video-settings-dialog">
+                                    <div className="vsd-row">
+                                      <span className="vsd-label">Model</span>
+                                      <div className="vsd-res-pills">
+                                        {videoModels.map((m) => (
+                                          <button
+                                            key={m}
+                                            type="button"
+                                            className={cn("vsd-res-btn", videoSettings.model === m && "is-active")}
+                                            onClick={() => setVideoSetting("model", m)}
+                                          >
+                                            {m}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <div className="vsd-row">
+                                      <span className="vsd-label">Video ratio</span>
+                                      <div className="vsd-ratio-pills">
+                                        {ratioOptions.map((r) => (
+                                          <button
+                                            key={r}
+                                            type="button"
+                                            className={cn("vsd-ratio-btn", videoSettings.ratio === r && "is-active")}
+                                            onClick={() => setVideoSetting("ratio", r)}
+                                          >
+                                            <span className={cn("vsd-ratio-shape", `vsd-ratio-${r.replace(":", "-")}`)} />
+                                            <span>{r}</span>
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <div className="vsd-row">
+                                      <span className="vsd-label">Duration</span>
+                                      <div className="vsd-res-pills">
+                                        {durationOptions.map((d) => (
+                                          <button
+                                            key={d}
+                                            type="button"
+                                            className={cn("vsd-res-btn", videoSettings.duration === d && "is-active")}
+                                            onClick={() => setVideoSetting("duration", d)}
+                                          >
+                                            {d}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <div className="vsd-row">
+                                      <span className="vsd-label">Resolution</span>
+                                      <div className="vsd-res-pills">
+                                        {resolutionOptions.map((r) => (
+                                          <button
+                                            key={r}
+                                            type="button"
+                                            className={cn("vsd-res-btn", videoSettings.resolution === r && "is-active")}
+                                            onClick={() => setVideoSetting("resolution", r)}
+                                          >
+                                            {r}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <div className="vsd-row">
+                                      <span className="vsd-label">Audio</span>
+                                      <div className="vsd-res-pills">
+                                        {["Off", "On"].map((a) => (
+                                          <button
+                                            key={a}
+                                            type="button"
+                                            className={cn("vsd-res-btn", videoSettings.audio === (a === "On") && "is-active")}
+                                            onClick={() => setVideoSetting("audio", a === "On")}
+                                          >
+                                            {a}
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="video-gen-settings" ref={chipSettingsRef}>
+                                {/* Model chip */}
+                                <div className="video-chip-wrap">
+                                  <button
+                                    type="button"
+                                    className={cn("video-gen-chip", openChip === "model" && "is-active")}
+                                    onClick={() => toggleChip("model")}
+                                  >
+                                    <LayoutGrid /><span>{videoSettings.model}</span><ChevronDown />
+                                  </button>
+                                  {openChip === "model" && (
+                                    <div className="video-chip-dropdown">
+                                      {videoModels.map((m) => (
+                                        <button
+                                          key={m}
+                                          type="button"
+                                          className={cn("video-chip-option", videoSettings.model === m && "is-active")}
+                                          onClick={() => { setVideoSetting("model", m); setOpenChip(null); }}
+                                        >
+                                          {m}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                {/* Ratio chip */}
+                                <div className="video-chip-wrap">
+                                  <button
+                                    type="button"
+                                    className={cn("video-gen-chip", openChip === "ratio" && "is-active")}
+                                    onClick={() => toggleChip("ratio")}
+                                  >
+                                    <RectangleHorizontal /><span>{videoSettings.ratio}</span><ChevronDown />
+                                  </button>
+                                  {openChip === "ratio" && (
+                                    <div className="video-chip-dropdown">
+                                      {ratioOptions.map((r) => (
+                                        <button
+                                          key={r}
+                                          type="button"
+                                          className={cn("video-chip-option", videoSettings.ratio === r && "is-active")}
+                                          onClick={() => { setVideoSetting("ratio", r); setOpenChip(null); }}
+                                        >
+                                          {r}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                {/* Resolution chip */}
+                                <div className="video-chip-wrap">
+                                  <button
+                                    type="button"
+                                    className={cn("video-gen-chip", openChip === "resolution" && "is-active")}
+                                    onClick={() => toggleChip("resolution")}
+                                  >
+                                    <ArrowUpDown /><span>{videoSettings.resolution}</span><ChevronDown />
+                                  </button>
+                                  {openChip === "resolution" && (
+                                    <div className="video-chip-dropdown">
+                                      {resolutionOptions.map((r) => (
+                                        <button
+                                          key={r}
+                                          type="button"
+                                          className={cn("video-chip-option", videoSettings.resolution === r && "is-active")}
+                                          onClick={() => { setVideoSetting("resolution", r); setOpenChip(null); }}
+                                        >
+                                          {r}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                {/* Duration chip */}
+                                <div className="video-chip-wrap">
+                                  <button
+                                    type="button"
+                                    className={cn("video-gen-chip", openChip === "duration" && "is-active")}
+                                    onClick={() => toggleChip("duration")}
+                                  >
+                                    <Clock /><span>{videoSettings.duration}</span><ChevronDown />
+                                  </button>
+                                  {openChip === "duration" && (
+                                    <div className="video-chip-dropdown">
+                                      {durationOptions.map((d) => (
+                                        <button
+                                          key={d}
+                                          type="button"
+                                          className={cn("video-chip-option", videoSettings.duration === d && "is-active")}
+                                          onClick={() => { setVideoSetting("duration", d); setOpenChip(null); }}
+                                        >
+                                          {d}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                {/* Audio chip */}
+                                <div className="video-chip-wrap">
+                                  <button
+                                    type="button"
+                                    className={cn("video-gen-chip", openChip === "audio" && "is-active")}
+                                    onClick={() => toggleChip("audio")}
+                                  >
+                                    {videoSettings.audio ? <Volume2 /> : <VolumeX />}
+                                    <span>{videoSettings.audio ? "On" : "Off"}</span><ChevronDown />
+                                  </button>
+                                  {openChip === "audio" && (
+                                    <div className="video-chip-dropdown">
+                                      {["Off", "On"].map((a) => (
+                                        <button
+                                          key={a}
+                                          type="button"
+                                          className={cn("video-chip-option", videoSettings.audio === (a === "On") && "is-active")}
+                                          onClick={() => { setVideoSetting("audio", a === "On"); setOpenChip(null); }}
+                                        >
+                                          {a}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          )}
                         </div>
 
                         <div className="chat-prompt-right">
-                          <Button type="button" variant="ghost" className="chat-model-button">
-                            <ClaudeGlyph />
-                            <span>Haiku 4.5</span>
-                          </Button>
+                          <div className="chat-model-selector-wrap" ref={chatModelRef}>
+                            <button
+                              type="button"
+                              className="chat-model-button"
+                              onClick={() => setChatModelOpen((v) => !v)}
+                            >
+                              <span className="chat-model-dot" style={{ background: chatSelectedModel.gradient }} />
+                              <span>{chatSelectedModel.label}</span>
+                              <ChevronDown className={cn("chat-model-chevron", chatModelOpen && "is-open")} />
+                            </button>
+                            {chatModelOpen && (
+                              <div className="chat-model-dropdown">
+                                {editorModels.map((m) => (
+                                  <button
+                                    key={m.id}
+                                    type="button"
+                                    className={cn("chat-model-dropdown-item", chatSelectedModel.id === m.id && "is-selected")}
+                                    onClick={() => { setChatSelectedModel(m); setChatModelOpen(false); }}
+                                  >
+                                    <span className="chat-model-dot" style={{ background: m.gradient }} />
+                                    <span>{m.label}</span>
+                                    {m.tag && <span className="chat-model-tag">{m.tag}</span>}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                           <Button type="button" variant="default" size="icon" className="chat-send" aria-label="Send message">
                             <span className="chat-send-rotator">
                               <SendArrowGlyph />
