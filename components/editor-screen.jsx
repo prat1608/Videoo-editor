@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -571,6 +572,7 @@ export default function EditorScreen() {
   const [chatModelOpen, setChatModelOpen] = useState(false);
   const [chatSelectedModel, setChatSelectedModel] = useState(editorModels[0]);
   const [selectedAttachment, setSelectedAttachment] = useState(null);
+  const [selectedImageStyle, setSelectedImageStyle] = useState(null);
   const [videoStartImage, setVideoStartImage] = useState(null);
   const [videoEndImage, setVideoEndImage] = useState(null);
   const [activeGrid, setActiveGrid] = useState(null);
@@ -589,8 +591,10 @@ export default function EditorScreen() {
     quality: "Standard",
   });
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsAnchorRect, setSettingsAnchorRect] = useState(null);
   const [chatNarrow, setChatNarrow] = useState(false);
   const [openChip, setOpenChip] = useState(null);
+  const [chipAnchorRect, setChipAnchorRect] = useState(null);
   const [vsdModelOpen, setVsdModelOpen] = useState(false);
 
   const videoModels = ["Veo 3.1 Lite", "Veo 3.0", "Kling 1.6 Pro", "Wan 2.1", "Hailuo"];
@@ -611,8 +615,14 @@ export default function EditorScreen() {
     setImageSettings((s) => ({ ...s, [key]: value }));
   }
 
-  function toggleChip(key) {
-    setOpenChip((c) => (c === key ? null : key));
+  function toggleChip(key, e) {
+    if (openChip === key) {
+      setOpenChip(null);
+      setChipAnchorRect(null);
+    } else {
+      setOpenChip(key);
+      setChipAnchorRect(e.currentTarget.getBoundingClientRect());
+    }
   }
 
   const imageRefInputRef = useRef(null);
@@ -626,7 +636,9 @@ export default function EditorScreen() {
   const chatModelRef = useRef(null);
   const chatActionsRef = useRef(null);
   const settingsRef = useRef(null);
+  const settingsTriggerRef = useRef(null);
   const chipSettingsRef = useRef(null);
+  const chipDropdownRef = useRef(null);
   const nextChatIdRef = useRef(2);
   const focusChatComposerRef = useRef(false);
   const playheadDragRef = useRef({
@@ -820,9 +832,9 @@ export default function EditorScreen() {
   useEffect(() => {
     if (!settingsOpen) return;
     function handleOutside(e) {
-      if (settingsRef.current && !settingsRef.current.contains(e.target)) {
-        setSettingsOpen(false);
-      }
+      const inDialog = settingsRef.current?.contains(e.target);
+      const inTrigger = settingsTriggerRef.current?.contains(e.target);
+      if (!inDialog && !inTrigger) { setSettingsOpen(false); setSettingsAnchorRect(null); }
     }
     document.addEventListener("mousedown", handleOutside);
     return () => document.removeEventListener("mousedown", handleOutside);
@@ -831,8 +843,11 @@ export default function EditorScreen() {
   useEffect(() => {
     if (!openChip) return;
     function handleOutside(e) {
-      if (chipSettingsRef.current && !chipSettingsRef.current.contains(e.target)) {
+      const inChips = chipSettingsRef.current?.contains(e.target);
+      const inDropdown = chipDropdownRef.current?.contains(e.target);
+      if (!inChips && !inDropdown) {
         setOpenChip(null);
+        setChipAnchorRect(null);
       }
     }
     document.addEventListener("mousedown", handleOutside);
@@ -996,13 +1011,19 @@ export default function EditorScreen() {
     const isSelected = selectedTools.some((t) => t.id === tool.id);
     setSelectedTools(isSelected ? [] : [tool]);
     if (tool.id === "generate-video") setActiveGrid(isSelected ? null : "video");
-    if (tool.id === "generate-image") setActiveGrid(isSelected ? null : "image");
+    if (tool.id === "generate-image") {
+      setActiveGrid(isSelected ? null : "image");
+      if (isSelected) setSelectedImageStyle(null);
+    }
   }
 
   function removeToolChip(toolId) {
     setSelectedTools((current) => current.filter((t) => t.id !== toolId));
     if (toolId === "generate-video") setActiveGrid(null);
-    if (toolId === "generate-image") setActiveGrid(null);
+    if (toolId === "generate-image") {
+      setActiveGrid(null);
+      setSelectedImageStyle(null);
+    }
   }
 
   const zoomMenuItems = (
@@ -1033,6 +1054,7 @@ export default function EditorScreen() {
   );
 
   return (
+    <>
     <TooltipProvider delayDuration={120}>
       <div className={cn("app-shell", isLeftPanelVisible && "left-panel-open", allSectionsVisible && "is-all-sections-visible")}>
         <aside className={cn("left-sidebar-shell", !isLeftPanelVisible && "is-collapsed")}>
@@ -1532,12 +1554,12 @@ export default function EditorScreen() {
                           <span className="image-style-subtitle">Choose a style for your generated image</span>
                         </div>
                         <div className="image-style-grid">
-                          {imageStyles.map((style) => (
+                          {imageStyles.map((style, i) => (
                             <button
                               key={style.name}
                               type="button"
-                              className={cn("image-style-card", selectedAttachment?.name === style.name && "is-selected")}
-                              onClick={() => setSelectedAttachment({ type: "image", name: style.name, url: `https://images.pexels.com/photos/${style.photoId}/pexels-photo-${style.photoId}.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop` })}
+                              className={cn("image-style-card", `bento-item-${i}`, selectedImageStyle?.name === style.name && "is-selected")}
+                              onClick={() => setSelectedImageStyle(selectedImageStyle?.name === style.name ? null : { name: style.name, url: `https://images.pexels.com/photos/${style.photoId}/pexels-photo-${style.photoId}.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop` })}
                             >
                               <img
                                 src={`https://images.pexels.com/photos/${style.photoId}/pexels-photo-${style.photoId}.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop`}
@@ -1570,122 +1592,154 @@ export default function EditorScreen() {
                     {(selectedAttachment || selectedTools.length > 0 || showImageGrid || showVideoGrid) && (
                       <div className="chat-prompt-refs">
 
-                        {/* Video: start + end image placeholders / thumbnails */}
-                        {showVideoGrid && (
-                          <>
-                            <input ref={videoStartInputRef} type="file" accept="image/*" className="sr-only"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-                                setVideoStartImage({ name: file.name, url: URL.createObjectURL(file) });
-                                e.target.value = "";
-                              }}
-                            />
-                            <input ref={videoEndInputRef} type="file" accept="image/*" className="sr-only"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-                                setVideoEndImage({ name: file.name, url: URL.createObjectURL(file) });
-                                e.target.value = "";
-                              }}
-                            />
-
-                            {/* Start image */}
-                            {videoStartImage ? (
-                              <div className="chat-attachment-card">
-                                <div className="chat-attachment-inner">
-                                  <img src={videoStartImage.url} alt={videoStartImage.name} className="chat-attachment-thumb" />
-                                  <span className="chat-attachment-label">Start</span>
-                                </div>
-                                <button type="button" className="chat-attachment-remove" aria-label="Remove start image" onClick={() => setVideoStartImage(null)}><X /></button>
+                        {/* Tool chips row — always on top */}
+                        {selectedTools.length > 0 && (
+                          <div className="chat-prompt-refs-chips">
+                            {selectedTools.map((tool) => (
+                              <div key={tool.id} className="chat-tool-chip">
+                                <span>{tool.name}</span>
+                                <button
+                                  type="button"
+                                  className="chat-tool-chip-remove"
+                                  aria-label={`Remove ${tool.name}`}
+                                  onClick={() => removeToolChip(tool.id)}
+                                >
+                                  <X />
+                                </button>
                               </div>
-                            ) : (
-                              <button type="button" className="chat-image-ref-placeholder" aria-label="Add start image" onClick={() => videoStartInputRef.current?.click()}>
-                                <ImageUp className="chat-image-ref-icon" />
-                                <span className="chat-image-ref-label">Start image</span>
-                                <span className="chat-image-ref-optional">(Optional)</span>
-                              </button>
-                            )}
-
-                            {/* End image */}
-                            {videoEndImage ? (
-                              <div className="chat-attachment-card">
-                                <div className="chat-attachment-inner">
-                                  <img src={videoEndImage.url} alt={videoEndImage.name} className="chat-attachment-thumb" />
-                                  <span className="chat-attachment-label">End</span>
-                                </div>
-                                <button type="button" className="chat-attachment-remove" aria-label="Remove end image" onClick={() => setVideoEndImage(null)}><X /></button>
-                              </div>
-                            ) : (
-                              <button type="button" className="chat-image-ref-placeholder" aria-label="Add end image" onClick={() => videoEndInputRef.current?.click()}>
-                                <ImageUp className="chat-image-ref-icon" />
-                                <span className="chat-image-ref-label">End image</span>
-                                <span className="chat-image-ref-optional">(Optional)</span>
-                              </button>
-                            )}
-                          </>
+                            ))}
+                          </div>
                         )}
 
-                        {/* Image mode: single ref placeholder / thumbnail */}
-                        {showImageGrid && !selectedAttachment && (
-                          <>
-                            <input
-                              ref={imageRefInputRef}
-                              type="file"
-                              accept="image/*"
-                              className="sr-only"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-                                const url = URL.createObjectURL(file);
-                                setSelectedAttachment({ type: "image", name: file.name, url });
-                                e.target.value = "";
-                              }}
-                            />
-                            <button
-                              type="button"
-                              className="chat-image-ref-placeholder"
-                              aria-label="Add image reference"
-                              onClick={() => imageRefInputRef.current?.click()}
-                            >
-                              <ImageUp className="chat-image-ref-icon" />
-                              <span className="chat-image-ref-label">Image refs</span>
-                            </button>
-                          </>
-                        )}
-                        {showImageGrid && selectedAttachment && (
-                          <div className="chat-attachment-card">
-                            <div className="chat-attachment-inner">
-                              <img
-                                src={selectedAttachment.url}
-                                alt={selectedAttachment.name}
-                                className="chat-attachment-thumb"
+                        {/* Image / video refs row — below chips */}
+                        <div className="chat-prompt-refs-items">
+                          {/* Video: start + end image placeholders / thumbnails */}
+                          {showVideoGrid && (
+                            <>
+                              <input ref={videoStartInputRef} type="file" accept="image/*" className="sr-only"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  setVideoStartImage({ name: file.name, url: URL.createObjectURL(file) });
+                                  e.target.value = "";
+                                }}
                               />
-                              <span className="chat-attachment-label">{selectedAttachment.name}</span>
-                            </div>
-                            <button
-                              type="button"
-                              className="chat-attachment-remove"
-                              aria-label={`Remove ${selectedAttachment.name}`}
-                              onClick={() => setSelectedAttachment(null)}
-                            >
-                              <X />
-                            </button>
-                          </div>
-                        )}
-                        {selectedTools.map((tool) => (
-                          <div key={tool.id} className="chat-tool-chip">
-                            <span>{tool.name}</span>
-                            <button
-                              type="button"
-                              className="chat-tool-chip-remove"
-                              aria-label={`Remove ${tool.name}`}
-                              onClick={() => removeToolChip(tool.id)}
-                            >
-                              <X />
-                            </button>
-                          </div>
-                        ))}
+                              <input ref={videoEndInputRef} type="file" accept="image/*" className="sr-only"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  setVideoEndImage({ name: file.name, url: URL.createObjectURL(file) });
+                                  e.target.value = "";
+                                }}
+                              />
+
+                              {/* Start image */}
+                              {videoStartImage ? (
+                                <div className="chat-attachment-card">
+                                  <div className="chat-attachment-inner">
+                                    <img src={videoStartImage.url} alt={videoStartImage.name} className="chat-attachment-thumb" />
+                                    <span className="chat-attachment-label">Start</span>
+                                  </div>
+                                  <button type="button" className="chat-attachment-remove" aria-label="Remove start image" onClick={() => setVideoStartImage(null)}><X /></button>
+                                </div>
+                              ) : (
+                                <button type="button" className="chat-image-ref-placeholder" aria-label="Add start image" onClick={() => videoStartInputRef.current?.click()}>
+                                  <ImageUp className="chat-image-ref-icon" />
+                                  <span className="chat-image-ref-label">Start image</span>
+                                  <span className="chat-image-ref-optional">(Optional)</span>
+                                </button>
+                              )}
+
+                              {/* End image */}
+                              {videoEndImage ? (
+                                <div className="chat-attachment-card">
+                                  <div className="chat-attachment-inner">
+                                    <img src={videoEndImage.url} alt={videoEndImage.name} className="chat-attachment-thumb" />
+                                    <span className="chat-attachment-label">End</span>
+                                  </div>
+                                  <button type="button" className="chat-attachment-remove" aria-label="Remove end image" onClick={() => setVideoEndImage(null)}><X /></button>
+                                </div>
+                              ) : (
+                                <button type="button" className="chat-image-ref-placeholder" aria-label="Add end image" onClick={() => videoEndInputRef.current?.click()}>
+                                  <ImageUp className="chat-image-ref-icon" />
+                                  <span className="chat-image-ref-label">End image</span>
+                                  <span className="chat-image-ref-optional">(Optional)</span>
+                                </button>
+                              )}
+                            </>
+                          )}
+
+                          {/* Image mode: style card + image ref placeholder */}
+                          {showImageGrid && (
+                            <>
+                              <input
+                                ref={imageRefInputRef}
+                                type="file"
+                                accept="image/*"
+                                className="sr-only"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  const url = URL.createObjectURL(file);
+                                  setSelectedAttachment({ type: "image", name: file.name, url });
+                                  e.target.value = "";
+                                }}
+                              />
+                              {/* Selected style card */}
+                              {selectedImageStyle && (
+                                <div className="chat-attachment-card">
+                                  <div className="chat-attachment-inner">
+                                    <img
+                                      src={selectedImageStyle.url}
+                                      alt={selectedImageStyle.name}
+                                      className="chat-attachment-thumb"
+                                    />
+                                    <span className="chat-attachment-label">{selectedImageStyle.name}</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    className="chat-attachment-remove"
+                                    aria-label={`Remove ${selectedImageStyle.name} style`}
+                                    onClick={() => setSelectedImageStyle(null)}
+                                  >
+                                    <X />
+                                  </button>
+                                </div>
+                              )}
+                              {/* Image ref — always visible, shows upload or uploaded thumb */}
+                              {selectedAttachment ? (
+                                <div className="chat-attachment-card">
+                                  <div className="chat-attachment-inner">
+                                    <img
+                                      src={selectedAttachment.url}
+                                      alt={selectedAttachment.name}
+                                      className="chat-attachment-thumb"
+                                    />
+                                    <span className="chat-attachment-label">{selectedAttachment.name}</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    className="chat-attachment-remove"
+                                    aria-label={`Remove ${selectedAttachment.name}`}
+                                    onClick={() => setSelectedAttachment(null)}
+                                  >
+                                    <X />
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="chat-image-ref-placeholder"
+                                  aria-label="Add image reference"
+                                  onClick={() => imageRefInputRef.current?.click()}
+                                >
+                                  <ImageUp className="chat-image-ref-icon" />
+                                  <span className="chat-image-ref-label">Image refs</span>
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </div>
                       </div>
                     )}
                     <div className="chat-prompt-editor-wrap">
@@ -1719,421 +1773,71 @@ export default function EditorScreen() {
                           </Button>
                           {showVideoGrid && (
                             chatNarrow ? (
-                              <div className="video-settings-wrap" ref={settingsRef}>
+                              <div className="video-settings-wrap">
                                 <button
+                                  ref={settingsTriggerRef}
                                   type="button"
                                   className={cn("video-settings-trigger", settingsOpen && "is-open")}
-                                  onClick={() => setSettingsOpen((v) => !v)}
+                                  onClick={(e) => {
+                                    if (settingsOpen) { setSettingsOpen(false); setSettingsAnchorRect(null); }
+                                    else { setSettingsAnchorRect(e.currentTarget.getBoundingClientRect()); setSettingsOpen(true); }
+                                  }}
                                   aria-label="Video settings"
                                 >
                                   <SlidersHorizontal />
                                 </button>
-                                {settingsOpen && (
-                                  <div className="video-settings-dialog">
-                                    <div className="vsd-row">
-                                      <span className="vsd-label">Model</span>
-                                      <div className="vsd-dropdown-wrap">
-                                        <button
-                                          type="button"
-                                          className={cn("vsd-dropdown-trigger", vsdModelOpen && "is-open")}
-                                          onClick={() => setVsdModelOpen((v) => !v)}
-                                        >
-                                          <span>{videoSettings.model}</span>
-                                          <ChevronDown className="vsd-dropdown-chevron" />
-                                        </button>
-                                        {vsdModelOpen && (
-                                          <div className="vsd-dropdown-menu">
-                                            {videoModels.map((m) => (
-                                              <button
-                                                key={m}
-                                                type="button"
-                                                className={cn("vsd-dropdown-item", videoSettings.model === m && "is-active")}
-                                                onClick={() => { setVideoSetting("model", m); setVsdModelOpen(false); }}
-                                              >
-                                                {m}
-                                              </button>
-                                            ))}
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="vsd-row">
-                                      <span className="vsd-label">Video ratio</span>
-                                      <div className="vsd-ratio-pills">
-                                        {ratioOptions.map((r) => (
-                                          <button
-                                            key={r}
-                                            type="button"
-                                            className={cn("vsd-ratio-btn", videoSettings.ratio === r && "is-active")}
-                                            onClick={() => setVideoSetting("ratio", r)}
-                                          >
-                                            <span className={cn("vsd-ratio-shape", `vsd-ratio-${r.replace(":", "-")}`)} />
-                                            <span>{r}</span>
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                    <div className="vsd-row">
-                                      <span className="vsd-label">Duration</span>
-                                      <div className="vsd-res-pills">
-                                        {durationOptions.map((d) => (
-                                          <button
-                                            key={d}
-                                            type="button"
-                                            className={cn("vsd-res-btn", videoSettings.duration === d && "is-active")}
-                                            onClick={() => setVideoSetting("duration", d)}
-                                          >
-                                            {d}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                    <div className="vsd-row">
-                                      <span className="vsd-label">Resolution</span>
-                                      <div className="vsd-res-pills">
-                                        {resolutionOptions.map((r) => (
-                                          <button
-                                            key={r}
-                                            type="button"
-                                            className={cn("vsd-res-btn", videoSettings.resolution === r && "is-active")}
-                                            onClick={() => setVideoSetting("resolution", r)}
-                                          >
-                                            {r}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                    <div className="vsd-row">
-                                      <span className="vsd-label">Audio</span>
-                                      <div className="vsd-res-pills">
-                                        {["Off", "On"].map((a) => (
-                                          <button
-                                            key={a}
-                                            type="button"
-                                            className={cn("vsd-res-btn", videoSettings.audio === (a === "On") && "is-active")}
-                                            onClick={() => setVideoSetting("audio", a === "On")}
-                                          >
-                                            {a}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
                               </div>
                             ) : (
                               <div className="video-gen-settings" ref={chipSettingsRef}>
-                                {/* Model chip */}
-                                <div className="video-chip-wrap">
-                                  <button
-                                    type="button"
-                                    className={cn("video-gen-chip", openChip === "model" && "is-active")}
-                                    onClick={() => toggleChip("model")}
-                                  >
-                                    <LayoutGrid /><span>{videoSettings.model}</span><ChevronDown />
-                                  </button>
-                                  {openChip === "model" && (
-                                    <div className="video-chip-dropdown">
-                                      {videoModels.map((m) => (
-                                        <button
-                                          key={m}
-                                          type="button"
-                                          className={cn("video-chip-option", videoSettings.model === m && "is-active")}
-                                          onClick={() => { setVideoSetting("model", m); setOpenChip(null); }}
-                                        >
-                                          {m}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                                {/* Ratio chip */}
-                                <div className="video-chip-wrap">
-                                  <button
-                                    type="button"
-                                    className={cn("video-gen-chip", openChip === "ratio" && "is-active")}
-                                    onClick={() => toggleChip("ratio")}
-                                  >
-                                    <RectangleHorizontal /><span>{videoSettings.ratio}</span><ChevronDown />
-                                  </button>
-                                  {openChip === "ratio" && (
-                                    <div className="video-chip-dropdown">
-                                      {ratioOptions.map((r) => (
-                                        <button
-                                          key={r}
-                                          type="button"
-                                          className={cn("video-chip-option", videoSettings.ratio === r && "is-active")}
-                                          onClick={() => { setVideoSetting("ratio", r); setOpenChip(null); }}
-                                        >
-                                          {r}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                                {/* Resolution chip */}
-                                <div className="video-chip-wrap">
-                                  <button
-                                    type="button"
-                                    className={cn("video-gen-chip", openChip === "resolution" && "is-active")}
-                                    onClick={() => toggleChip("resolution")}
-                                  >
-                                    <ArrowUpDown /><span>{videoSettings.resolution}</span><ChevronDown />
-                                  </button>
-                                  {openChip === "resolution" && (
-                                    <div className="video-chip-dropdown">
-                                      {resolutionOptions.map((r) => (
-                                        <button
-                                          key={r}
-                                          type="button"
-                                          className={cn("video-chip-option", videoSettings.resolution === r && "is-active")}
-                                          onClick={() => { setVideoSetting("resolution", r); setOpenChip(null); }}
-                                        >
-                                          {r}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                                {/* Duration chip */}
-                                <div className="video-chip-wrap">
-                                  <button
-                                    type="button"
-                                    className={cn("video-gen-chip", openChip === "duration" && "is-active")}
-                                    onClick={() => toggleChip("duration")}
-                                  >
-                                    <Clock /><span>{videoSettings.duration}</span><ChevronDown />
-                                  </button>
-                                  {openChip === "duration" && (
-                                    <div className="video-chip-dropdown">
-                                      {durationOptions.map((d) => (
-                                        <button
-                                          key={d}
-                                          type="button"
-                                          className={cn("video-chip-option", videoSettings.duration === d && "is-active")}
-                                          onClick={() => { setVideoSetting("duration", d); setOpenChip(null); }}
-                                        >
-                                          {d}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                                {/* Audio chip */}
-                                <div className="video-chip-wrap">
-                                  <button
-                                    type="button"
-                                    className={cn("video-gen-chip", openChip === "audio" && "is-active")}
-                                    onClick={() => toggleChip("audio")}
-                                  >
-                                    {videoSettings.audio ? <Volume2 /> : <VolumeX />}
-                                    <span>{videoSettings.audio ? "On" : "Off"}</span><ChevronDown />
-                                  </button>
-                                  {openChip === "audio" && (
-                                    <div className="video-chip-dropdown">
-                                      {["Off", "On"].map((a) => (
-                                        <button
-                                          key={a}
-                                          type="button"
-                                          className={cn("video-chip-option", videoSettings.audio === (a === "On") && "is-active")}
-                                          onClick={() => { setVideoSetting("audio", a === "On"); setOpenChip(null); }}
-                                        >
-                                          {a}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
+                                <button type="button" className={cn("video-gen-chip", openChip === "model" && "is-active")} onClick={(e) => toggleChip("model", e)}>
+                                  <LayoutGrid /><span>{videoSettings.model}</span><ChevronDown />
+                                </button>
+                                <button type="button" className={cn("video-gen-chip", openChip === "ratio" && "is-active")} onClick={(e) => toggleChip("ratio", e)}>
+                                  <RectangleHorizontal /><span>{videoSettings.ratio}</span><ChevronDown />
+                                </button>
+                                <button type="button" className={cn("video-gen-chip", openChip === "resolution" && "is-active")} onClick={(e) => toggleChip("resolution", e)}>
+                                  <ArrowUpDown /><span>{videoSettings.resolution}</span><ChevronDown />
+                                </button>
+                                <button type="button" className={cn("video-gen-chip", openChip === "duration" && "is-active")} onClick={(e) => toggleChip("duration", e)}>
+                                  <Clock /><span>{videoSettings.duration}</span><ChevronDown />
+                                </button>
+                                <button type="button" className={cn("video-gen-chip", openChip === "audio" && "is-active")} onClick={(e) => toggleChip("audio", e)}>
+                                  {videoSettings.audio ? <Volume2 /> : <VolumeX />}
+                                  <span>{videoSettings.audio ? "On" : "Off"}</span><ChevronDown />
+                                </button>
                               </div>
                             )
                           )}
                           {showImageGrid && (
                             chatNarrow ? (
-                              <div className="video-settings-wrap" ref={settingsRef}>
+                              <div className="video-settings-wrap">
                                 <button
+                                  ref={settingsTriggerRef}
                                   type="button"
                                   className={cn("video-settings-trigger", settingsOpen && "is-open")}
-                                  onClick={() => setSettingsOpen((v) => !v)}
+                                  onClick={(e) => {
+                                    if (settingsOpen) { setSettingsOpen(false); setSettingsAnchorRect(null); }
+                                    else { setSettingsAnchorRect(e.currentTarget.getBoundingClientRect()); setSettingsOpen(true); }
+                                  }}
                                   aria-label="Image settings"
                                 >
                                   <SlidersHorizontal />
                                 </button>
-                                {settingsOpen && (
-                                  <div className="video-settings-dialog">
-                                    <div className="vsd-row">
-                                      <span className="vsd-label">Model</span>
-                                      <div className="vsd-dropdown-wrap">
-                                        <button
-                                          type="button"
-                                          className={cn("vsd-dropdown-trigger", vsdModelOpen && "is-open")}
-                                          onClick={() => setVsdModelOpen((v) => !v)}
-                                        >
-                                          <span>{imageSettings.model}</span>
-                                          <ChevronDown className="vsd-dropdown-chevron" />
-                                        </button>
-                                        {vsdModelOpen && (
-                                          <div className="vsd-dropdown-menu">
-                                            {imageModels.map((m) => (
-                                              <button
-                                                key={m}
-                                                type="button"
-                                                className={cn("vsd-dropdown-item", imageSettings.model === m && "is-active")}
-                                                onClick={() => { setImageSetting("model", m); setVsdModelOpen(false); }}
-                                              >
-                                                {m}
-                                              </button>
-                                            ))}
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="vsd-row">
-                                      <span className="vsd-label">Ratio</span>
-                                      <div className="vsd-ratio-pills">
-                                        {imageRatioOptions.map((r) => (
-                                          <button
-                                            key={r}
-                                            type="button"
-                                            className={cn("vsd-ratio-btn", imageSettings.ratio === r && "is-active")}
-                                            onClick={() => setImageSetting("ratio", r)}
-                                          >
-                                            <span className={cn("vsd-ratio-shape", `vsd-ratio-${r.replace(":", "-")}`)} />
-                                            <span>{r}</span>
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                    <div className="vsd-row">
-                                      <span className="vsd-label">Resolution</span>
-                                      <div className="vsd-res-pills">
-                                        {imageResolutionOptions.map((r) => (
-                                          <button
-                                            key={r}
-                                            type="button"
-                                            className={cn("vsd-res-btn", imageSettings.resolution === r && "is-active")}
-                                            onClick={() => setImageSetting("resolution", r)}
-                                          >
-                                            {r}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                    <div className="vsd-row">
-                                      <span className="vsd-label">Quality</span>
-                                      <div className="vsd-res-pills">
-                                        {imageQualityOptions.map((q) => (
-                                          <button
-                                            key={q}
-                                            type="button"
-                                            className={cn("vsd-res-btn", imageSettings.quality === q && "is-active")}
-                                            onClick={() => setImageSetting("quality", q)}
-                                          >
-                                            {q}
-                                          </button>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
                               </div>
                             ) : (
                               <div className="video-gen-settings" ref={!showVideoGrid ? chipSettingsRef : undefined}>
-                                {/* Model chip */}
-                                <div className="video-chip-wrap">
-                                  <button
-                                    type="button"
-                                    className={cn("video-gen-chip", openChip === "img-model" && "is-active")}
-                                    onClick={() => toggleChip("img-model")}
-                                  >
-                                    <LayoutGrid /><span>{imageSettings.model}</span><ChevronDown />
-                                  </button>
-                                  {openChip === "img-model" && (
-                                    <div className="video-chip-dropdown">
-                                      {imageModels.map((m) => (
-                                        <button
-                                          key={m}
-                                          type="button"
-                                          className={cn("video-chip-option", imageSettings.model === m && "is-active")}
-                                          onClick={() => { setImageSetting("model", m); setOpenChip(null); }}
-                                        >
-                                          {m}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                                {/* Ratio chip */}
-                                <div className="video-chip-wrap">
-                                  <button
-                                    type="button"
-                                    className={cn("video-gen-chip", openChip === "img-ratio" && "is-active")}
-                                    onClick={() => toggleChip("img-ratio")}
-                                  >
-                                    <RectangleHorizontal /><span>{imageSettings.ratio}</span><ChevronDown />
-                                  </button>
-                                  {openChip === "img-ratio" && (
-                                    <div className="video-chip-dropdown">
-                                      {imageRatioOptions.map((r) => (
-                                        <button
-                                          key={r}
-                                          type="button"
-                                          className={cn("video-chip-option", imageSettings.ratio === r && "is-active")}
-                                          onClick={() => { setImageSetting("ratio", r); setOpenChip(null); }}
-                                        >
-                                          {r}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                                {/* Resolution chip */}
-                                <div className="video-chip-wrap">
-                                  <button
-                                    type="button"
-                                    className={cn("video-gen-chip", openChip === "img-resolution" && "is-active")}
-                                    onClick={() => toggleChip("img-resolution")}
-                                  >
-                                    <ArrowUpDown /><span>{imageSettings.resolution}</span><ChevronDown />
-                                  </button>
-                                  {openChip === "img-resolution" && (
-                                    <div className="video-chip-dropdown">
-                                      {imageResolutionOptions.map((r) => (
-                                        <button
-                                          key={r}
-                                          type="button"
-                                          className={cn("video-chip-option", imageSettings.resolution === r && "is-active")}
-                                          onClick={() => { setImageSetting("resolution", r); setOpenChip(null); }}
-                                        >
-                                          {r}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                                {/* Quality chip */}
-                                <div className="video-chip-wrap">
-                                  <button
-                                    type="button"
-                                    className={cn("video-gen-chip", openChip === "img-quality" && "is-active")}
-                                    onClick={() => toggleChip("img-quality")}
-                                  >
-                                    <Sparkles /><span>{imageSettings.quality}</span><ChevronDown />
-                                  </button>
-                                  {openChip === "img-quality" && (
-                                    <div className="video-chip-dropdown">
-                                      {imageQualityOptions.map((q) => (
-                                        <button
-                                          key={q}
-                                          type="button"
-                                          className={cn("video-chip-option", imageSettings.quality === q && "is-active")}
-                                          onClick={() => { setImageSetting("quality", q); setOpenChip(null); }}
-                                        >
-                                          {q}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
+                                <button type="button" className={cn("video-gen-chip", openChip === "img-model" && "is-active")} onClick={(e) => toggleChip("img-model", e)}>
+                                  <LayoutGrid /><span>{imageSettings.model}</span><ChevronDown />
+                                </button>
+                                <button type="button" className={cn("video-gen-chip", openChip === "img-ratio" && "is-active")} onClick={(e) => toggleChip("img-ratio", e)}>
+                                  <RectangleHorizontal /><span>{imageSettings.ratio}</span><ChevronDown />
+                                </button>
+                                <button type="button" className={cn("video-gen-chip", openChip === "img-resolution" && "is-active")} onClick={(e) => toggleChip("img-resolution", e)}>
+                                  <ArrowUpDown /><span>{imageSettings.resolution}</span><ChevronDown />
+                                </button>
+                                <button type="button" className={cn("video-gen-chip", openChip === "img-quality" && "is-active")} onClick={(e) => toggleChip("img-quality", e)}>
+                                  <Sparkles /><span>{imageSettings.quality}</span><ChevronDown />
+                                </button>
                               </div>
                             )
                           )}
@@ -2182,5 +1886,150 @@ export default function EditorScreen() {
         </main>
       </div>
     </TooltipProvider>
+    {openChip && chipAnchorRect && createPortal(
+      <div
+        ref={chipDropdownRef}
+        className="video-chip-dropdown"
+        style={{
+          position: "fixed",
+          left: chipAnchorRect.left,
+          bottom: window.innerHeight - chipAnchorRect.top + 8,
+          zIndex: 9999,
+        }}
+      >
+        {(
+          openChip === "model"          ? videoModels.map((m)            => ({ label: m, active: videoSettings.model === m,          onSelect: () => { setVideoSetting("model", m);          setOpenChip(null); setChipAnchorRect(null); } })) :
+          openChip === "ratio"          ? ratioOptions.map((r)            => ({ label: r, active: videoSettings.ratio === r,          onSelect: () => { setVideoSetting("ratio", r);          setOpenChip(null); setChipAnchorRect(null); } })) :
+          openChip === "resolution"     ? resolutionOptions.map((r)       => ({ label: r, active: videoSettings.resolution === r,     onSelect: () => { setVideoSetting("resolution", r);     setOpenChip(null); setChipAnchorRect(null); } })) :
+          openChip === "duration"       ? durationOptions.map((d)         => ({ label: d, active: videoSettings.duration === d,       onSelect: () => { setVideoSetting("duration", d);       setOpenChip(null); setChipAnchorRect(null); } })) :
+          openChip === "audio"          ? ["Off","On"].map((a)            => ({ label: a, active: videoSettings.audio === (a==="On"), onSelect: () => { setVideoSetting("audio", a==="On");   setOpenChip(null); setChipAnchorRect(null); } })) :
+          openChip === "img-model"      ? imageModels.map((m)             => ({ label: m, active: imageSettings.model === m,          onSelect: () => { setImageSetting("model", m);          setOpenChip(null); setChipAnchorRect(null); } })) :
+          openChip === "img-ratio"      ? imageRatioOptions.map((r)       => ({ label: r, active: imageSettings.ratio === r,          onSelect: () => { setImageSetting("ratio", r);          setOpenChip(null); setChipAnchorRect(null); } })) :
+          openChip === "img-resolution" ? imageResolutionOptions.map((r)  => ({ label: r, active: imageSettings.resolution === r,     onSelect: () => { setImageSetting("resolution", r);     setOpenChip(null); setChipAnchorRect(null); } })) :
+          openChip === "img-quality"    ? imageQualityOptions.map((q)     => ({ label: q, active: imageSettings.quality === q,        onSelect: () => { setImageSetting("quality", q);        setOpenChip(null); setChipAnchorRect(null); } })) :
+          []
+        ).map(({ label, active, onSelect }) => (
+          <button key={label} type="button" className={cn("video-chip-option", active && "is-active")} onClick={onSelect}>
+            {label}
+          </button>
+        ))}
+      </div>,
+      document.body
+    )}
+    {settingsOpen && settingsAnchorRect && chatNarrow && createPortal(
+      <div
+        ref={settingsRef}
+        className="video-settings-dialog"
+        style={{
+          position: "fixed",
+          bottom: window.innerHeight - settingsAnchorRect.top + 10,
+          left: settingsAnchorRect.left,
+          zIndex: 9999,
+        }}
+      >
+        {showVideoGrid && (
+          <>
+            <div className="vsd-row">
+              <span className="vsd-label">Model</span>
+              <div className="vsd-dropdown-wrap">
+                <button type="button" className={cn("vsd-dropdown-trigger", vsdModelOpen && "is-open")} onClick={() => setVsdModelOpen((v) => !v)}>
+                  <span>{videoSettings.model}</span>
+                  <ChevronDown className="vsd-dropdown-chevron" />
+                </button>
+                {vsdModelOpen && (
+                  <div className="vsd-dropdown-menu">
+                    {videoModels.map((m) => (
+                      <button key={m} type="button" className={cn("vsd-dropdown-item", videoSettings.model === m && "is-active")} onClick={() => { setVideoSetting("model", m); setVsdModelOpen(false); }}>{m}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="vsd-row">
+              <span className="vsd-label">Video ratio</span>
+              <div className="vsd-ratio-pills">
+                {ratioOptions.map((r) => (
+                  <button key={r} type="button" className={cn("vsd-ratio-btn", videoSettings.ratio === r && "is-active")} onClick={() => setVideoSetting("ratio", r)}>
+                    <span className={cn("vsd-ratio-shape", `vsd-ratio-${r.replace(":", "-")}`)} /><span>{r}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="vsd-row">
+              <span className="vsd-label">Duration</span>
+              <div className="vsd-res-pills">
+                {durationOptions.map((d) => (
+                  <button key={d} type="button" className={cn("vsd-res-btn", videoSettings.duration === d && "is-active")} onClick={() => setVideoSetting("duration", d)}>{d}</button>
+                ))}
+              </div>
+            </div>
+            <div className="vsd-row">
+              <span className="vsd-label">Resolution</span>
+              <div className="vsd-res-pills">
+                {resolutionOptions.map((r) => (
+                  <button key={r} type="button" className={cn("vsd-res-btn", videoSettings.resolution === r && "is-active")} onClick={() => setVideoSetting("resolution", r)}>{r}</button>
+                ))}
+              </div>
+            </div>
+            <div className="vsd-row">
+              <span className="vsd-label">Audio</span>
+              <div className="vsd-res-pills">
+                {["Off", "On"].map((a) => (
+                  <button key={a} type="button" className={cn("vsd-res-btn", videoSettings.audio === (a === "On") && "is-active")} onClick={() => setVideoSetting("audio", a === "On")}>{a}</button>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+        {showImageGrid && (
+          <>
+            <div className="vsd-row">
+              <span className="vsd-label">Model</span>
+              <div className="vsd-dropdown-wrap">
+                <button type="button" className={cn("vsd-dropdown-trigger", vsdModelOpen && "is-open")} onClick={() => setVsdModelOpen((v) => !v)}>
+                  <span>{imageSettings.model}</span>
+                  <ChevronDown className="vsd-dropdown-chevron" />
+                </button>
+                {vsdModelOpen && (
+                  <div className="vsd-dropdown-menu">
+                    {imageModels.map((m) => (
+                      <button key={m} type="button" className={cn("vsd-dropdown-item", imageSettings.model === m && "is-active")} onClick={() => { setImageSetting("model", m); setVsdModelOpen(false); }}>{m}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="vsd-row">
+              <span className="vsd-label">Ratio</span>
+              <div className="vsd-ratio-pills">
+                {imageRatioOptions.map((r) => (
+                  <button key={r} type="button" className={cn("vsd-ratio-btn", imageSettings.ratio === r && "is-active")} onClick={() => setImageSetting("ratio", r)}>
+                    <span className={cn("vsd-ratio-shape", `vsd-ratio-${r.replace(":", "-")}`)} /><span>{r}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="vsd-row">
+              <span className="vsd-label">Resolution</span>
+              <div className="vsd-res-pills">
+                {imageResolutionOptions.map((r) => (
+                  <button key={r} type="button" className={cn("vsd-res-btn", imageSettings.resolution === r && "is-active")} onClick={() => setImageSetting("resolution", r)}>{r}</button>
+                ))}
+              </div>
+            </div>
+            <div className="vsd-row">
+              <span className="vsd-label">Quality</span>
+              <div className="vsd-res-pills">
+                {imageQualityOptions.map((q) => (
+                  <button key={q} type="button" className={cn("vsd-res-btn", imageSettings.quality === q && "is-active")} onClick={() => setImageSetting("quality", q)}>{q}</button>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>,
+      document.body
+    )}
+    </>
   );
 }
