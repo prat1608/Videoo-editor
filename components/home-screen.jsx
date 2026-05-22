@@ -28,6 +28,7 @@ import {
   Wand2,
   Subtitles,
   Music,
+  Music4,
   Clapperboard,
   Crop,
   ImageUp,
@@ -35,8 +36,11 @@ import {
   RectangleHorizontal,
   ArrowUpDown,
   Clock,
+  Gauge,
+  Mic,
   X,
 } from "lucide-react";
+import { PromptBox } from "@/components/prompt-box";
 import logoMark from "@/assets/Logo.svg";
 import { cn } from "@/lib/utils";
 
@@ -107,6 +111,17 @@ const toolsAndSkills = [
   { key: "crop", label: "Smart Crop", icon: Crop },
 ];
 
+const TOOL_SUGGESTION_CONFIG = {
+  video:      { icon: Video,        label: "Generate Video",     slug: "generate-video" },
+  image:      { icon: ImageUp,      label: "Generate Image",     slug: "generate-image" },
+  audio:      { icon: Music,        label: "Generate Audio",     slug: "generate-audio" },
+  sfx:        { icon: Headphones,   label: "Generate SFX",       slug: "generate-sfx" },
+  voiceover:  { icon: Mic2,         label: "Generate Voiceover", slug: "generate-voiceover" },
+  autodemo:   { icon: Clapperboard, label: "Auto Demo",          slug: "autodemo" },
+  roughcuts:  { icon: RefreshCw,    label: "Rough Cuts",         slug: "roughcuts" },
+  clipping:   { icon: Scissors,     label: "Clipping",           slug: "clipping" },
+};
+
 const imageModels = ["Imagen 4", "Flux 1.1 Pro", "DALL·E 3", "Stable Diffusion 3.5"];
 const imageRatioOptions = ["1:1", "4:3", "3:4", "16:9", "9:16"];
 const imageResolutionOptions = ["512px", "768px", "1024px", "2048px"];
@@ -116,6 +131,46 @@ const videoModels = ["Sora", "Runway Gen-3", "Kling 1.6", "Luma Dream Machine"];
 const videoRatioOptions = ["16:9", "9:16", "1:1", "4:3"];
 const videoDurationOptions = ["5s", "10s", "15s", "30s"];
 const videoQualityOptions = ["360p", "720p", "1080p", "4K"];
+
+const audioModels = ["Suno v4", "Udio 2.0", "MusicGen 2"];
+const audioMoodOptions = ["Cinematic", "Ambient", "Electronic", "Jazz", "Hip-Hop", "Acoustic", "Lo-Fi", "Corporate"];
+const audioDurationOptions = ["15s", "30s", "60s", "2min"];
+const audioQualityOptions = ["Standard", "HD"];
+
+const sfxModels = ["ElevenLabs SFX", "Audiocraft", "Stability Audio"];
+const sfxDurationOptions = ["1s", "3s", "5s", "10s"];
+
+const voiceoverModels = ["ElevenLabs", "OpenAI TTS", "Cartesia"];
+const voiceOptions = ["Nova", "Onyx", "Alloy", "Echo", "Fable", "Shimmer"];
+const speedOptions = ["0.75x", "1x", "1.25x", "1.5x"];
+const languageOptions = ["English", "Spanish", "French", "German"];
+
+const homeAudioMoods = [
+  { name: "Cinematic",    desc: "Epic orchestral" },
+  { name: "Ambient",      desc: "Atmospheric beds" },
+  { name: "Electronic",   desc: "Modern synths" },
+  { name: "Jazz",         desc: "Laid-back grooves" },
+  { name: "Hip-Hop",      desc: "Punchy beats" },
+  { name: "Acoustic",     desc: "Warm & organic" },
+  { name: "Lo-Fi",        desc: "Chill vibes" },
+  { name: "Corporate",    desc: "Clean & upbeat" },
+];
+const homeSfxCategories = [
+  { name: "Nature",         desc: "Rain, wind, birds" },
+  { name: "Foley",          desc: "Steps, cloth, props" },
+  { name: "Impacts",        desc: "Hits & explosions" },
+  { name: "UI / Interface", desc: "Clicks & alerts" },
+  { name: "Transitions",    desc: "Whooshes & sweeps" },
+  { name: "Ambience",       desc: "Room tone & spaces" },
+];
+const homeVoiceProfiles = [
+  { name: "Nova",    desc: "Warm, feminine" },
+  { name: "Onyx",    desc: "Deep, masculine" },
+  { name: "Alloy",   desc: "Neutral, clear" },
+  { name: "Echo",    desc: "Smooth, conversational" },
+  { name: "Fable",   desc: "British, articulate" },
+  { name: "Shimmer", desc: "Bright, energetic" },
+];
 
 const modelProviders = [
   {
@@ -174,26 +229,51 @@ export default function HomeScreen() {
   const [imageSettings, setImageSettings] = useState({ model: "Imagen 4", ratio: "1:1", resolution: "1024px", quality: "Standard" });
   const [videoSettings, setVideoSettings] = useState({ model: "Sora", ratio: "16:9", duration: "5s", quality: "1080p" });
   const [selectedAttachment, setSelectedAttachment] = useState(null);
-  const [openChip, setOpenChip] = useState(null);
-  const [chipDropdownPos, setChipDropdownPos] = useState(null);
-  const chipRefs = useRef({});
-  const chipDropdownRef = useRef(null);
   const modelRef = useRef(null);
   const dropdownRef = useRef(null);
   const [dropdownPos, setDropdownPos] = useState(null);
   const promptCardRef = useRef(null);
-  const imageRefInputRef = useRef(null);
   const [videoStartAttachment, setVideoStartAttachment] = useState(null);
   const [videoEndAttachment, setVideoEndAttachment] = useState(null);
-  const videoStartInputRef = useRef(null);
-  const videoEndInputRef = useRef(null);
+  const [promptSuggestion, setPromptSuggestion] = useState(null);
+  const [suggestionDismissed, setSuggestionDismissed] = useState(false);
+  const [audioSettings, setAudioSettings] = useState({ model: "Suno v4", mood: "Cinematic", duration: "30s", quality: "HD" });
+  const [sfxSettings, setSfxSettings] = useState({ model: "ElevenLabs SFX", duration: "3s" });
+  const [voiceoverSettings, setVoiceoverSettings] = useState({ model: "ElevenLabs", voice: "Nova", speed: "1x", language: "English" });
+  const [selectedAudioMood, setSelectedAudioMood] = useState(null);
+  const [selectedSfxCategory, setSelectedSfxCategory] = useState(null);
+  const [selectedVoice, setSelectedVoice] = useState(null);
+
+  function setAudioSetting(key, value) { setAudioSettings((s) => ({ ...s, [key]: value })); }
+  function setSfxSetting(key, value) { setSfxSettings((s) => ({ ...s, [key]: value })); }
+  function setVoiceoverSetting(key, value) { setVoiceoverSettings((s) => ({ ...s, [key]: value })); }
 
   useLayoutEffect(() => {
-    if (!prompt) { setActiveGrid(null); return; }
-    const videoMatch = /\bvideo\b/i.test(prompt);
-    const imageMatch = !videoMatch && /\bimage\b/i.test(prompt);
-    setActiveGrid(videoMatch ? "video" : imageMatch ? "image" : null);
-  }, [prompt]);
+    if (!prompt) {
+      setPromptSuggestion(null);
+      setSuggestionDismissed(false);
+      return;
+    }
+    const videoMatch     = /\bvideo\b|\b(generate|create|make)\s+(?:a\s+)?video\b|\banimate\b|\bcreate\s+(?:a\s+)?clip\b|\/generate-video\b/i.test(prompt);
+    const imageMatch     = /\bimage\b|\b(generate|create|make)\s+(?:an?\s+)?image\b|\bdraw\b|\billustrate\b|\brender\b|\b(photo|picture)\s+of\b|\/generate-image\b/i.test(prompt);
+    const voiceoverMatch = /\b(generate|create|make|add)\s+(?:a\s+)?(?:voiceover|voice\s+over|narration)\b|\bnarrate\b|\bnarration\b|\btext\s+to\s+speech\b|\bvoiceover\b|\bvoice\s+over\b|\/generate-voiceover\b/i.test(prompt);
+    const audioMatch     = /\b(generate|create|make|add)\s+(?:an?\s+)?(?:background\s+)?(?:audio|music|soundtrack)\b|\bmusic\b|\bsoundtrack\b|\bbackground\s+music\b|\/generate-audio\b/i.test(prompt);
+    const sfxMatch       = /\b(generate|create|make|add)\s+(?:sound\s+effects?|sfx)\b|\bsound\s+effects?\b|\bsfx\b|\/generate-sfx\b/i.test(prompt);
+    const autodemoMatch  = /\bauto\s*demo\b|\b(create|generate|make)\s+(?:a\s+)?(?:product\s+)?demo\b|\bdemo\s+video\b|\/autodemo\b/i.test(prompt);
+    const roughcutsMatch = /\brough\s*cuts?\b|\b(create|make|assemble)\s+(?:a\s+)?(?:rough|first)\s+cut\b|\/roughcuts\b/i.test(prompt);
+    const clippingMatch  = /\b(create|make|generate|extract)\s+(?:short\s+|social\s+)?clips?\b|\bclipping\b|\bhighlight\s+(?:reel|clips?)\b|\/clipping\b/i.test(prompt);
+    const detected = videoMatch ? "video" : imageMatch ? "image" : voiceoverMatch ? "voiceover" : audioMatch ? "audio" : sfxMatch ? "sfx" : autodemoMatch ? "autodemo" : roughcutsMatch ? "roughcuts" : clippingMatch ? "clipping" : null;
+    if (detected !== promptSuggestion) {
+      setPromptSuggestion(detected);
+      setSuggestionDismissed(false);
+    }
+  }, [prompt]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function acceptSuggestion() {
+    setActiveGrid(promptSuggestion);
+    setSuggestionDismissed(true);
+    setPrompt("");
+  }
 
   function openModelDropdown() {
     if (modelRef.current) {
@@ -229,26 +309,6 @@ export default function HomeScreen() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isFocused]);
-
-  useEffect(() => {
-    if (!openChip) return;
-    function handleClickOutside(e) {
-      const inChipBtn = Object.values(chipRefs.current).some((el) => el?.contains(e.target));
-      const inChipDropdown = chipDropdownRef.current?.contains(e.target);
-      if (!inChipBtn && !inChipDropdown) setOpenChip(null);
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [openChip]);
-
-  function openChipFn(key) {
-    const el = chipRefs.current[key];
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      setChipDropdownPos({ bottom: window.innerHeight - rect.top + 8, left: rect.left });
-    }
-    setOpenChip((prev) => (prev === key ? null : key));
-  }
 
   return (
     <div className={cn("home-shell", isFocused && "is-focused", activeGrid && "has-grid")}>
@@ -379,129 +439,79 @@ export default function HomeScreen() {
         <div className="home-main-inner">
           <h1 className="home-greeting">Ready to direct, Pratiksha?</h1>
 
-          <div className="home-prompt-card" ref={promptCardRef}>
-            {activeGrid === "image" && (
-              <div className="home-image-ref-row">
-                {selectedAttachment ? (
-                  <div className="chat-attachment-card">
-                    <div className="chat-attachment-inner">
-                      <img src={selectedAttachment.url} alt="ref" className="chat-attachment-thumb" />
-                      <span className="chat-attachment-label">{selectedAttachment.name}</span>
-                      <button type="button" className="chat-attachment-remove" onClick={() => setSelectedAttachment(null)}>
-                        <X size={12} />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button type="button" className="chat-image-ref-placeholder" onClick={() => imageRefInputRef.current?.click()}>
-                    <ImageUp size={14} className="chat-image-ref-icon" />
-                    <span className="chat-image-ref-label">Add image reference</span>
-                    <span className="chat-image-ref-optional">Optional</span>
-                  </button>
-                )}
-                <input ref={imageRefInputRef} type="file" accept="image/*" style={{ display: "none" }}
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) setSelectedAttachment({ name: f.name, url: URL.createObjectURL(f) }); e.target.value = ""; }} />
-              </div>
-            )}
-
-            {activeGrid === "video" && (
-              <div className="home-image-ref-row home-video-ref-row">
-                {videoStartAttachment ? (
-                  <div className="chat-attachment-card">
-                    <div className="chat-attachment-inner">
-                      <img src={videoStartAttachment.url} alt="start" className="chat-attachment-thumb" />
-                      <span className="chat-attachment-label">{videoStartAttachment.name}</span>
-                      <button type="button" className="chat-attachment-remove" onClick={() => setVideoStartAttachment(null)}>
-                        <X size={12} />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button type="button" className="chat-image-ref-placeholder" onClick={() => videoStartInputRef.current?.click()}>
-                    <ImageUp size={14} className="chat-image-ref-icon" />
-                    <span className="chat-image-ref-label">Start image</span>
-                    <span className="chat-image-ref-optional">Optional</span>
-                  </button>
-                )}
-                <input ref={videoStartInputRef} type="file" accept="image/*" style={{ display: "none" }}
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) setVideoStartAttachment({ name: f.name, url: URL.createObjectURL(f) }); e.target.value = ""; }} />
-
-                {videoEndAttachment ? (
-                  <div className="chat-attachment-card">
-                    <div className="chat-attachment-inner">
-                      <img src={videoEndAttachment.url} alt="end" className="chat-attachment-thumb" />
-                      <span className="chat-attachment-label">{videoEndAttachment.name}</span>
-                      <button type="button" className="chat-attachment-remove" onClick={() => setVideoEndAttachment(null)}>
-                        <X size={12} />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button type="button" className="chat-image-ref-placeholder" onClick={() => videoEndInputRef.current?.click()}>
-                    <ImageUp size={14} className="chat-image-ref-icon" />
-                    <span className="chat-image-ref-label">End image</span>
-                    <span className="chat-image-ref-optional">Optional</span>
-                  </button>
-                )}
-                <input ref={videoEndInputRef} type="file" accept="image/*" style={{ display: "none" }}
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) setVideoEndAttachment({ name: f.name, url: URL.createObjectURL(f) }); e.target.value = ""; }} />
-              </div>
-            )}
-            <div className="home-prompt-editor-wrap">
-              <textarea
-                className="home-prompt-editor"
-                placeholder={isFocused ? "Type / for commands" : "Describe your next shot..."}
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                onFocus={() => setIsFocused(true)}
-                rows={2}
-              />
-            </div>
-            <div className="home-prompt-actions">
-              <button type="button" className="home-prompt-plus" aria-label="Attach">
-                <Plus />
-              </button>
-              {(activeGrid === "image" || activeGrid === "video") && (
-                <div className="video-gen-settings home-image-settings">
-                  <div className="video-chip-wrap">
-                    <button ref={(el) => { chipRefs.current.model = el; }} type="button"
-                      className={cn("video-gen-chip", openChip === "model" && "is-active")}
-                      onClick={() => openChipFn("model")}>
-                      <LayoutGrid size={13} />
-                      <span>{activeGrid === "image" ? imageSettings.model : videoSettings.model}</span>
-                      <ChevronDown size={11} />
-                    </button>
-                  </div>
-                  <div className="video-chip-wrap">
-                    <button ref={(el) => { chipRefs.current.ratio = el; }} type="button"
-                      className={cn("video-gen-chip", openChip === "ratio" && "is-active")}
-                      onClick={() => openChipFn("ratio")}>
-                      <RectangleHorizontal size={13} />
-                      <span>{activeGrid === "image" ? imageSettings.ratio : videoSettings.ratio}</span>
-                      <ChevronDown size={11} />
-                    </button>
-                  </div>
-                  <div className="video-chip-wrap">
-                    <button ref={(el) => { chipRefs.current.third = el; }} type="button"
-                      className={cn("video-gen-chip", openChip === "third" && "is-active")}
-                      onClick={() => openChipFn("third")}>
-                      {activeGrid === "image" ? <ArrowUpDown size={13} /> : <Clock size={13} />}
-                      <span>{activeGrid === "image" ? imageSettings.resolution : videoSettings.duration}</span>
-                      <ChevronDown size={11} />
-                    </button>
-                  </div>
-                  <div className="video-chip-wrap">
-                    <button ref={(el) => { chipRefs.current.quality = el; }} type="button"
-                      className={cn("video-gen-chip", openChip === "quality" && "is-active")}
-                      onClick={() => openChipFn("quality")}>
-                      <Sparkles size={13} />
-                      <span>{activeGrid === "image" ? imageSettings.quality : videoSettings.quality}</span>
-                      <ChevronDown size={11} />
-                    </button>
-                  </div>
+          {promptSuggestion && !suggestionDismissed && !activeGrid && (() => {
+            const cfg = TOOL_SUGGESTION_CONFIG[promptSuggestion];
+            if (!cfg) return null;
+            return (
+              <div className="prompt-suggestion-widget">
+                <div className="prompt-suggestion-left">
+                  <cfg.icon size={13} />
+                  <span className="prompt-suggestion-label">{cfg.label}</span>
+                  <span className="prompt-suggestion-key">Tab</span>
                 </div>
-              )}
-              <div className="home-prompt-right">
+                <div className="prompt-suggestion-right">
+                  <button type="button" className="prompt-suggestion-confirm" onClick={acceptSuggestion}>
+                    Use {cfg.slug}
+                  </button>
+                  <button type="button" className="prompt-suggestion-dismiss" onClick={() => setSuggestionDismissed(true)}>
+                    <X size={12} />
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
+
+          <div className="home-prompt-card" ref={promptCardRef}>
+            <PromptBox
+              variant="home"
+              value={prompt}
+              onChange={setPrompt}
+              onKeyDown={(e) => {
+                if (e.key === "Tab" && promptSuggestion && !suggestionDismissed && !activeGrid) {
+                  e.preventDefault();
+                  acceptSuggestion();
+                }
+              }}
+              placeholder={isFocused ? "Type / for commands" : "Describe your next shot..."}
+              activeGrid={activeGrid}
+              onActiveGridChange={(grid) => { setActiveGrid(grid); setPromptSuggestion(null); setSuggestionDismissed(false); }}
+              selectedAttachment={selectedAttachment}
+              onSelectedAttachmentChange={setSelectedAttachment}
+              videoStartAttachment={videoStartAttachment}
+              onVideoStartAttachmentChange={setVideoStartAttachment}
+              videoEndAttachment={videoEndAttachment}
+              onVideoEndAttachmentChange={setVideoEndAttachment}
+              chipsMap={{
+                image: [
+                  { key: "model",      icon: LayoutGrid,          activeValue: imageSettings.model,      options: imageModels,           onSelect: (v) => setImageSettings((s) => ({ ...s, model: v })) },
+                  { key: "ratio",      icon: RectangleHorizontal, activeValue: imageSettings.ratio,      options: imageRatioOptions,     onSelect: (v) => setImageSettings((s) => ({ ...s, ratio: v })) },
+                  { key: "resolution", icon: ArrowUpDown,         activeValue: imageSettings.resolution, options: imageResolutionOptions, onSelect: (v) => setImageSettings((s) => ({ ...s, resolution: v })) },
+                  { key: "quality",    icon: Sparkles,            activeValue: imageSettings.quality,    options: imageQualityOptions,   onSelect: (v) => setImageSettings((s) => ({ ...s, quality: v })) },
+                ],
+                video: [
+                  { key: "model",    icon: LayoutGrid,          activeValue: videoSettings.model,    options: videoModels,         onSelect: (v) => setVideoSettings((s) => ({ ...s, model: v })) },
+                  { key: "ratio",    icon: RectangleHorizontal, activeValue: videoSettings.ratio,    options: videoRatioOptions,   onSelect: (v) => setVideoSettings((s) => ({ ...s, ratio: v })) },
+                  { key: "duration", icon: Clock,               activeValue: videoSettings.duration, options: videoDurationOptions, onSelect: (v) => setVideoSettings((s) => ({ ...s, duration: v })) },
+                  { key: "quality",  icon: Sparkles,            activeValue: videoSettings.quality,  options: videoQualityOptions, onSelect: (v) => setVideoSettings((s) => ({ ...s, quality: v })) },
+                ],
+                audio: [
+                  { key: "aud-model",    icon: LayoutGrid, activeValue: audioSettings.model,    options: audioModels,          onSelect: (v) => setAudioSetting("model", v) },
+                  { key: "aud-mood",     icon: Music4,     activeValue: audioSettings.mood,     options: audioMoodOptions,     onSelect: (v) => setAudioSetting("mood", v) },
+                  { key: "aud-duration", icon: Clock,      activeValue: audioSettings.duration, options: audioDurationOptions, onSelect: (v) => setAudioSetting("duration", v) },
+                  { key: "aud-quality",  icon: Sparkles,   activeValue: audioSettings.quality,  options: audioQualityOptions,  onSelect: (v) => setAudioSetting("quality", v) },
+                ],
+                sfx: [
+                  { key: "sfx-model",    icon: LayoutGrid, activeValue: sfxSettings.model,    options: sfxModels,        onSelect: (v) => setSfxSetting("model", v) },
+                  { key: "sfx-duration", icon: Clock,      activeValue: sfxSettings.duration, options: sfxDurationOptions, onSelect: (v) => setSfxSetting("duration", v) },
+                ],
+                voiceover: [
+                  { key: "vo-model",    icon: LayoutGrid, activeValue: voiceoverSettings.model,    options: voiceoverModels, onSelect: (v) => setVoiceoverSetting("model", v) },
+                  { key: "vo-voice",    icon: Mic,        activeValue: voiceoverSettings.voice,    options: voiceOptions,    onSelect: (v) => setVoiceoverSetting("voice", v) },
+                  { key: "vo-speed",    icon: Gauge,      activeValue: voiceoverSettings.speed,    options: speedOptions,    onSelect: (v) => setVoiceoverSetting("speed", v) },
+                  { key: "vo-language", icon: LayoutGrid, activeValue: voiceoverSettings.language, options: languageOptions, onSelect: (v) => setVoiceoverSetting("language", v) },
+                ],
+              }}
+              renderModelSelector={() => (
                 <div className="home-model-selector-wrap" ref={modelRef}>
                   <button
                     type="button"
@@ -512,87 +522,86 @@ export default function HomeScreen() {
                     <span>{selectedModel.label}</span>
                     <ChevronDown className={cn("home-model-chevron", modelOpen && "is-open")} />
                   </button>
-                </div>
-                {modelOpen && dropdownPos && createPortal(
-                  <div
-                    ref={dropdownRef}
-                    className="home-model-dropdown"
-                    style={{ position: "fixed", bottom: dropdownPos.bottom, right: dropdownPos.right }}
-                  >
-                    <div className="home-model-provider-list">
-                      {modelProviders.map((provider) => (
-                        <div
-                          key={provider.id}
-                          className={cn("home-model-provider-row", hoveredProvider === provider.id && "is-hovered")}
-                          onMouseEnter={() => setHoveredProvider(provider.id)}
-                          onMouseLeave={() => provider.submodels.length === 0 && setHoveredProvider(null)}
-                          onClick={() => {
-                            if (provider.submodels.length === 0) {
-                              setSelectedModel({ providerId: provider.id, submodelId: null, label: provider.label, iconBg: provider.iconBg });
-                              setModelOpen(false);
-                              setHoveredProvider(null);
-                            }
-                          }}
-                        >
-                          <span
-                            className="home-model-provider-icon"
-                            style={{ background: provider.iconBg, color: provider.iconColor }}
-                          >
-                            {provider.iconLetter ?? null}
-                            {provider.id === "claude" && (
-                              <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor">
-                                <path d="M12 2l1.09 3.36L16.5 4l-2.18 2.91L17 10l-3.5-.55L12 13l-1.5-3.55L7 10l2.68-3.09L7.5 4l3.41 1.36z" />
-                              </svg>
-                            )}
-                          </span>
-                          <span className="home-model-provider-name">{provider.label}</span>
-                          {provider.subBrand && <span className="home-model-provider-brand">{provider.subBrand}</span>}
-                          {provider.submodels.length > 0
-                            ? <ChevronRight className="home-model-row-end" />
-                            : selectedModel.providerId === provider.id && <Check className="home-model-row-end home-model-row-check" />
-                          }
-                        </div>
-                      ))}
-                    </div>
-                    {hoveredProvider && modelProviders.find(p => p.id === hoveredProvider)?.submodels.length > 0 && (
-                      <div className="home-model-submenu">
-                        <div className="home-model-submenu-header">
-                          {modelProviders.find(p => p.id === hoveredProvider).label}
-                        </div>
-                        {modelProviders.find(p => p.id === hoveredProvider).submodels.map((sub) => {
-                          const provider = modelProviders.find(p => p.id === hoveredProvider);
-                          return (
-                            <button
-                              key={sub.id}
-                              type="button"
-                              className={cn("home-model-sub-option", selectedModel.submodelId === sub.id && "is-selected")}
-                              onClick={() => {
-                                setSelectedModel({ providerId: provider.id, submodelId: sub.id, label: sub.label, iconBg: provider.iconBg });
+                  {modelOpen && dropdownPos && createPortal(
+                    <div
+                      ref={dropdownRef}
+                      className="home-model-dropdown"
+                      style={{ position: "fixed", bottom: dropdownPos.bottom, right: dropdownPos.right }}
+                    >
+                      <div className="home-model-provider-list">
+                        {modelProviders.map((provider) => (
+                          <div
+                            key={provider.id}
+                            className={cn("home-model-provider-row", hoveredProvider === provider.id && "is-hovered")}
+                            onMouseEnter={() => setHoveredProvider(provider.id)}
+                            onMouseLeave={() => provider.submodels.length === 0 && setHoveredProvider(null)}
+                            onClick={() => {
+                              if (provider.submodels.length === 0) {
+                                setSelectedModel({ providerId: provider.id, submodelId: null, label: provider.label, iconBg: provider.iconBg });
                                 setModelOpen(false);
                                 setHoveredProvider(null);
-                              }}
-                            >
-                              <span className="home-model-provider-icon" style={{ background: provider.iconBg, color: provider.iconColor }}>
-                                {provider.id === "claude" && (
-                                  <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor">
-                                    <path d="M12 2l1.09 3.36L16.5 4l-2.18 2.91L17 10l-3.5-.55L12 13l-1.5-3.55L7 10l2.68-3.09L7.5 4l3.41 1.36z" />
-                                  </svg>
-                                )}
-                              </span>
-                              <span>{sub.label}</span>
-                            </button>
-                          );
-                        })}
+                              }
+                            }}
+                          >
+                            <span className="home-model-provider-icon" style={{ background: provider.iconBg, color: provider.iconColor }}>
+                              {provider.iconLetter ?? null}
+                              {provider.id === "claude" && (
+                                <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor">
+                                  <path d="M12 2l1.09 3.36L16.5 4l-2.18 2.91L17 10l-3.5-.55L12 13l-1.5-3.55L7 10l2.68-3.09L7.5 4l3.41 1.36z" />
+                                </svg>
+                              )}
+                            </span>
+                            <span className="home-model-provider-name">{provider.label}</span>
+                            {provider.subBrand && <span className="home-model-provider-brand">{provider.subBrand}</span>}
+                            {provider.submodels.length > 0
+                              ? <ChevronRight className="home-model-row-end" />
+                              : selectedModel.providerId === provider.id && <Check className="home-model-row-end home-model-row-check" />
+                            }
+                          </div>
+                        ))}
                       </div>
-                    )}
-                  </div>,
-                  document.body
-                )}
+                      {hoveredProvider && modelProviders.find(p => p.id === hoveredProvider)?.submodels.length > 0 && (
+                        <div className="home-model-submenu">
+                          <div className="home-model-submenu-header">
+                            {modelProviders.find(p => p.id === hoveredProvider).label}
+                          </div>
+                          {modelProviders.find(p => p.id === hoveredProvider).submodels.map((sub) => {
+                            const provider = modelProviders.find(p => p.id === hoveredProvider);
+                            return (
+                              <button
+                                key={sub.id}
+                                type="button"
+                                className={cn("home-model-sub-option", selectedModel.submodelId === sub.id && "is-selected")}
+                                onClick={() => {
+                                  setSelectedModel({ providerId: provider.id, submodelId: sub.id, label: sub.label, iconBg: provider.iconBg });
+                                  setModelOpen(false);
+                                  setHoveredProvider(null);
+                                }}
+                              >
+                                <span className="home-model-provider-icon" style={{ background: provider.iconBg, color: provider.iconColor }}>
+                                  {provider.id === "claude" && (
+                                    <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor">
+                                      <path d="M12 2l1.09 3.36L16.5 4l-2.18 2.91L17 10l-3.5-.55L12 13l-1.5-3.55L7 10l2.68-3.09L7.5 4l3.41 1.36z" />
+                                    </svg>
+                                  )}
+                                </span>
+                                <span>{sub.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>,
+                    document.body
+                  )}
+                </div>
+              )}
+              renderSendButton={() => (
                 <button type="button" className="home-prompt-send" aria-label="Send">
                   <ArrowUp />
                 </button>
-              </div>
-            </div>
+              )}
+            />
           </div>
 
           <div className="home-action-chips">
@@ -649,6 +658,72 @@ export default function HomeScreen() {
           </div>
         )}
 
+        {activeGrid === "audio" && (
+          <div className="home-style-grid-wrap">
+            <div className="home-gen-text-header">
+              <span className="image-style-title">Audio Moods</span>
+              <span className="image-style-subtitle">Choose a mood for your generated audio</span>
+            </div>
+            <div className="home-gen-text-grid">
+              {homeAudioMoods.map((mood, i) => (
+                <button
+                  key={mood.name}
+                  type="button"
+                  className={cn("gen-text-card", `bento-item-${i}`, selectedAudioMood === mood.name && "is-selected")}
+                  onClick={() => setSelectedAudioMood(selectedAudioMood === mood.name ? null : mood.name)}
+                >
+                  <span className="gen-text-card-name">{mood.name}</span>
+                  <span className="gen-text-card-desc">{mood.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeGrid === "sfx" && (
+          <div className="home-style-grid-wrap">
+            <div className="home-gen-text-header">
+              <span className="image-style-title">SFX Categories</span>
+              <span className="image-style-subtitle">Choose a category for your sound effects</span>
+            </div>
+            <div className="home-gen-text-grid">
+              {homeSfxCategories.map((cat, i) => (
+                <button
+                  key={cat.name}
+                  type="button"
+                  className={cn("gen-text-card", `bento-item-${i}`, selectedSfxCategory === cat.name && "is-selected")}
+                  onClick={() => setSelectedSfxCategory(selectedSfxCategory === cat.name ? null : cat.name)}
+                >
+                  <span className="gen-text-card-name">{cat.name}</span>
+                  <span className="gen-text-card-desc">{cat.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeGrid === "voiceover" && (
+          <div className="home-style-grid-wrap">
+            <div className="home-gen-text-header">
+              <span className="image-style-title">Voice Profiles</span>
+              <span className="image-style-subtitle">Choose a voice for your voiceover</span>
+            </div>
+            <div className="home-gen-text-grid">
+              {homeVoiceProfiles.map((voice, i) => (
+                <button
+                  key={voice.name}
+                  type="button"
+                  className={cn("gen-text-card", `bento-item-${i}`, selectedVoice === voice.name && "is-selected")}
+                  onClick={() => setSelectedVoice(selectedVoice === voice.name ? null : voice.name)}
+                >
+                  <span className="gen-text-card-name">{voice.name}</span>
+                  <span className="gen-text-card-desc">{voice.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="home-main-inner home-main-inner--projects">
           <div className="home-projects-section">
             <div className="home-projects-header">
@@ -699,62 +774,6 @@ export default function HomeScreen() {
         </div>
       </main>
 
-      {openChip && chipDropdownPos && createPortal(
-        <div
-          ref={chipDropdownRef}
-          className="video-chip-dropdown"
-          style={{ position: "fixed", bottom: chipDropdownPos.bottom, left: chipDropdownPos.left }}
-        >
-          {openChip === "model" && (activeGrid === "image" ? imageModels : videoModels).map((m) => {
-            const active = activeGrid === "image" ? imageSettings.model === m : videoSettings.model === m;
-            const setter = activeGrid === "image" ? setImageSettings : setVideoSettings;
-            return (
-              <button key={m} type="button"
-                className={cn("video-chip-option", active && "is-active")}
-                onClick={() => { setter((s) => ({ ...s, model: m })); setOpenChip(null); }}>
-                {m}{active && <Check size={12} />}
-              </button>
-            );
-          })}
-          {openChip === "ratio" && (activeGrid === "image" ? imageRatioOptions : videoRatioOptions).map((r) => {
-            const active = activeGrid === "image" ? imageSettings.ratio === r : videoSettings.ratio === r;
-            const setter = activeGrid === "image" ? setImageSettings : setVideoSettings;
-            return (
-              <button key={r} type="button"
-                className={cn("video-chip-option", active && "is-active")}
-                onClick={() => { setter((s) => ({ ...s, ratio: r })); setOpenChip(null); }}>
-                {r}{active && <Check size={12} />}
-              </button>
-            );
-          })}
-          {openChip === "third" && activeGrid === "image" && imageResolutionOptions.map((res) => (
-            <button key={res} type="button"
-              className={cn("video-chip-option", imageSettings.resolution === res && "is-active")}
-              onClick={() => { setImageSettings((s) => ({ ...s, resolution: res })); setOpenChip(null); }}>
-              {res}{imageSettings.resolution === res && <Check size={12} />}
-            </button>
-          ))}
-          {openChip === "third" && activeGrid === "video" && videoDurationOptions.map((d) => (
-            <button key={d} type="button"
-              className={cn("video-chip-option", videoSettings.duration === d && "is-active")}
-              onClick={() => { setVideoSettings((s) => ({ ...s, duration: d })); setOpenChip(null); }}>
-              {d}{videoSettings.duration === d && <Check size={12} />}
-            </button>
-          ))}
-          {openChip === "quality" && (activeGrid === "image" ? imageQualityOptions : videoQualityOptions).map((q) => {
-            const active = activeGrid === "image" ? imageSettings.quality === q : videoSettings.quality === q;
-            const setter = activeGrid === "image" ? setImageSettings : setVideoSettings;
-            return (
-              <button key={q} type="button"
-                className={cn("video-chip-option", active && "is-active")}
-                onClick={() => { setter((s) => ({ ...s, quality: q })); setOpenChip(null); }}>
-                {q}{active && <Check size={12} />}
-              </button>
-            );
-          })}
-        </div>,
-        document.body
-      )}
     </div>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -35,7 +34,6 @@ import {
   Shapes,
   SkipBack,
   SkipForward,
-  SlidersHorizontal,
   Sparkles,
   Trash2,
   Type,
@@ -65,6 +63,7 @@ import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { PromptBox } from "@/components/prompt-box";
 
 const editorModels = [
   { id: "deepseek-v4-pro", label: "DeepSeek V4 Pro", tag: "Recommended", gradient: "linear-gradient(135deg, #0ea5e9 0%, #6366f1 60%, #8b5cf6 100%)" },
@@ -112,6 +111,51 @@ const videoClips = [
   { id: 4207907, name: "Urban Walk",      ratio: "9 / 16", prompt: "First-person POV walk through a busy city street at dusk, neon signs reflecting on wet pavement, immersive and energetic pace" },
   { id: 5489782, name: "Vertical",        ratio: "9 / 16", prompt: "Vertical cinematic clip of autumn forest with falling leaves, golden hour light shafts through trees, gentle slow-motion drift" },
 ];
+
+const audioMoods = [
+  { name: "Cinematic",  desc: "Epic orchestral" },
+  { name: "Ambient",    desc: "Atmospheric beds" },
+  { name: "Electronic", desc: "Modern synths" },
+  { name: "Jazz",       desc: "Laid-back grooves" },
+  { name: "Hip-Hop",    desc: "Punchy beats" },
+  { name: "Acoustic",   desc: "Warm & organic" },
+  { name: "Lo-Fi",      desc: "Chill vibes" },
+  { name: "Corporate",  desc: "Clean & upbeat" },
+];
+
+const sfxCategories = [
+  { name: "Nature",         desc: "Rain, wind, birds" },
+  { name: "Foley",          desc: "Steps, cloth, props" },
+  { name: "Impacts",        desc: "Hits & explosions" },
+  { name: "UI / Interface", desc: "Clicks & alerts" },
+  { name: "Transitions",    desc: "Whooshes & sweeps" },
+  { name: "Ambience",       desc: "Room tone & spaces" },
+];
+
+const voiceProfiles = [
+  { name: "Nova",    desc: "Warm, feminine" },
+  { name: "Onyx",    desc: "Deep, masculine" },
+  { name: "Alloy",   desc: "Neutral, clear" },
+  { name: "Echo",    desc: "Smooth, conversational" },
+  { name: "Fable",   desc: "British, articulate" },
+  { name: "Shimmer", desc: "Bright, energetic" },
+];
+
+const EDITOR_TOOL_SUGGESTION_CONFIG = {
+  video:     { icon: Film,    label: "Generate Video",     slug: "generate-video" },
+  image:     { icon: ImageUp, label: "Generate Image",     slug: "generate-image" },
+  audio:     { icon: Music4,  label: "Generate Audio",     slug: "generate-audio" },
+  sfx:       { icon: Volume2, label: "Generate SFX",       slug: "generate-sfx" },
+  voiceover: { icon: Mic,     label: "Generate Voiceover", slug: "generate-voiceover" },
+};
+
+const TOOL_GRID_MAP = {
+  "generate-video":     "video",
+  "generate-image":     "image",
+  "generate-music":     "audio",
+  "generate-voiceover": "voiceover",
+  "generate-sfx":       "sfx",
+};
 
 const toolsSections = [
   {
@@ -555,7 +599,7 @@ export default function EditorScreen() {
   const [activePanel, setActivePanel] = useState("files");
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
-  const [chatPanelWidth, setChatPanelWidth] = useState(400);
+  const [chatPanelWidth, setChatPanelWidth] = useState(660);
   const [timelineOpen, setTimelineOpen] = useState(true);
   const [timelineHeight, setTimelineHeight] = useState(196);
   const [syncState] = useState("saved");
@@ -590,12 +634,16 @@ export default function EditorScreen() {
     resolution: "1024px",
     quality: "Standard",
   });
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [settingsAnchorRect, setSettingsAnchorRect] = useState(null);
-  const [chatNarrow, setChatNarrow] = useState(false);
-  const [openChip, setOpenChip] = useState(null);
-  const [chipAnchorRect, setChipAnchorRect] = useState(null);
-  const [vsdModelOpen, setVsdModelOpen] = useState(false);
+  const [audioSettings, setAudioSettings] = useState({ model: "Suno v4", mood: "Cinematic", duration: "30s", quality: "HD" });
+  const [sfxSettings, setSfxSettings] = useState({ model: "ElevenLabs SFX", duration: "3s" });
+  const [voiceoverSettings, setVoiceoverSettings] = useState({ model: "ElevenLabs", voice: "Nova", speed: "1x", language: "English" });
+  const [selectedAudioMood, setSelectedAudioMood] = useState(null);
+  const [selectedSfxCategory, setSelectedSfxCategory] = useState(null);
+  const [selectedVoice, setSelectedVoice] = useState(null);
+  const [promptSuggestion, setPromptSuggestion] = useState(null);
+  const [suggestionDismissed, setSuggestionDismissed] = useState(false);
+  const [imageStylesExpanded, setImageStylesExpanded] = useState(false);
+  const [videoTemplatesExpanded, setVideoTemplatesExpanded] = useState(false);
 
   const videoModels = ["Veo 3.1 Lite", "Veo 3.0", "Kling 1.6 Pro", "Wan 2.1", "Hailuo"];
   const ratioOptions = ["16:9", "1:1", "9:16"];
@@ -607,38 +655,31 @@ export default function EditorScreen() {
   const imageResolutionOptions = ["512px", "768px", "1024px", "2048px"];
   const imageQualityOptions = ["Standard", "HD"];
 
-  function setVideoSetting(key, value) {
-    setVideoSettings((s) => ({ ...s, [key]: value }));
-  }
+  const audioModels = ["Suno v4", "Udio 2.0", "MusicGen 2"];
+  const audioMoodOptions = ["Cinematic", "Ambient", "Electronic", "Jazz", "Hip-Hop", "Acoustic", "Lo-Fi", "Corporate"];
+  const audioDurationOptions = ["15s", "30s", "60s", "2min"];
+  const audioQualityOptions = ["Standard", "HD"];
 
-  function setImageSetting(key, value) {
-    setImageSettings((s) => ({ ...s, [key]: value }));
-  }
+  const sfxModels = ["ElevenLabs SFX", "Audiocraft", "Stability Audio"];
+  const sfxDurationOptions = ["1s", "3s", "5s", "10s"];
 
-  function toggleChip(key, e) {
-    if (openChip === key) {
-      setOpenChip(null);
-      setChipAnchorRect(null);
-    } else {
-      setOpenChip(key);
-      setChipAnchorRect(e.currentTarget.getBoundingClientRect());
-    }
-  }
+  const voiceoverModels = ["ElevenLabs", "OpenAI TTS", "Cartesia"];
+  const voiceOptions = ["Nova", "Onyx", "Alloy", "Echo", "Fable", "Shimmer"];
+  const speedOptions = ["0.75x", "1x", "1.25x", "1.5x"];
+  const languageOptions = ["English", "Spanish", "French", "German"];
 
-  const imageRefInputRef = useRef(null);
-  const videoStartInputRef = useRef(null);
-  const videoEndInputRef = useRef(null);
+  function setVideoSetting(key, value) { setVideoSettings((s) => ({ ...s, [key]: value })); }
+  function setImageSetting(key, value) { setImageSettings((s) => ({ ...s, [key]: value })); }
+  function setAudioSetting(key, value) { setAudioSettings((s) => ({ ...s, [key]: value })); }
+  function setSfxSetting(key, value) { setSfxSettings((s) => ({ ...s, [key]: value })); }
+  function setVoiceoverSetting(key, value) { setVoiceoverSettings((s) => ({ ...s, [key]: value })); }
+
   const timelineRulerRef = useRef(null);
   const workspaceBodyRef = useRef(null);
   const canvasStageRef = useRef(null);
   const canvasArtboardRef = useRef(null);
   const chatPromptRef = useRef(null);
   const chatModelRef = useRef(null);
-  const chatActionsRef = useRef(null);
-  const settingsRef = useRef(null);
-  const settingsTriggerRef = useRef(null);
-  const chipSettingsRef = useRef(null);
-  const chipDropdownRef = useRef(null);
   const nextChatIdRef = useRef(2);
   const focusChatComposerRef = useRef(false);
   const playheadDragRef = useRef({
@@ -654,7 +695,7 @@ export default function EditorScreen() {
   const chatResizeSessionRef = useRef({
     pointerId: null,
     startX: 0,
-    startWidth: 400,
+    startWidth: 660,
   });
   const timelineResizeSessionRef = useRef({
     pointerId: null,
@@ -669,20 +710,41 @@ export default function EditorScreen() {
   const TimelinePanelIcon = PanelBottomGlyph;
   const activeChat = chatThreads.find((thread) => thread.id === activeChatId) ?? chatThreads[0] ?? null;
   const chatDraft = activeChat?.draft ?? "";
-  const showVideoGrid = activeGrid === "video";
-  const showImageGrid = activeGrid === "image";
+  const showVideoGrid     = activeGrid === "video";
+  const showImageGrid     = activeGrid === "image";
+  const showAudioGrid     = activeGrid === "audio";
+  const showSfxGrid       = activeGrid === "sfx";
+  const showVoiceoverGrid = activeGrid === "voiceover";
 
   useLayoutEffect(() => {
     if (!chatDraft) {
-      setActiveGrid(null);
+      setPromptSuggestion(null);
+      setSuggestionDismissed(false);
       return;
     }
-    const videoMatch = /\bvideo\b/i.test(chatDraft);
-    const imageMatch = /\bimage\b/i.test(chatDraft);
-    if (videoMatch) setActiveGrid("video");
-    else if (imageMatch) setActiveGrid("image");
-    // Keep current grid if text exists but neither keyword is present
+    const videoMatch     = /\bvideo\b|\b(generate|create|make)\s+(?:a\s+)?video\b|\banimate\b|\bcreate\s+(?:a\s+)?clip\b|\/generate-video\b/i.test(chatDraft);
+    const imageMatch     = /\bimage\b|\b(generate|create|make)\s+(?:an?\s+)?image\b|\bdraw\b|\billustrate\b|\brender\b|\b(photo|picture)\s+of\b|\/generate-image\b/i.test(chatDraft);
+    const voiceoverMatch = /\b(generate|create|make|add)\s+(?:a\s+)?(?:voiceover|voice\s+over|narration)\b|\bnarrate\b|\bnarration\b|\btext\s+to\s+speech\b|\bvoiceover\b|\bvoice\s+over\b|\/generate-voiceover\b/i.test(chatDraft);
+    const audioMatch     = /\b(generate|create|make|add)\s+(?:an?\s+)?(?:background\s+)?(?:audio|music|soundtrack)\b|\bmusic\b|\bsoundtrack\b|\bbackground\s+music\b|\/generate-audio\b/i.test(chatDraft);
+    const sfxMatch       = /\b(generate|create|make|add)\s+(?:sound\s+effects?|sfx)\b|\bsound\s+effects?\b|\bsfx\b|\/generate-sfx\b/i.test(chatDraft);
+    const detected = videoMatch ? "video" : imageMatch ? "image" : voiceoverMatch ? "voiceover" : audioMatch ? "audio" : sfxMatch ? "sfx" : null;
+    setPromptSuggestion((prev) => {
+      if (detected !== prev) { setSuggestionDismissed(false); return detected; }
+      return prev;
+    });
   }, [chatDraft]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setImageStylesExpanded(false);
+    setVideoTemplatesExpanded(false);
+  }, [activeGrid]);
+
+  function acceptEditorSuggestion() {
+    setActiveGrid(promptSuggestion);
+    setSuggestionDismissed(true);
+    if (chatPromptRef.current) chatPromptRef.current.textContent = "";
+    setChatThreads((cur) => cur.map((t) => t.id === activeChatId ? { ...t, draft: "" } : t));
+  }
   const visibleCollaborators = onlineCollaborators.slice(0, 3);
   const extraCollaboratorCount = Math.max(0, onlineCollaborators.length - visibleCollaborators.length);
 
@@ -818,41 +880,6 @@ export default function EditorScreen() {
       window.removeEventListener("pointercancel", handlePlayheadDragEnd);
     };
   }, []);
-
-  useEffect(() => {
-    const el = chatActionsRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([entry]) => {
-      setChatNarrow(entry.contentRect.width < 400);
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!settingsOpen) return;
-    function handleOutside(e) {
-      const inDialog = settingsRef.current?.contains(e.target);
-      const inTrigger = settingsTriggerRef.current?.contains(e.target);
-      if (!inDialog && !inTrigger) { setSettingsOpen(false); setSettingsAnchorRect(null); }
-    }
-    document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
-  }, [settingsOpen]);
-
-  useEffect(() => {
-    if (!openChip) return;
-    function handleOutside(e) {
-      const inChips = chipSettingsRef.current?.contains(e.target);
-      const inDropdown = chipDropdownRef.current?.contains(e.target);
-      if (!inChips && !inDropdown) {
-        setOpenChip(null);
-        setChipAnchorRect(null);
-      }
-    }
-    document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
-  }, [openChip]);
 
   function handleChatResizeStart(event) {
     if (event.button !== 0) return;
@@ -1010,19 +1037,18 @@ export default function EditorScreen() {
   function toggleToolChip(tool) {
     const isSelected = selectedTools.some((t) => t.id === tool.id);
     setSelectedTools(isSelected ? [] : [tool]);
-    if (tool.id === "generate-video") setActiveGrid(isSelected ? null : "video");
-    if (tool.id === "generate-image") {
-      setActiveGrid(isSelected ? null : "image");
-      if (isSelected) setSelectedImageStyle(null);
+    const grid = TOOL_GRID_MAP[tool.id];
+    if (grid) {
+      setActiveGrid(isSelected ? null : grid);
+      if (tool.id === "generate-image" && isSelected) setSelectedImageStyle(null);
     }
   }
 
   function removeToolChip(toolId) {
     setSelectedTools((current) => current.filter((t) => t.id !== toolId));
-    if (toolId === "generate-video") setActiveGrid(null);
-    if (toolId === "generate-image") {
+    if (TOOL_GRID_MAP[toolId]) {
       setActiveGrid(null);
-      setSelectedImageStyle(null);
+      if (toolId === "generate-image") setSelectedImageStyle(null);
     }
   }
 
@@ -1515,15 +1541,15 @@ export default function EditorScreen() {
                           <span className="image-style-title">Video Templates</span>
                           <span className="image-style-subtitle">Choose a template style for your generated video</span>
                         </div>
-                        <div className="video-bento-grid">
-                          {videoClips.map((vid, i) => {
+                        <div className="video-template-grid">
+                          {(videoTemplatesExpanded ? videoClips : videoClips.slice(0, 6)).map((vid, i) => {
                             const poster = `https://images.pexels.com/videos/${vid.id}/free-video-${vid.id}.jpg?auto=compress&cs=tinysrgb&dpr=1&fit=crop`;
                             const src = `https://videos.pexels.com/video-files/${vid.id}/free-${vid.id}-hd_1920_1080_25fps.mp4`;
                             return (
                               <button
                                 key={vid.id}
                                 type="button"
-                                className={cn("video-style-card", `bento-item-${i}`, selectedAttachment?.id === vid.id && "is-selected")}
+                                className={cn("video-template-card", `template-item-${i}`, selectedAttachment?.id === vid.id && "is-selected")}
                                 onClick={() => {
                                   setSelectedAttachment({ type: "video", id: vid.id, name: vid.name, poster, src });
                                   setChatThreads((cur) => cur.map((t) => t.id === activeChatId ? { ...t, draft: vid.prompt } : t));
@@ -1545,6 +1571,11 @@ export default function EditorScreen() {
                             );
                           })}
                         </div>
+                        {!videoTemplatesExpanded && videoClips.length > 6 && (
+                          <button type="button" className="style-more-btn" onClick={() => setVideoTemplatesExpanded(true)}>
+                            More templates ({videoClips.length - 6} more)
+                          </button>
+                        )}
                       </div>
                     )}
                     {showImageGrid && (
@@ -1554,7 +1585,7 @@ export default function EditorScreen() {
                           <span className="image-style-subtitle">Choose a style for your generated image</span>
                         </div>
                         <div className="image-style-grid">
-                          {imageStyles.map((style, i) => (
+                          {(imageStylesExpanded ? imageStyles : imageStyles.slice(0, 8)).map((style, i) => (
                             <button
                               key={style.name}
                               type="button"
@@ -1570,9 +1601,77 @@ export default function EditorScreen() {
                             </button>
                           ))}
                         </div>
+                        {!imageStylesExpanded && imageStyles.length > 8 && (
+                          <button type="button" className="style-more-btn" onClick={() => setImageStylesExpanded(true)}>
+                            More styles ({imageStyles.length - 8} more)
+                          </button>
+                        )}
                       </div>
                     )}
-                    {!showVideoGrid && !showImageGrid && (
+                    {showAudioGrid && (
+                      <div className="image-style-panel">
+                        <div className="image-style-header">
+                          <span className="image-style-title">Audio Moods</span>
+                          <span className="image-style-subtitle">Choose a mood for your generated audio</span>
+                        </div>
+                        <div className="image-style-grid">
+                          {audioMoods.map((mood, i) => (
+                            <button
+                              key={mood.name}
+                              type="button"
+                              className={cn("gen-text-card", `bento-item-${i}`, selectedAudioMood === mood.name && "is-selected")}
+                              onClick={() => setSelectedAudioMood(selectedAudioMood === mood.name ? null : mood.name)}
+                            >
+                              <span className="gen-text-card-name">{mood.name}</span>
+                              <span className="gen-text-card-desc">{mood.desc}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {showSfxGrid && (
+                      <div className="image-style-panel">
+                        <div className="image-style-header">
+                          <span className="image-style-title">SFX Categories</span>
+                          <span className="image-style-subtitle">Choose a category for your sound effect</span>
+                        </div>
+                        <div className="image-style-grid">
+                          {sfxCategories.map((cat, i) => (
+                            <button
+                              key={cat.name}
+                              type="button"
+                              className={cn("gen-text-card", `bento-item-${i}`, selectedSfxCategory === cat.name && "is-selected")}
+                              onClick={() => setSelectedSfxCategory(selectedSfxCategory === cat.name ? null : cat.name)}
+                            >
+                              <span className="gen-text-card-name">{cat.name}</span>
+                              <span className="gen-text-card-desc">{cat.desc}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {showVoiceoverGrid && (
+                      <div className="image-style-panel">
+                        <div className="image-style-header">
+                          <span className="image-style-title">Voice Selection</span>
+                          <span className="image-style-subtitle">Choose a voice for your voiceover</span>
+                        </div>
+                        <div className="image-style-grid">
+                          {voiceProfiles.map((voice, i) => (
+                            <button
+                              key={voice.name}
+                              type="button"
+                              className={cn("gen-text-card", `bento-item-${i}`, selectedVoice === voice.name && "is-selected")}
+                              onClick={() => setSelectedVoice(selectedVoice === voice.name ? null : voice.name)}
+                            >
+                              <span className="gen-text-card-name">{voice.name}</span>
+                              <span className="gen-text-card-desc">{voice.desc}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {!activeGrid && (
                       <div className="chat-empty-state">
                         <h2 className="chat-empty-heading">What would you like to do?</h2>
                         <div className="chat-suggestions">
@@ -1587,297 +1686,262 @@ export default function EditorScreen() {
                     )}
                   </div>
 
+                  {promptSuggestion && !suggestionDismissed && !activeGrid && (() => {
+                    const cfg = EDITOR_TOOL_SUGGESTION_CONFIG[promptSuggestion];
+                    if (!cfg) return null;
+                    return (
+                      <div className="prompt-suggestion-widget">
+                        <div className="prompt-suggestion-left">
+                          <cfg.icon size={13} />
+                          <span className="prompt-suggestion-label">{cfg.label}</span>
+                          <span className="prompt-suggestion-key">Tab</span>
+                        </div>
+                        <div className="prompt-suggestion-right">
+                          <button type="button" className="prompt-suggestion-confirm" onClick={acceptEditorSuggestion}>
+                            Use {cfg.slug}
+                          </button>
+                          <button type="button" className="prompt-suggestion-dismiss" onClick={() => setSuggestionDismissed(true)}>
+                            <X size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   <Card className="chat-card">
-                    <div className="chat-card-scroll">
-                    {(selectedAttachment || selectedTools.length > 0 || showImageGrid || showVideoGrid) && (
-                      <div className="chat-prompt-refs">
-
-                        {/* Tool chips row — always on top */}
-                        {selectedTools.length > 0 && (
-                          <div className="chat-prompt-refs-chips">
-                            {selectedTools.map((tool) => (
-                              <div key={tool.id} className="chat-tool-chip">
-                                <span>{tool.name}</span>
-                                <button
-                                  type="button"
-                                  className="chat-tool-chip-remove"
-                                  aria-label={`Remove ${tool.name}`}
-                                  onClick={() => removeToolChip(tool.id)}
-                                >
-                                  <X />
+                    <PromptBox
+                      variant="editor"
+                      value={chatDraft}
+                      onChange={(text) =>
+                        setChatThreads((cur) =>
+                          cur.map((t) => t.id === activeChatId ? { ...t, draft: text } : t)
+                        )
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Tab" && promptSuggestion && !suggestionDismissed && !activeGrid) {
+                          e.preventDefault();
+                          acceptEditorSuggestion();
+                        }
+                      }}
+                      inputRef={chatPromptRef}
+                      activeGrid={activeGrid}
+                      onActiveGridChange={(grid) => { setActiveGrid(grid); setPromptSuggestion(null); setSuggestionDismissed(false); }}
+                      selectedAttachment={selectedAttachment?.type === "image" ? selectedAttachment : null}
+                      onSelectedAttachmentChange={setSelectedAttachment}
+                      imageStyleAttachment={selectedImageStyle}
+                      onImageStyleAttachmentChange={setSelectedImageStyle}
+                      videoStartAttachment={videoStartImage}
+                      onVideoStartAttachmentChange={setVideoStartImage}
+                      videoEndAttachment={videoEndImage}
+                      onVideoEndAttachmentChange={setVideoEndImage}
+                      chipsMap={{
+                        image: [
+                          { key: "img-model",      icon: LayoutGrid,          activeValue: imageSettings.model,      options: imageModels,           onSelect: (v) => setImageSetting("model", v) },
+                          { key: "img-ratio",      icon: RectangleHorizontal, activeValue: imageSettings.ratio,      options: imageRatioOptions,     onSelect: (v) => setImageSetting("ratio", v) },
+                          { key: "img-resolution", icon: ArrowUpDown,         activeValue: imageSettings.resolution, options: imageResolutionOptions, onSelect: (v) => setImageSetting("resolution", v) },
+                          { key: "img-quality",    icon: Sparkles,            activeValue: imageSettings.quality,    options: imageQualityOptions,   onSelect: (v) => setImageSetting("quality", v) },
+                        ],
+                        video: [
+                          { key: "model",      icon: LayoutGrid,          activeValue: videoSettings.model,      options: videoModels,       onSelect: (v) => setVideoSetting("model", v) },
+                          { key: "ratio",      icon: RectangleHorizontal, activeValue: videoSettings.ratio,      options: ratioOptions,      onSelect: (v) => setVideoSetting("ratio", v) },
+                          { key: "resolution", icon: ArrowUpDown,         activeValue: videoSettings.resolution, options: resolutionOptions, onSelect: (v) => setVideoSetting("resolution", v) },
+                          { key: "duration",   icon: Clock,               activeValue: videoSettings.duration,   options: durationOptions,   onSelect: (v) => setVideoSetting("duration", v) },
+                          { key: "audio",      icon: videoSettings.audio ? Volume2 : VolumeX, activeValue: videoSettings.audio ? "On" : "Off", options: ["Off", "On"], onSelect: (v) => setVideoSetting("audio", v === "On") },
+                        ],
+                        audio: [
+                          { key: "aud-model",    icon: LayoutGrid, activeValue: audioSettings.model,    options: audioModels,         onSelect: (v) => setAudioSetting("model", v) },
+                          { key: "aud-mood",     icon: Music4,     activeValue: audioSettings.mood,     options: audioMoodOptions,    onSelect: (v) => setAudioSetting("mood", v) },
+                          { key: "aud-duration", icon: Clock,      activeValue: audioSettings.duration, options: audioDurationOptions, onSelect: (v) => setAudioSetting("duration", v) },
+                          { key: "aud-quality",  icon: Sparkles,   activeValue: audioSettings.quality,  options: audioQualityOptions, onSelect: (v) => setAudioSetting("quality", v) },
+                        ],
+                        sfx: [
+                          { key: "sfx-model",    icon: LayoutGrid, activeValue: sfxSettings.model,    options: sfxModels,         onSelect: (v) => setSfxSetting("model", v) },
+                          { key: "sfx-duration", icon: Clock,      activeValue: sfxSettings.duration, options: sfxDurationOptions, onSelect: (v) => setSfxSetting("duration", v) },
+                        ],
+                        voiceover: [
+                          { key: "vo-model",    icon: LayoutGrid, activeValue: voiceoverSettings.model,    options: voiceoverModels, onSelect: (v) => setVoiceoverSetting("model", v) },
+                          { key: "vo-voice",    icon: Mic,        activeValue: voiceoverSettings.voice,    options: voiceOptions,    onSelect: (v) => setVoiceoverSetting("voice", v) },
+                          { key: "vo-speed",    icon: Gauge,      activeValue: voiceoverSettings.speed,    options: speedOptions,    onSelect: (v) => setVoiceoverSetting("speed", v) },
+                          { key: "vo-language", icon: FileText,   activeValue: voiceoverSettings.language, options: languageOptions, onSelect: (v) => setVoiceoverSetting("language", v) },
+                        ],
+                      }}
+                      extraChips={selectedTools.map((tool) => (
+                        <div key={tool.id} className="chat-tool-chip">
+                          <span>{tool.name}</span>
+                          <button type="button" className="chat-tool-chip-remove" aria-label={`Remove ${tool.name}`} onClick={() => removeToolChip(tool.id)}>
+                            <X />
+                          </button>
+                        </div>
+                      ))}
+                      renderModelSelector={() => (
+                        <div className="chat-model-selector-wrap" ref={chatModelRef}>
+                          <button type="button" className="chat-model-button" onClick={() => setChatModelOpen((v) => !v)}>
+                            <span className="chat-model-dot" style={{ background: chatSelectedModel.gradient }} />
+                            <span>{chatSelectedModel.label}</span>
+                            <ChevronDown className={cn("chat-model-chevron", chatModelOpen && "is-open")} />
+                          </button>
+                          {chatModelOpen && (
+                            <div className="chat-model-dropdown">
+                              {editorModels.map((m) => (
+                                <button key={m.id} type="button"
+                                  className={cn("chat-model-dropdown-item", chatSelectedModel.id === m.id && "is-selected")}
+                                  onClick={() => { setChatSelectedModel(m); setChatModelOpen(false); }}>
+                                  <span className="chat-model-dot" style={{ background: m.gradient }} />
+                                  <span>{m.label}</span>
+                                  {m.tag && <span className="chat-model-tag">{m.tag}</span>}
                                 </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Image / video refs row — below chips */}
-                        <div className="chat-prompt-refs-items">
-                          {/* Video: start + end image placeholders / thumbnails */}
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      renderSendButton={() => (
+                        <Button type="button" variant="default" size="icon" className="chat-send" aria-label="Send message">
+                          <span className="chat-send-rotator"><SendArrowGlyph /></span>
+                        </Button>
+                      )}
+                      supportNarrow
+                      renderSettingsContent={() => (
+                        <>
                           {showVideoGrid && (
                             <>
-                              <input ref={videoStartInputRef} type="file" accept="image/*" className="sr-only"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (!file) return;
-                                  setVideoStartImage({ name: file.name, url: URL.createObjectURL(file) });
-                                  e.target.value = "";
-                                }}
-                              />
-                              <input ref={videoEndInputRef} type="file" accept="image/*" className="sr-only"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (!file) return;
-                                  setVideoEndImage({ name: file.name, url: URL.createObjectURL(file) });
-                                  e.target.value = "";
-                                }}
-                              />
-
-                              {/* Start image */}
-                              {videoStartImage ? (
-                                <div className="chat-attachment-card">
-                                  <div className="chat-attachment-inner">
-                                    <img src={videoStartImage.url} alt={videoStartImage.name} className="chat-attachment-thumb" />
-                                    <span className="chat-attachment-label">Start</span>
-                                  </div>
-                                  <button type="button" className="chat-attachment-remove" aria-label="Remove start image" onClick={() => setVideoStartImage(null)}><X /></button>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Model</span>
+                                <div className="vsd-dropdown-wrap">
+                                  <button type="button" className="vsd-dropdown-trigger">
+                                    <span>{videoSettings.model}</span><ChevronDown className="vsd-dropdown-chevron" />
+                                  </button>
                                 </div>
-                              ) : (
-                                <button type="button" className="chat-image-ref-placeholder" aria-label="Add start image" onClick={() => videoStartInputRef.current?.click()}>
-                                  <ImageUp className="chat-image-ref-icon" />
-                                  <span className="chat-image-ref-label">Start image</span>
-                                  <span className="chat-image-ref-optional">(Optional)</span>
-                                </button>
-                              )}
-
-                              {/* End image */}
-                              {videoEndImage ? (
-                                <div className="chat-attachment-card">
-                                  <div className="chat-attachment-inner">
-                                    <img src={videoEndImage.url} alt={videoEndImage.name} className="chat-attachment-thumb" />
-                                    <span className="chat-attachment-label">End</span>
-                                  </div>
-                                  <button type="button" className="chat-attachment-remove" aria-label="Remove end image" onClick={() => setVideoEndImage(null)}><X /></button>
+                              </div>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Video ratio</span>
+                                <div className="vsd-ratio-pills">
+                                  {ratioOptions.map((r) => (
+                                    <button key={r} type="button" className={cn("vsd-ratio-btn", videoSettings.ratio === r && "is-active")} onClick={() => setVideoSetting("ratio", r)}>
+                                      <span className={cn("vsd-ratio-shape", `vsd-ratio-${r.replace(":", "-")}`)} /><span>{r}</span>
+                                    </button>
+                                  ))}
                                 </div>
-                              ) : (
-                                <button type="button" className="chat-image-ref-placeholder" aria-label="Add end image" onClick={() => videoEndInputRef.current?.click()}>
-                                  <ImageUp className="chat-image-ref-icon" />
-                                  <span className="chat-image-ref-label">End image</span>
-                                  <span className="chat-image-ref-optional">(Optional)</span>
-                                </button>
-                              )}
+                              </div>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Duration</span>
+                                <div className="vsd-res-pills">
+                                  {durationOptions.map((d) => (
+                                    <button key={d} type="button" className={cn("vsd-res-btn", videoSettings.duration === d && "is-active")} onClick={() => setVideoSetting("duration", d)}>{d}</button>
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Resolution</span>
+                                <div className="vsd-res-pills">
+                                  {resolutionOptions.map((r) => (
+                                    <button key={r} type="button" className={cn("vsd-res-btn", videoSettings.resolution === r && "is-active")} onClick={() => setVideoSetting("resolution", r)}>{r}</button>
+                                  ))}
+                                </div>
+                              </div>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Audio</span>
+                                <div className="vsd-res-pills">
+                                  {["Off", "On"].map((a) => (
+                                    <button key={a} type="button" className={cn("vsd-res-btn", videoSettings.audio === (a === "On") && "is-active")} onClick={() => setVideoSetting("audio", a === "On")}>{a}</button>
+                                  ))}
+                                </div>
+                              </div>
                             </>
                           )}
-
-                          {/* Image mode: style card + image ref placeholder */}
                           {showImageGrid && (
                             <>
-                              <input
-                                ref={imageRefInputRef}
-                                type="file"
-                                accept="image/*"
-                                className="sr-only"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (!file) return;
-                                  const url = URL.createObjectURL(file);
-                                  setSelectedAttachment({ type: "image", name: file.name, url });
-                                  e.target.value = "";
-                                }}
-                              />
-                              {/* Selected style card */}
-                              {selectedImageStyle && (
-                                <div className="chat-attachment-card">
-                                  <div className="chat-attachment-inner">
-                                    <img
-                                      src={selectedImageStyle.url}
-                                      alt={selectedImageStyle.name}
-                                      className="chat-attachment-thumb"
-                                    />
-                                    <span className="chat-attachment-label">{selectedImageStyle.name}</span>
-                                  </div>
-                                  <button
-                                    type="button"
-                                    className="chat-attachment-remove"
-                                    aria-label={`Remove ${selectedImageStyle.name} style`}
-                                    onClick={() => setSelectedImageStyle(null)}
-                                  >
-                                    <X />
-                                  </button>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Ratio</span>
+                                <div className="vsd-ratio-pills">
+                                  {imageRatioOptions.map((r) => (
+                                    <button key={r} type="button" className={cn("vsd-ratio-btn", imageSettings.ratio === r && "is-active")} onClick={() => setImageSetting("ratio", r)}>
+                                      <span className={cn("vsd-ratio-shape", `vsd-ratio-${r.replace(":", "-")}`)} /><span>{r}</span>
+                                    </button>
+                                  ))}
                                 </div>
-                              )}
-                              {/* Image ref — always visible, shows upload or uploaded thumb */}
-                              {selectedAttachment ? (
-                                <div className="chat-attachment-card">
-                                  <div className="chat-attachment-inner">
-                                    <img
-                                      src={selectedAttachment.url}
-                                      alt={selectedAttachment.name}
-                                      className="chat-attachment-thumb"
-                                    />
-                                    <span className="chat-attachment-label">{selectedAttachment.name}</span>
-                                  </div>
-                                  <button
-                                    type="button"
-                                    className="chat-attachment-remove"
-                                    aria-label={`Remove ${selectedAttachment.name}`}
-                                    onClick={() => setSelectedAttachment(null)}
-                                  >
-                                    <X />
-                                  </button>
+                              </div>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Resolution</span>
+                                <div className="vsd-res-pills">
+                                  {imageResolutionOptions.map((r) => (
+                                    <button key={r} type="button" className={cn("vsd-res-btn", imageSettings.resolution === r && "is-active")} onClick={() => setImageSetting("resolution", r)}>{r}</button>
+                                  ))}
                                 </div>
-                              ) : (
-                                <button
-                                  type="button"
-                                  className="chat-image-ref-placeholder"
-                                  aria-label="Add image reference"
-                                  onClick={() => imageRefInputRef.current?.click()}
-                                >
-                                  <ImageUp className="chat-image-ref-icon" />
-                                  <span className="chat-image-ref-label">Image refs</span>
-                                </button>
-                              )}
+                              </div>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Quality</span>
+                                <div className="vsd-res-pills">
+                                  {imageQualityOptions.map((q) => (
+                                    <button key={q} type="button" className={cn("vsd-res-btn", imageSettings.quality === q && "is-active")} onClick={() => setImageSetting("quality", q)}>{q}</button>
+                                  ))}
+                                </div>
+                              </div>
                             </>
                           )}
-                        </div>
-                      </div>
-                    )}
-                    <div className="chat-prompt-editor-wrap">
-                      <div
-                        ref={chatPromptRef}
-                        contentEditable
-                        suppressContentEditableWarning
-                        className="chat-prompt-editor"
-                        role="textbox"
-                        aria-multiline="true"
-                        aria-label="Video prompt input"
-                        onInput={(event) => {
-                          const text = event.currentTarget.textContent ?? "";
-                          setChatThreads((current) =>
-                            current.map((thread) =>
-                              thread.id === activeChatId ? { ...thread, draft: text } : thread
-                            )
-                          );
-                        }}
-                      />
-                      <div className="chat-prompt-overlay" style={{ opacity: chatDraft ? 0 : 1 }}>
-                        Write your idea or edit instructions...
-                      </div>
-                    </div>
-                    </div>{/* end chat-card-scroll */}
-
-                      <div className="chat-prompt-actions" ref={chatActionsRef}>
-                        <div className="chat-prompt-left">
-                          <Button type="button" variant="ghost" size="icon" className="chat-plus" aria-label="Attach or record">
-                            <Plus />
-                          </Button>
-                          {showVideoGrid && (
-                            chatNarrow ? (
-                              <div className="video-settings-wrap">
-                                <button
-                                  ref={settingsTriggerRef}
-                                  type="button"
-                                  className={cn("video-settings-trigger", settingsOpen && "is-open")}
-                                  onClick={(e) => {
-                                    if (settingsOpen) { setSettingsOpen(false); setSettingsAnchorRect(null); }
-                                    else { setSettingsAnchorRect(e.currentTarget.getBoundingClientRect()); setSettingsOpen(true); }
-                                  }}
-                                  aria-label="Video settings"
-                                >
-                                  <SlidersHorizontal />
-                                </button>
+                          {showAudioGrid && (
+                            <>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Mood</span>
+                                <div className="vsd-res-pills">
+                                  {audioMoodOptions.map((m) => (
+                                    <button key={m} type="button" className={cn("vsd-res-btn", audioSettings.mood === m && "is-active")} onClick={() => setAudioSetting("mood", m)}>{m}</button>
+                                  ))}
+                                </div>
                               </div>
-                            ) : (
-                              <div className="video-gen-settings" ref={chipSettingsRef}>
-                                <button type="button" className={cn("video-gen-chip", openChip === "model" && "is-active")} onClick={(e) => toggleChip("model", e)}>
-                                  <LayoutGrid /><span>{videoSettings.model}</span><ChevronDown />
-                                </button>
-                                <button type="button" className={cn("video-gen-chip", openChip === "ratio" && "is-active")} onClick={(e) => toggleChip("ratio", e)}>
-                                  <RectangleHorizontal /><span>{videoSettings.ratio}</span><ChevronDown />
-                                </button>
-                                <button type="button" className={cn("video-gen-chip", openChip === "resolution" && "is-active")} onClick={(e) => toggleChip("resolution", e)}>
-                                  <ArrowUpDown /><span>{videoSettings.resolution}</span><ChevronDown />
-                                </button>
-                                <button type="button" className={cn("video-gen-chip", openChip === "duration" && "is-active")} onClick={(e) => toggleChip("duration", e)}>
-                                  <Clock /><span>{videoSettings.duration}</span><ChevronDown />
-                                </button>
-                                <button type="button" className={cn("video-gen-chip", openChip === "audio" && "is-active")} onClick={(e) => toggleChip("audio", e)}>
-                                  {videoSettings.audio ? <Volume2 /> : <VolumeX />}
-                                  <span>{videoSettings.audio ? "On" : "Off"}</span><ChevronDown />
-                                </button>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Duration</span>
+                                <div className="vsd-res-pills">
+                                  {audioDurationOptions.map((d) => (
+                                    <button key={d} type="button" className={cn("vsd-res-btn", audioSettings.duration === d && "is-active")} onClick={() => setAudioSetting("duration", d)}>{d}</button>
+                                  ))}
+                                </div>
                               </div>
-                            )
+                              <div className="vsd-row">
+                                <span className="vsd-label">Quality</span>
+                                <div className="vsd-res-pills">
+                                  {audioQualityOptions.map((q) => (
+                                    <button key={q} type="button" className={cn("vsd-res-btn", audioSettings.quality === q && "is-active")} onClick={() => setAudioSetting("quality", q)}>{q}</button>
+                                  ))}
+                                </div>
+                              </div>
+                            </>
                           )}
-                          {showImageGrid && (
-                            chatNarrow ? (
-                              <div className="video-settings-wrap">
-                                <button
-                                  ref={settingsTriggerRef}
-                                  type="button"
-                                  className={cn("video-settings-trigger", settingsOpen && "is-open")}
-                                  onClick={(e) => {
-                                    if (settingsOpen) { setSettingsOpen(false); setSettingsAnchorRect(null); }
-                                    else { setSettingsAnchorRect(e.currentTarget.getBoundingClientRect()); setSettingsOpen(true); }
-                                  }}
-                                  aria-label="Image settings"
-                                >
-                                  <SlidersHorizontal />
-                                </button>
+                          {showSfxGrid && (
+                            <>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Duration</span>
+                                <div className="vsd-res-pills">
+                                  {sfxDurationOptions.map((d) => (
+                                    <button key={d} type="button" className={cn("vsd-res-btn", sfxSettings.duration === d && "is-active")} onClick={() => setSfxSetting("duration", d)}>{d}</button>
+                                  ))}
+                                </div>
                               </div>
-                            ) : (
-                              <div className="video-gen-settings" ref={!showVideoGrid ? chipSettingsRef : undefined}>
-                                <button type="button" className={cn("video-gen-chip", openChip === "img-model" && "is-active")} onClick={(e) => toggleChip("img-model", e)}>
-                                  <LayoutGrid /><span>{imageSettings.model}</span><ChevronDown />
-                                </button>
-                                <button type="button" className={cn("video-gen-chip", openChip === "img-ratio" && "is-active")} onClick={(e) => toggleChip("img-ratio", e)}>
-                                  <RectangleHorizontal /><span>{imageSettings.ratio}</span><ChevronDown />
-                                </button>
-                                <button type="button" className={cn("video-gen-chip", openChip === "img-resolution" && "is-active")} onClick={(e) => toggleChip("img-resolution", e)}>
-                                  <ArrowUpDown /><span>{imageSettings.resolution}</span><ChevronDown />
-                                </button>
-                                <button type="button" className={cn("video-gen-chip", openChip === "img-quality" && "is-active")} onClick={(e) => toggleChip("img-quality", e)}>
-                                  <Sparkles /><span>{imageSettings.quality}</span><ChevronDown />
-                                </button>
-                              </div>
-                            )
+                            </>
                           )}
-                        </div>
-
-                        <div className="chat-prompt-right">
-                          <div className="chat-model-selector-wrap" ref={chatModelRef}>
-                            <button
-                              type="button"
-                              className="chat-model-button"
-                              onClick={() => setChatModelOpen((v) => !v)}
-                            >
-                              <span className="chat-model-dot" style={{ background: chatSelectedModel.gradient }} />
-                              <span>{chatSelectedModel.label}</span>
-                              <ChevronDown className={cn("chat-model-chevron", chatModelOpen && "is-open")} />
-                            </button>
-                            {chatModelOpen && (
-                              <div className="chat-model-dropdown">
-                                {editorModels.map((m) => (
-                                  <button
-                                    key={m.id}
-                                    type="button"
-                                    className={cn("chat-model-dropdown-item", chatSelectedModel.id === m.id && "is-selected")}
-                                    onClick={() => { setChatSelectedModel(m); setChatModelOpen(false); }}
-                                  >
-                                    <span className="chat-model-dot" style={{ background: m.gradient }} />
-                                    <span>{m.label}</span>
-                                    {m.tag && <span className="chat-model-tag">{m.tag}</span>}
-                                  </button>
-                                ))}
+                          {showVoiceoverGrid && (
+                            <>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Voice</span>
+                                <div className="vsd-res-pills">
+                                  {voiceOptions.map((v) => (
+                                    <button key={v} type="button" className={cn("vsd-res-btn", voiceoverSettings.voice === v && "is-active")} onClick={() => setVoiceoverSetting("voice", v)}>{v}</button>
+                                  ))}
+                                </div>
                               </div>
-                            )}
-                          </div>
-                          <Button type="button" variant="default" size="icon" className="chat-send" aria-label="Send message">
-                            <span className="chat-send-rotator">
-                              <SendArrowGlyph />
-                            </span>
-                          </Button>
-                        </div>
-                      </div>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Speed</span>
+                                <div className="vsd-res-pills">
+                                  {speedOptions.map((s) => (
+                                    <button key={s} type="button" className={cn("vsd-res-btn", voiceoverSettings.speed === s && "is-active")} onClick={() => setVoiceoverSetting("speed", s)}>{s}</button>
+                                  ))}
+                                </div>
+                              </div>
+                            </>
+                          )}
+                        </>
+                      )}
+                    />
                   </Card>
                 </CollapsibleContent>
               </aside>
@@ -1886,150 +1950,6 @@ export default function EditorScreen() {
         </main>
       </div>
     </TooltipProvider>
-    {openChip && chipAnchorRect && createPortal(
-      <div
-        ref={chipDropdownRef}
-        className="video-chip-dropdown"
-        style={{
-          position: "fixed",
-          left: chipAnchorRect.left,
-          bottom: window.innerHeight - chipAnchorRect.top + 8,
-          zIndex: 9999,
-        }}
-      >
-        {(
-          openChip === "model"          ? videoModels.map((m)            => ({ label: m, active: videoSettings.model === m,          onSelect: () => { setVideoSetting("model", m);          setOpenChip(null); setChipAnchorRect(null); } })) :
-          openChip === "ratio"          ? ratioOptions.map((r)            => ({ label: r, active: videoSettings.ratio === r,          onSelect: () => { setVideoSetting("ratio", r);          setOpenChip(null); setChipAnchorRect(null); } })) :
-          openChip === "resolution"     ? resolutionOptions.map((r)       => ({ label: r, active: videoSettings.resolution === r,     onSelect: () => { setVideoSetting("resolution", r);     setOpenChip(null); setChipAnchorRect(null); } })) :
-          openChip === "duration"       ? durationOptions.map((d)         => ({ label: d, active: videoSettings.duration === d,       onSelect: () => { setVideoSetting("duration", d);       setOpenChip(null); setChipAnchorRect(null); } })) :
-          openChip === "audio"          ? ["Off","On"].map((a)            => ({ label: a, active: videoSettings.audio === (a==="On"), onSelect: () => { setVideoSetting("audio", a==="On");   setOpenChip(null); setChipAnchorRect(null); } })) :
-          openChip === "img-model"      ? imageModels.map((m)             => ({ label: m, active: imageSettings.model === m,          onSelect: () => { setImageSetting("model", m);          setOpenChip(null); setChipAnchorRect(null); } })) :
-          openChip === "img-ratio"      ? imageRatioOptions.map((r)       => ({ label: r, active: imageSettings.ratio === r,          onSelect: () => { setImageSetting("ratio", r);          setOpenChip(null); setChipAnchorRect(null); } })) :
-          openChip === "img-resolution" ? imageResolutionOptions.map((r)  => ({ label: r, active: imageSettings.resolution === r,     onSelect: () => { setImageSetting("resolution", r);     setOpenChip(null); setChipAnchorRect(null); } })) :
-          openChip === "img-quality"    ? imageQualityOptions.map((q)     => ({ label: q, active: imageSettings.quality === q,        onSelect: () => { setImageSetting("quality", q);        setOpenChip(null); setChipAnchorRect(null); } })) :
-          []
-        ).map(({ label, active, onSelect }) => (
-          <button key={label} type="button" className={cn("video-chip-option", active && "is-active")} onClick={onSelect}>
-            {label}
-          </button>
-        ))}
-      </div>,
-      document.body
-    )}
-    {settingsOpen && settingsAnchorRect && chatNarrow && createPortal(
-      <div
-        ref={settingsRef}
-        className="video-settings-dialog"
-        style={{
-          position: "fixed",
-          bottom: window.innerHeight - settingsAnchorRect.top + 10,
-          left: settingsAnchorRect.left,
-          zIndex: 9999,
-        }}
-      >
-        {showVideoGrid && (
-          <>
-            <div className="vsd-row">
-              <span className="vsd-label">Model</span>
-              <div className="vsd-dropdown-wrap">
-                <button type="button" className={cn("vsd-dropdown-trigger", vsdModelOpen && "is-open")} onClick={() => setVsdModelOpen((v) => !v)}>
-                  <span>{videoSettings.model}</span>
-                  <ChevronDown className="vsd-dropdown-chevron" />
-                </button>
-                {vsdModelOpen && (
-                  <div className="vsd-dropdown-menu">
-                    {videoModels.map((m) => (
-                      <button key={m} type="button" className={cn("vsd-dropdown-item", videoSettings.model === m && "is-active")} onClick={() => { setVideoSetting("model", m); setVsdModelOpen(false); }}>{m}</button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="vsd-row">
-              <span className="vsd-label">Video ratio</span>
-              <div className="vsd-ratio-pills">
-                {ratioOptions.map((r) => (
-                  <button key={r} type="button" className={cn("vsd-ratio-btn", videoSettings.ratio === r && "is-active")} onClick={() => setVideoSetting("ratio", r)}>
-                    <span className={cn("vsd-ratio-shape", `vsd-ratio-${r.replace(":", "-")}`)} /><span>{r}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="vsd-row">
-              <span className="vsd-label">Duration</span>
-              <div className="vsd-res-pills">
-                {durationOptions.map((d) => (
-                  <button key={d} type="button" className={cn("vsd-res-btn", videoSettings.duration === d && "is-active")} onClick={() => setVideoSetting("duration", d)}>{d}</button>
-                ))}
-              </div>
-            </div>
-            <div className="vsd-row">
-              <span className="vsd-label">Resolution</span>
-              <div className="vsd-res-pills">
-                {resolutionOptions.map((r) => (
-                  <button key={r} type="button" className={cn("vsd-res-btn", videoSettings.resolution === r && "is-active")} onClick={() => setVideoSetting("resolution", r)}>{r}</button>
-                ))}
-              </div>
-            </div>
-            <div className="vsd-row">
-              <span className="vsd-label">Audio</span>
-              <div className="vsd-res-pills">
-                {["Off", "On"].map((a) => (
-                  <button key={a} type="button" className={cn("vsd-res-btn", videoSettings.audio === (a === "On") && "is-active")} onClick={() => setVideoSetting("audio", a === "On")}>{a}</button>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-        {showImageGrid && (
-          <>
-            <div className="vsd-row">
-              <span className="vsd-label">Model</span>
-              <div className="vsd-dropdown-wrap">
-                <button type="button" className={cn("vsd-dropdown-trigger", vsdModelOpen && "is-open")} onClick={() => setVsdModelOpen((v) => !v)}>
-                  <span>{imageSettings.model}</span>
-                  <ChevronDown className="vsd-dropdown-chevron" />
-                </button>
-                {vsdModelOpen && (
-                  <div className="vsd-dropdown-menu">
-                    {imageModels.map((m) => (
-                      <button key={m} type="button" className={cn("vsd-dropdown-item", imageSettings.model === m && "is-active")} onClick={() => { setImageSetting("model", m); setVsdModelOpen(false); }}>{m}</button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="vsd-row">
-              <span className="vsd-label">Ratio</span>
-              <div className="vsd-ratio-pills">
-                {imageRatioOptions.map((r) => (
-                  <button key={r} type="button" className={cn("vsd-ratio-btn", imageSettings.ratio === r && "is-active")} onClick={() => setImageSetting("ratio", r)}>
-                    <span className={cn("vsd-ratio-shape", `vsd-ratio-${r.replace(":", "-")}`)} /><span>{r}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="vsd-row">
-              <span className="vsd-label">Resolution</span>
-              <div className="vsd-res-pills">
-                {imageResolutionOptions.map((r) => (
-                  <button key={r} type="button" className={cn("vsd-res-btn", imageSettings.resolution === r && "is-active")} onClick={() => setImageSetting("resolution", r)}>{r}</button>
-                ))}
-              </div>
-            </div>
-            <div className="vsd-row">
-              <span className="vsd-label">Quality</span>
-              <div className="vsd-res-pills">
-                {imageQualityOptions.map((q) => (
-                  <button key={q} type="button" className={cn("vsd-res-btn", imageSettings.quality === q && "is-active")} onClick={() => setImageSetting("quality", q)}>{q}</button>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </div>,
-      document.body
-    )}
     </>
   );
 }
