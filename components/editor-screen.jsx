@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
+  AlertTriangle,
   ArrowUpDown,
   ChevronDown,
   Clock,
@@ -644,6 +645,7 @@ export default function EditorScreen() {
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
   const [imageStylesExpanded, setImageStylesExpanded] = useState(false);
   const [videoTemplatesExpanded, setVideoTemplatesExpanded] = useState(false);
+  const [imageErrorVisible, setImageErrorVisible] = useState(false);
 
   const videoModels = ["Veo 3.1 Lite", "Veo 3.0", "Kling 1.6 Pro", "Wan 2.1", "Hailuo"];
   const ratioOptions = ["16:9", "1:1", "9:16"];
@@ -679,6 +681,7 @@ export default function EditorScreen() {
   const canvasStageRef = useRef(null);
   const canvasArtboardRef = useRef(null);
   const chatPromptRef = useRef(null);
+  const chatCardRef = useRef(null);
   const chatModelRef = useRef(null);
   const nextChatIdRef = useRef(2);
   const focusChatComposerRef = useRef(false);
@@ -737,6 +740,25 @@ export default function EditorScreen() {
   useEffect(() => {
     setImageStylesExpanded(false);
     setVideoTemplatesExpanded(false);
+  }, [activeGrid]);
+
+  useEffect(() => {
+    if (activeGrid !== "video" || !["Luma Dream Machine"].includes(videoSettings.model)) {
+      setImageErrorVisible(false);
+      return;
+    }
+    const card = chatCardRef.current;
+    if (card) {
+      card.classList.remove("is-shaking");
+      void card.offsetWidth;
+      card.classList.add("is-shaking");
+      setTimeout(() => card.classList.remove("is-shaking"), 400);
+    }
+    setImageErrorVisible(true);
+  }, [videoSettings.model]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (activeGrid !== "video") setImageErrorVisible(false);
   }, [activeGrid]);
 
   function acceptEditorSuggestion() {
@@ -1708,7 +1730,16 @@ export default function EditorScreen() {
                     );
                   })()}
 
-                  <Card className="chat-card">
+                  {imageErrorVisible && (
+                    <div className="prompt-image-error">
+                      <div className="prompt-image-error-left">
+                        <AlertTriangle size={13} />
+                        <span className="prompt-image-error-text">Images you upload won't be used — Luma Dream Machine doesn't support image input for video generation</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <Card className="chat-card" ref={chatCardRef}>
                     <PromptBox
                       variant="editor"
                       value={chatDraft}

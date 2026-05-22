@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import {
+  AlertTriangle,
   Plus,
   ChevronDown,
   ChevronRight,
@@ -244,6 +245,27 @@ export default function HomeScreen() {
   const [selectedSfxCategory, setSelectedSfxCategory] = useState(null);
   const [selectedVoice, setSelectedVoice] = useState(null);
 
+  const [imageErrorVisible, setImageErrorVisible] = useState(false);
+
+  useEffect(() => {
+    if (activeGrid !== "video" || !["Luma Dream Machine"].includes(videoSettings.model)) {
+      setImageErrorVisible(false);
+      return;
+    }
+    const card = promptCardRef.current;
+    if (card) {
+      card.classList.remove("is-shaking");
+      void card.offsetWidth;
+      card.classList.add("is-shaking");
+      setTimeout(() => card.classList.remove("is-shaking"), 400);
+    }
+    setImageErrorVisible(true);
+  }, [videoSettings.model]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (activeGrid !== "video") setImageErrorVisible(false);
+  }, [activeGrid]);
+
   function setAudioSetting(key, value) { setAudioSettings((s) => ({ ...s, [key]: value })); }
   function setSfxSetting(key, value) { setSfxSettings((s) => ({ ...s, [key]: value })); }
   function setVoiceoverSetting(key, value) { setVoiceoverSettings((s) => ({ ...s, [key]: value })); }
@@ -460,6 +482,15 @@ export default function HomeScreen() {
               </div>
             );
           })()}
+
+          {imageErrorVisible && (
+            <div className="prompt-image-error">
+              <div className="prompt-image-error-left">
+                <AlertTriangle size={13} />
+                <span className="prompt-image-error-text">Images you upload won't be used — Luma Dream Machine doesn't support image input for video generation</span>
+              </div>
+            </div>
+          )}
 
           <div className="home-prompt-card" ref={promptCardRef}>
             <PromptBox
