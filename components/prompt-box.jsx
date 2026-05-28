@@ -165,14 +165,21 @@ export function PromptBox({
           {hasModeChip && (
             <div className="chat-tool-chip">
               <span>{{
-                image: "Generate Image",
-                video: "Generate Video",
-                audio: "Generate Audio",
-                sfx: "Generate SFX",
+                image:     "Generate Image",
+                video:     "Generate Video",
+                audio:     "Generate Audio",
+                music:     "Generate Music",
+                sfx:       "Generate SFX",
                 voiceover: "Generate Voiceover",
-                autodemo: "Auto Demo",
+                autodemo:  "Auto Demo",
                 roughcuts: "Rough Cuts",
-                clipping: "Clipping",
+                clipping:  "Clipping",
+                trim:      "Trim",
+                merge:     "Merge",
+                speed:     "Speed",
+                reverse:   "Reverse",
+                rotate:    "Rotate",
+                crop:      "Crop",
               }[activeGrid] ?? activeGrid}</span>
               <button
                 type="button"

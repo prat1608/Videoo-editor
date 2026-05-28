@@ -1,0 +1,268 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - img "Videoo" [ref=e5]
+        - button "Collapse sidebar" [ref=e6] [cursor=pointer]:
+          - img [ref=e7]
+      - navigation [ref=e10]:
+        - link "New Project" [ref=e11] [cursor=pointer]:
+          - /url: /editor
+          - img [ref=e13]
+          - generic [ref=e16]: New Project
+        - button "Record New" [ref=e17] [cursor=pointer]:
+          - img [ref=e19]
+          - generic [ref=e22]: Record
+          - generic [ref=e23]: New
+        - button "Assets" [ref=e24] [cursor=pointer]:
+          - img [ref=e26]
+          - generic [ref=e27]: Assets
+      - generic [ref=e28]:
+        - button "Tools & Skills" [ref=e29] [cursor=pointer]:
+          - img [ref=e30]
+          - generic [ref=e33]: Tools & Skills
+          - img [ref=e34]
+        - generic [ref=e36]:
+          - button "Generate Video" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - generic [ref=e43]: Generate Video
+          - button "Auto Captions" [ref=e44] [cursor=pointer]:
+            - img [ref=e45]
+            - generic [ref=e48]: Auto Captions
+          - button "AI Enhance" [ref=e49] [cursor=pointer]:
+            - img [ref=e50]
+            - generic [ref=e53]: AI Enhance
+          - button "Background Music" [ref=e54] [cursor=pointer]:
+            - img [ref=e55]
+            - generic [ref=e59]: Background Music
+          - button "Smart Crop" [ref=e60] [cursor=pointer]:
+            - img [ref=e61]
+            - generic [ref=e64]: Smart Crop
+          - link "More Tools" [ref=e65] [cursor=pointer]:
+            - /url: /tools
+            - generic [ref=e66]: More Tools
+            - img [ref=e67]
+      - generic [ref=e69]:
+        - button "Spaces" [ref=e70] [cursor=pointer]:
+          - img [ref=e71]
+          - generic [ref=e75]: Spaces
+          - img [ref=e76]
+        - generic [ref=e78]:
+          - button "D Default Space" [ref=e79] [cursor=pointer]:
+            - generic [ref=e80]: D
+            - generic [ref=e81]: Default Space
+          - button "New Space" [ref=e82] [cursor=pointer]:
+            - img [ref=e83]
+            - generic [ref=e84]: New Space
+      - generic [ref=e85]:
+        - generic [ref=e86]: Recent
+        - generic [ref=e87]:
+          - button "Untitled Project" [ref=e88] [cursor=pointer]:
+            - generic [ref=e90]: Untitled Project
+          - button "Rough Cuts Project" [ref=e91] [cursor=pointer]:
+            - generic [ref=e93]: Rough Cuts Project
+          - button "Make roughcuts" [ref=e94] [cursor=pointer]:
+            - generic [ref=e96]: Make roughcuts
+          - button "Lion in Snowy Mount..." [ref=e97] [cursor=pointer]:
+            - generic [ref=e99]: Lion in Snowy Mount...
+          - button "/generate-image ima..." [ref=e100] [cursor=pointer]:
+            - generic [ref=e102]: /generate-image ima...
+          - button "Untitled Project" [ref=e103] [cursor=pointer]:
+            - generic [ref=e105]: Untitled Project
+          - button "Untitled Project" [ref=e106] [cursor=pointer]:
+            - generic [ref=e108]: Untitled Project
+          - button "Untitled Project" [ref=e109] [cursor=pointer]:
+            - generic [ref=e111]: Untitled Project
+          - button "Untitled Project" [ref=e112] [cursor=pointer]:
+            - generic [ref=e114]: Untitled Project
+          - button "Untitled Project" [ref=e115] [cursor=pointer]:
+            - generic [ref=e117]: Untitled Project
+          - button "Social Media Clip Cr..." [ref=e118] [cursor=pointer]:
+            - generic [ref=e120]: Social Media Clip Cr...
+      - generic [ref=e121]:
+        - generic [ref=e122]:
+          - link "Settings" [ref=e123] [cursor=pointer]:
+            - /url: /settings/workspace/5628820d-75f4-47be-8221-029b5723f2c6/integrations
+            - img [ref=e124]
+          - button "Docs" [ref=e127] [cursor=pointer]:
+            - img [ref=e128]
+          - button "Support" [ref=e130] [cursor=pointer]:
+            - img [ref=e131]
+          - button "Notifications" [ref=e133] [cursor=pointer]:
+            - img [ref=e134]
+        - button "Account" [ref=e137] [cursor=pointer]:
+          - generic [ref=e138]: P
+    - main [ref=e139]:
+      - generic [ref=e140]:
+        - generic [ref=e141]:
+          - generic [ref=e142]:
+            - generic [ref=e143]:
+              - img [ref=e144]
+              - generic [ref=e147]: Workspace Settings
+            - heading "Integrations" [level=1] [ref=e148]
+            - paragraph [ref=e149]: Connect the tools your team already uses and keep publishing, approvals, billing, and delivery in sync.
+          - generic [ref=e150]:
+            - button "Audit log" [ref=e151] [cursor=pointer]
+            - button "Request integration" [ref=e152] [cursor=pointer]:
+              - img [ref=e153]
+              - generic [ref=e156]: Request integration
+        - generic [ref=e157]:
+          - article [ref=e158]:
+            - generic [ref=e159]:
+              - img [ref=e161]
+              - generic [ref=e167]: Premium setup
+            - generic [ref=e168]: "18"
+            - generic [ref=e169]: Available integrations
+            - paragraph [ref=e170]: A clean mix of communication, storage, automation, and delivery tools ready for production workflows.
+          - article [ref=e171]:
+            - generic [ref=e172]: "3"
+            - generic [ref=e173]: Connected
+            - paragraph [ref=e174]: Slack, Google Drive, and Stripe are already active in this workspace.
+          - article [ref=e175]:
+            - generic [ref=e176]: 99.98%
+            - generic [ref=e177]: Sync health
+            - paragraph [ref=e178]: No blocked automations, no failed deliveries, and no billing issues detected.
+        - generic [ref=e179]:
+          - complementary [ref=e180]:
+            - generic [ref=e181]:
+              - generic [ref=e182]: Workspace
+              - generic [ref=e183]: 5628820d-75f4-47be-8221-029b5723f2c6
+              - paragraph [ref=e184]: Manage the integrations, credentials, and delivery pathways attached to this workspace.
+            - generic [ref=e185]:
+              - generic [ref=e186]: Status at a glance
+              - generic [ref=e187]:
+                - generic [ref=e188]:
+                  - img [ref=e190]
+                  - generic [ref=e193]:
+                    - generic [ref=e194]: Last sync
+                    - generic [ref=e195]: 2 min ago
+                - generic [ref=e196]:
+                  - img [ref=e198]
+                  - generic [ref=e201]:
+                    - generic [ref=e202]: Security
+                    - generic [ref=e203]: Enterprise ready
+                - generic [ref=e204]:
+                  - img [ref=e206]
+                  - generic [ref=e211]:
+                    - generic [ref=e212]: Alerts
+                    - generic [ref=e213]: 0 critical issues
+            - generic [ref=e214]:
+              - generic [ref=e215]: Security
+              - paragraph [ref=e216]: OAuth tokens are encrypted at rest, access is scoped by workspace, and connection history is tracked.
+              - generic [ref=e217]:
+                - img [ref=e218]
+                - generic [ref=e221]: Protected credentials
+          - generic [ref=e222]:
+            - generic [ref=e223]:
+              - generic [ref=e224]:
+                - generic [ref=e225]:
+                  - heading "Connected integrations" [level=2] [ref=e226]
+                  - paragraph [ref=e227]: Production-ready tools already powering this workspace.
+                - link "Explore tools" [ref=e228] [cursor=pointer]:
+                  - /url: /tools
+                  - generic [ref=e229]: Explore tools
+                  - img [ref=e230]
+              - generic [ref=e232]:
+                - article [ref=e233]:
+                  - generic [ref=e234]:
+                    - generic [ref=e235]:
+                      - generic [ref=e236]: S
+                      - generic [ref=e237]:
+                        - generic [ref=e238]: Slack
+                        - generic [ref=e239]: Communication
+                    - generic [ref=e240]:
+                      - img [ref=e241]
+                      - generic [ref=e244]: Connected
+                  - paragraph [ref=e245]: Push renders, approvals, and team updates into shared channels in real time.
+                  - generic [ref=e246]:
+                    - generic [ref=e247]: 2 channels linked
+                    - button "Manage" [ref=e248] [cursor=pointer]:
+                      - img [ref=e249]
+                      - generic [ref=e252]: Manage
+                - article [ref=e253]:
+                  - generic [ref=e254]:
+                    - generic [ref=e255]:
+                      - generic [ref=e256]: G
+                      - generic [ref=e257]:
+                        - generic [ref=e258]: Google Drive
+                        - generic [ref=e259]: Storage
+                    - generic [ref=e260]:
+                      - img [ref=e261]
+                      - generic [ref=e264]: Connected
+                  - paragraph [ref=e265]: Sync exports and media handoff folders so every deliverable lands in the right place.
+                  - generic [ref=e266]:
+                    - generic [ref=e267]: 12 synced folders
+                    - button "Review sync" [ref=e268] [cursor=pointer]:
+                      - img [ref=e269]
+                      - generic [ref=e271]: Review sync
+                - article [ref=e272]:
+                  - generic [ref=e273]:
+                    - generic [ref=e274]:
+                      - generic [ref=e275]: S
+                      - generic [ref=e276]:
+                        - generic [ref=e277]: Stripe
+                        - generic [ref=e278]: Billing
+                    - generic [ref=e279]:
+                      - img [ref=e280]
+                      - generic [ref=e283]: Connected
+                  - paragraph [ref=e284]: Keep workspace billing, invoice history, and premium usage tied to one source of truth.
+                  - generic [ref=e285]:
+                    - generic [ref=e286]: Healthy billing sync
+                    - button "Open billing" [ref=e287] [cursor=pointer]:
+                      - img [ref=e288]
+                      - generic [ref=e290]: Open billing
+            - generic [ref=e291]:
+              - generic [ref=e293]:
+                - heading "Discover more" [level=2] [ref=e294]
+                - paragraph [ref=e295]: Expand your workflow with standard integrations your team will recognize immediately.
+              - generic [ref=e296]:
+                - article [ref=e297]:
+                  - generic [ref=e299]:
+                    - generic [ref=e300]: Z
+                    - generic [ref=e301]:
+                      - generic [ref=e302]: Zapier
+                      - generic [ref=e303]: Automation
+                  - paragraph [ref=e304]: Connect Videoo workflows to thousands of downstream tools without custom code.
+                  - generic [ref=e305]:
+                    - generic [ref=e306]: Ready to connect
+                    - button "Connect" [ref=e307] [cursor=pointer]:
+                      - generic [ref=e308]: Connect
+                      - img [ref=e309]
+                - article [ref=e312]:
+                  - generic [ref=e314]:
+                    - generic [ref=e315]: "N"
+                    - generic [ref=e316]:
+                      - generic [ref=e317]: Notion
+                      - generic [ref=e318]: Docs
+                  - paragraph [ref=e319]: Turn approved videos into documented launch assets and campaign updates automatically.
+                  - generic [ref=e320]:
+                    - generic [ref=e321]: Ready to connect
+                    - button "Connect" [ref=e322] [cursor=pointer]:
+                      - generic [ref=e323]: Connect
+                      - img [ref=e324]
+                - article [ref=e327]:
+                  - generic [ref=e329]:
+                    - generic [ref=e330]: W
+                    - generic [ref=e331]:
+                      - generic [ref=e332]: Webhooks
+                      - generic [ref=e333]: Developers
+                  - paragraph [ref=e334]: Trigger internal systems when exports finish, approvals land, or automations complete.
+                  - generic [ref=e335]:
+                    - generic [ref=e336]: Ready to connect
+                    - button "Connect" [ref=e337] [cursor=pointer]:
+                      - generic [ref=e338]: Connect
+                      - img [ref=e339]
+                - article [ref=e342]:
+                  - generic [ref=e344]:
+                    - generic [ref=e345]: M
+                    - generic [ref=e346]:
+                      - generic [ref=e347]: Meta Ads
+                      - generic [ref=e348]: Distribution
+                  - paragraph [ref=e349]: Send launch-ready variants into campaign pipelines faster with fewer manual handoffs.
+                  - generic [ref=e350]:
+                    - generic [ref=e351]: Ready to connect
+                    - button "Connect" [ref=e352] [cursor=pointer]:
+                      - generic [ref=e353]: Connect
+                      - img [ref=e354]
+  - button "Open Next.js Dev Tools" [ref=e362] [cursor=pointer]:
+    - img [ref=e363]

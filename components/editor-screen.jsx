@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
   ArrowUpDown,
@@ -82,35 +83,37 @@ const editorSuggestions = [
 ];
 
 const imageStyles = [
-  { name: "3D Render", photoId: 3862132 },
-  { name: "Monochrome", photoId: 1266808 },
-  { name: "Minecraft", photoId: 1462726 },
-  { name: "Anime", photoId: 2110951 },
-  { name: "Oil Painting", photoId: 1568607 },
-  { name: "Watercolor", photoId: 1269968 },
-  { name: "Comic Book", photoId: 1762851 },
-  { name: "Neon Noir", photoId: 1183992 },
-  { name: "Cyberpunk", photoId: 2007647 },
-  { name: "Vintage Film", photoId: 1209843 },
-  { name: "Pencil Sketch", photoId: 958164 },
-  { name: "Pixel Art", photoId: 1563356 },
-  { name: "Cinematic", photoId: 1552212 },
-  { name: "Surreal", photoId: 1252869 },
-  { name: "Studio Ghibli", photoId: 1287145 },
-  { name: "Impressionist", photoId: 3621344 },
+  { name: "Illustration",   file: "Illustration.png"  },
+  { name: "Anime",          file: "Anime.png"          },
+  { name: "3D Render",      file: "3D render.png"      },
+  { name: "Comic Book",     file: "Comic book.png"     },
+  { name: "Pixel Art",      file: "Pixel art.png"      },
+  { name: "Watercolor",     file: "Water color.png"    },
+  { name: "Oil Painting",   file: "Oil painting.png"   },
+  { name: "Cinematic",      file: "Cinematic.png"      },
+  { name: "Pencil Sketch",  file: "Pencil Sketch.png"  },
+  { name: "Monochrome",     file: "Monochrome.png"     },
+  { name: "Minecraft",      file: "Minecraft.png"      },
+  { name: "Neon Noir",      file: "Neon Noir.png"      },
+  { name: "Cyberpunk",      file: "Cyberpunk.png"      },
+  { name: "Vintage Film",   file: "Vintage.png"        },
+  { name: "Surreal",        file: "Surreal.png"        },
+  { name: "Studio Ghibli",  file: "Studio Ghibli.png"  },
+  { name: "Impressionist",  file: "Impressionist.png"  },
+  { name: "Photorealistic", file: "Photorealistic.png" },
+  { name: "Abstract",       file: "Abstract.png"       },
 ];
 
 const videoClips = [
-  { id: 856396,  name: "Urban Timelapse", ratio: "16 / 9", prompt: "A cinematic urban timelapse of a busy city intersection at night, streaking car lights, glowing storefronts, time-lapse motion blur, 4K" },
-  { id: 1093662, name: "Ocean Waves",     ratio: "16 / 9", prompt: "Slow-motion ocean waves crashing against jagged coastal rocks at golden hour, sea spray catching sunlight, cinematic wide shot" },
-  { id: 2795750, name: "Forest Trail",    ratio: "16 / 9", prompt: "A peaceful walk along a misty forest trail at dawn, soft dappled light filtering through tall trees, gentle camera dolly forward" },
-  { id: 3195394, name: "Abstract",        ratio: "1 / 1",  prompt: "Abstract macro footage of iridescent liquid bubbles and shifting colors, slow flowing movement, dreamlike bokeh atmosphere" },
-  { id: 3584816, name: "Lifestyle",       ratio: "1 / 1",  prompt: "Bright lifestyle scene of a person enjoying a morning coffee at a sunlit café table, warm tones, shallow depth of field, candid feel" },
-  { id: 4098981, name: "Close Up",        ratio: "1 / 1",  prompt: "Extreme close-up of human eye reflecting a city skyline, dramatic lighting, cinematic color grade, ultra-sharp detail" },
-  { id: 4226768, name: "Street Style",    ratio: "9 / 16", prompt: "Street style fashion video, slow-motion walk through a vibrant urban market, bold colors, dynamic handheld camera, editorial mood" },
-  { id: 6782462, name: "Portrait",        ratio: "9 / 16", prompt: "Cinematic vertical portrait of a person in soft studio lighting, subtle wind effect on hair, smooth rack focus, elegant and minimal" },
-  { id: 4207907, name: "Urban Walk",      ratio: "9 / 16", prompt: "First-person POV walk through a busy city street at dusk, neon signs reflecting on wet pavement, immersive and energetic pace" },
-  { id: 5489782, name: "Vertical",        ratio: "9 / 16", prompt: "Vertical cinematic clip of autumn forest with falling leaves, golden hour light shafts through trees, gentle slow-motion drift" },
+  { file: "Urban Timelapse.mp4", name: "Urban Timelapse", ratio: "16 / 9", prompt: "A cinematic urban timelapse of a busy city intersection at night, streaking car lights, glowing storefronts, time-lapse motion blur, 4K" },
+  { file: "Ocean waves.mp4",     name: "Ocean Waves",     ratio: "16 / 9", prompt: "Slow-motion ocean waves crashing against jagged coastal rocks at golden hour, sea spray catching sunlight, cinematic wide shot" },
+  { file: "Forest Trails.mp4",   name: "Forest Trail",    ratio: "16 / 9", prompt: "A peaceful walk along a misty forest trail at dawn, soft dappled light filtering through tall trees, gentle camera dolly forward" },
+  { file: "Abstract.mp4",        name: "Abstract",        ratio: "1 / 1",  prompt: "Abstract macro footage of iridescent liquid bubbles and shifting colors, slow flowing movement, dreamlike bokeh atmosphere" },
+  { file: "Lifestyle.mp4",       name: "Lifestyle",       ratio: "1 / 1",  prompt: "Bright lifestyle scene of a person enjoying a morning coffee at a sunlit café table, warm tones, shallow depth of field, candid feel" },
+  { file: "Close up.mp4",        name: "Close Up",        ratio: "1 / 1",  prompt: "Extreme close-up of human eye reflecting a city skyline, dramatic lighting, cinematic color grade, ultra-sharp detail" },
+  { file: "Street Style.mp4",    name: "Street Style",    ratio: "9 / 16", prompt: "Street style fashion video, slow-motion walk through a vibrant urban market, bold colors, dynamic handheld camera, editorial mood" },
+  { file: "Portrait.mp4",        name: "Portrait",        ratio: "9 / 16", prompt: "Cinematic vertical portrait of a person in soft studio lighting, subtle wind effect on hair, smooth rack focus, elegant and minimal" },
+  { file: "Vertical.mp4",        name: "Vertical",        ratio: "9 / 16", prompt: "Vertical cinematic clip of autumn forest with falling leaves, golden hour light shafts through trees, gentle slow-motion drift" },
 ];
 
 const audioMoods = [
@@ -243,22 +246,20 @@ function SendArrowGlyph() {
   );
 }
 
-function AutoplayVideo({ src, poster, className }) {
+function AutoplayVideo({ src, className }) {
   const ref = useRef(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.muted = true;
-    el.play().catch(() => { });
-  }, [src]);
+  const onMouseEnter = () => ref.current?.play().catch(() => {});
+  const onMouseLeave = () => { if (ref.current) { ref.current.pause(); ref.current.currentTime = 0; } };
   return (
     <video
       ref={ref}
       src={src}
-      poster={poster}
       muted
       loop
       playsInline
+      preload="metadata"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       className={className}
     />
   );
@@ -618,10 +619,17 @@ export default function EditorScreen() {
   const [chatSelectedModel, setChatSelectedModel] = useState(editorModels[0]);
   const [selectedAttachment, setSelectedAttachment] = useState(null);
   const [selectedImageStyle, setSelectedImageStyle] = useState(null);
+  const [imageStylesExpanded, setImageStylesExpanded] = useState(false);
   const [videoStartImage, setVideoStartImage] = useState(null);
   const [videoEndImage, setVideoEndImage] = useState(null);
+  const searchParams = useSearchParams();
   const [activeGrid, setActiveGrid] = useState(null);
   const [selectedTools, setSelectedTools] = useState([]);
+
+  useEffect(() => {
+    const tool = searchParams.get("tool");
+    if (tool) setActiveGrid(tool);
+  }, [searchParams]);
   const [videoSettings, setVideoSettings] = useState({
     model: "Veo 3.1 Lite",
     ratio: "16:9",
@@ -643,7 +651,6 @@ export default function EditorScreen() {
   const [selectedVoice, setSelectedVoice] = useState(null);
   const [promptSuggestion, setPromptSuggestion] = useState(null);
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
-  const [imageStylesExpanded, setImageStylesExpanded] = useState(false);
   const [videoTemplatesExpanded, setVideoTemplatesExpanded] = useState(false);
   const [imageErrorVisible, setImageErrorVisible] = useState(false);
 
@@ -738,7 +745,6 @@ export default function EditorScreen() {
   }, [chatDraft]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    setImageStylesExpanded(false);
     setVideoTemplatesExpanded(false);
   }, [activeGrid]);
 
@@ -1559,21 +1565,16 @@ export default function EditorScreen() {
                   <div className="chat-content-area">
                     {showVideoGrid && (
                       <div className="video-style-panel">
-                        <div className="image-style-header">
-                          <span className="image-style-title">Video Templates</span>
-                          <span className="image-style-subtitle">Choose a template style for your generated video</span>
-                        </div>
                         <div className="video-template-grid">
                           {(videoTemplatesExpanded ? videoClips : videoClips.slice(0, 6)).map((vid, i) => {
-                            const poster = `https://images.pexels.com/videos/${vid.id}/free-video-${vid.id}.jpg?auto=compress&cs=tinysrgb&dpr=1&fit=crop`;
-                            const src = `https://videos.pexels.com/video-files/${vid.id}/free-${vid.id}-hd_1920_1080_25fps.mp4`;
+                            const src = `/video-styles/${vid.file}`;
                             return (
                               <button
-                                key={vid.id}
+                                key={vid.file}
                                 type="button"
-                                className={cn("video-template-card", `template-item-${i}`, selectedAttachment?.id === vid.id && "is-selected")}
+                                className={cn("video-template-card", `template-item-${i}`, selectedAttachment?.file === vid.file && "is-selected")}
                                 onClick={() => {
-                                  setSelectedAttachment({ type: "video", id: vid.id, name: vid.name, poster, src });
+                                  setSelectedAttachment({ type: "video", file: vid.file, name: vid.name, src });
                                   setChatThreads((cur) => cur.map((t) => t.id === activeChatId ? { ...t, draft: vid.prompt } : t));
                                   if (chatPromptRef.current) {
                                     chatPromptRef.current.textContent = vid.prompt;
@@ -1587,7 +1588,7 @@ export default function EditorScreen() {
                                   }
                                 }}
                               >
-                                <AutoplayVideo src={src} poster={poster} className="video-style-clip" />
+                                <AutoplayVideo src={src} className="video-style-clip" />
                                 <span className="image-style-label">{vid.name}</span>
                               </button>
                             );
@@ -1602,20 +1603,16 @@ export default function EditorScreen() {
                     )}
                     {showImageGrid && (
                       <div className="image-style-panel">
-                        <div className="image-style-header">
-                          <span className="image-style-title">Image Styles</span>
-                          <span className="image-style-subtitle">Choose a style for your generated image</span>
-                        </div>
                         <div className="image-style-grid">
-                          {(imageStylesExpanded ? imageStyles : imageStyles.slice(0, 8)).map((style, i) => (
+                          {(imageStylesExpanded ? imageStyles : imageStyles.slice(0, 10)).map((style, i) => (
                             <button
                               key={style.name}
                               type="button"
                               className={cn("image-style-card", `bento-item-${i}`, selectedImageStyle?.name === style.name && "is-selected")}
-                              onClick={() => setSelectedImageStyle(selectedImageStyle?.name === style.name ? null : { name: style.name, url: `https://images.pexels.com/photos/${style.photoId}/pexels-photo-${style.photoId}.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop` })}
+                              onClick={() => { const url = `/image-styles/${encodeURIComponent(style.file)}`; setSelectedImageStyle(selectedImageStyle?.name === style.name ? null : { name: style.name, url }); }}
                             >
                               <img
-                                src={`https://images.pexels.com/photos/${style.photoId}/pexels-photo-${style.photoId}.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop`}
+                                src={`/image-styles/${encodeURIComponent(style.file)}`}
                                 alt={style.name}
                                 className="image-style-thumb"
                               />
@@ -1623,9 +1620,14 @@ export default function EditorScreen() {
                             </button>
                           ))}
                         </div>
-                        {!imageStylesExpanded && imageStyles.length > 8 && (
+                        {!imageStylesExpanded && imageStyles.length > 10 && (
                           <button type="button" className="style-more-btn" onClick={() => setImageStylesExpanded(true)}>
-                            More styles ({imageStyles.length - 8} more)
+                            More styles ({imageStyles.length - 10} more)
+                          </button>
+                        )}
+                        {imageStylesExpanded && (
+                          <button type="button" className="style-more-btn" onClick={() => setImageStylesExpanded(false)}>
+                            Show less
                           </button>
                         )}
                       </div>

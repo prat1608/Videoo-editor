@@ -1,0 +1,346 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - img "Videoo" [ref=e5]
+        - button "Collapse sidebar" [ref=e6] [cursor=pointer]:
+          - img [ref=e7]
+      - navigation [ref=e10]:
+        - link "New Project" [ref=e11] [cursor=pointer]:
+          - /url: /editor
+          - img [ref=e13]
+          - generic [ref=e16]: New Project
+        - button "Record New" [ref=e17] [cursor=pointer]:
+          - img [ref=e19]
+          - generic [ref=e22]: Record
+          - generic [ref=e23]: New
+        - button "Assets" [ref=e24] [cursor=pointer]:
+          - img [ref=e26]
+          - generic [ref=e27]: Assets
+      - generic [ref=e28]:
+        - button "Tools & Skills" [ref=e29] [cursor=pointer]:
+          - img [ref=e30]
+          - generic [ref=e33]: Tools & Skills
+          - img [ref=e34]
+        - generic [ref=e36]:
+          - button "Generate Video" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - generic [ref=e43]: Generate Video
+          - button "Auto Captions" [ref=e44] [cursor=pointer]:
+            - img [ref=e45]
+            - generic [ref=e48]: Auto Captions
+          - button "AI Enhance" [ref=e49] [cursor=pointer]:
+            - img [ref=e50]
+            - generic [ref=e53]: AI Enhance
+          - button "Background Music" [ref=e54] [cursor=pointer]:
+            - img [ref=e55]
+            - generic [ref=e59]: Background Music
+          - button "Smart Crop" [ref=e60] [cursor=pointer]:
+            - img [ref=e61]
+            - generic [ref=e64]: Smart Crop
+          - link "More Tools" [ref=e65] [cursor=pointer]:
+            - /url: /tools
+            - generic [ref=e66]: More Tools
+            - img [ref=e67]
+      - generic [ref=e69]:
+        - button "Spaces" [ref=e70] [cursor=pointer]:
+          - img [ref=e71]
+          - generic [ref=e75]: Spaces
+          - img [ref=e76]
+        - generic [ref=e78]:
+          - button "D Default Space" [ref=e79] [cursor=pointer]:
+            - generic [ref=e80]: D
+            - generic [ref=e81]: Default Space
+          - button "New Space" [ref=e82] [cursor=pointer]:
+            - img [ref=e83]
+            - generic [ref=e84]: New Space
+      - generic [ref=e85]:
+        - generic [ref=e86]: Recent
+        - generic [ref=e87]:
+          - button "Untitled Project" [ref=e88] [cursor=pointer]:
+            - generic [ref=e90]: Untitled Project
+          - button "Rough Cuts Project" [ref=e91] [cursor=pointer]:
+            - generic [ref=e93]: Rough Cuts Project
+          - button "Make roughcuts" [ref=e94] [cursor=pointer]:
+            - generic [ref=e96]: Make roughcuts
+          - button "Lion in Snowy Mount..." [ref=e97] [cursor=pointer]:
+            - generic [ref=e99]: Lion in Snowy Mount...
+          - button "/generate-image ima..." [ref=e100] [cursor=pointer]:
+            - generic [ref=e102]: /generate-image ima...
+          - button "Untitled Project" [ref=e103] [cursor=pointer]:
+            - generic [ref=e105]: Untitled Project
+          - button "Untitled Project" [ref=e106] [cursor=pointer]:
+            - generic [ref=e108]: Untitled Project
+          - button "Untitled Project" [ref=e109] [cursor=pointer]:
+            - generic [ref=e111]: Untitled Project
+          - button "Untitled Project" [ref=e112] [cursor=pointer]:
+            - generic [ref=e114]: Untitled Project
+          - button "Untitled Project" [ref=e115] [cursor=pointer]:
+            - generic [ref=e117]: Untitled Project
+          - button "Social Media Clip Cr..." [ref=e118] [cursor=pointer]:
+            - generic [ref=e120]: Social Media Clip Cr...
+      - generic [ref=e121]:
+        - generic [ref=e122]:
+          - button "Docs" [ref=e123] [cursor=pointer]:
+            - img [ref=e124]
+          - button "Support" [ref=e126] [cursor=pointer]:
+            - img [ref=e127]
+          - button "Notifications" [ref=e129] [cursor=pointer]:
+            - img [ref=e130]
+        - button "Account" [ref=e133] [cursor=pointer]:
+          - generic [ref=e134]: P
+    - main [ref=e135]:
+      - generic [ref=e136]:
+        - generic [ref=e137]:
+          - heading "Tools & Skills" [level=1] [ref=e138]
+          - paragraph [ref=e139]: Everything you need to create, edit, and ship
+        - generic [ref=e140]:
+          - img
+          - textbox "Search tools…" [ref=e141]
+      - generic [ref=e142]:
+        - button "All" [ref=e143] [cursor=pointer]
+        - button "Generation" [ref=e144] [cursor=pointer]
+        - button "Skills" [ref=e145] [cursor=pointer]
+        - button "Basic Tools" [ref=e146] [cursor=pointer]
+      - generic [ref=e147]:
+        - generic [ref=e148]:
+          - generic [ref=e149]:
+            - generic [ref=e150]:
+              - heading "Generation Tools" [level=2] [ref=e151]
+              - paragraph [ref=e152]: Create anything from a prompt
+            - button "Browse all" [ref=e153] [cursor=pointer]:
+              - text: Browse all
+              - img [ref=e154]
+          - generic [ref=e156]:
+            - button "Open Generate Image" [ref=e157] [cursor=pointer]:
+              - generic [ref=e160]:
+                - generic [ref=e161]:
+                  - generic [ref=e162]: Requested
+                  - generic [ref=e164]: James Knot
+                - generic [ref=e165]:
+                  - generic [ref=e166]: Requested
+                  - generic [ref=e168]: Alison Parke
+                - generic [ref=e169]:
+                  - generic [ref=e170]: Requested
+                  - generic [ref=e172]: Skylor Saib
+                - generic [ref=e176]: Request Sent!
+              - generic [ref=e177]:
+                - paragraph [ref=e178]: Generate Image
+                - paragraph [ref=e179]: Create from text prompt
+            - button "Open Generate Video" [ref=e180] [cursor=pointer]:
+              - generic [ref=e184]:
+                - generic [ref=e185]: Ready
+                - paragraph [ref=e186]: Share Your Experience
+                - generic [ref=e187]:
+                  - generic [ref=e188]:
+                    - generic [ref=e189]: First Name
+                    - generic [ref=e190]: James
+                  - generic [ref=e191]:
+                    - generic [ref=e192]: Last Name
+                    - generic [ref=e193]: Squat
+                - generic [ref=e194]:
+                  - generic [ref=e195]: Email Address
+                  - generic [ref=e196]: example@abc.com
+                - generic [ref=e197]:
+                  - generic [ref=e198]: Testimonial
+                  - generic [ref=e199]: Message
+                - generic [ref=e200]: Submit Feedback!
+              - generic [ref=e201]:
+                - paragraph [ref=e202]: Generate Video
+                - paragraph [ref=e203]: Text or image to video
+            - button "Open Generate Music" [ref=e204] [cursor=pointer]:
+              - generic [ref=e207]:
+                - generic [ref=e208]: fb
+                - generic [ref=e209]: mail
+                - generic [ref=e210]: tt
+                - generic [ref=e211]: link
+                - generic [ref=e212]: ig
+                - generic [ref=e213]: x
+              - generic [ref=e230]:
+                - paragraph [ref=e231]: Generate Music
+                - paragraph [ref=e232]: AI background tracks
+            - button "Open Generate Voiceover" [ref=e233] [cursor=pointer]:
+              - generic [ref=e236]:
+                - generic [ref=e237]: zapier
+                - generic [ref=e238]: slack
+                - generic [ref=e239]: stripe
+                - generic [ref=e240]: "N"
+                - generic [ref=e241]: sheets
+                - generic [ref=e242]: C
+                - generic [ref=e246]: Integrated
+              - generic [ref=e247]:
+                - paragraph [ref=e248]: Generate Voiceover
+                - paragraph [ref=e249]: Natural AI narration
+            - button "Open Generate SFX" [ref=e250] [cursor=pointer]:
+              - generic [ref=e253]:
+                - generic [ref=e255]: Lucas Grant
+                - generic [ref=e260]: Sabrina Joseph
+                - generic [ref=e262]:
+                  - generic [ref=e263]: 30+ Layouts
+                  - generic [ref=e264]: Build Trust
+                - generic [ref=e273]:
+                  - generic [ref=e274]: "* * *"
+                  - generic [ref=e276]: James Parker
+                - generic [ref=e277]:
+                  - generic [ref=e278]: "* * * * *"
+                  - generic [ref=e280]: Jordan Malik
+              - generic [ref=e282]:
+                - paragraph [ref=e283]: Generate SFX
+                - paragraph [ref=e284]: Sound effects on demand
+        - generic [ref=e285]:
+          - generic [ref=e286]:
+            - generic [ref=e287]:
+              - heading "Skills" [level=2] [ref=e288]
+              - paragraph [ref=e289]: Intelligent workflows powered by AI
+            - button "Browse all" [ref=e290] [cursor=pointer]:
+              - text: Browse all
+              - img [ref=e291]
+          - generic [ref=e293]:
+            - button "Open Autodemo" [ref=e294] [cursor=pointer]:
+              - generic [ref=e297]:
+                - generic [ref=e298]:
+                  - generic [ref=e299]: Requested
+                  - generic [ref=e301]: James Knot
+                - generic [ref=e302]:
+                  - generic [ref=e303]: Requested
+                  - generic [ref=e305]: Alison Parke
+                - generic [ref=e306]:
+                  - generic [ref=e307]: Requested
+                  - generic [ref=e309]: Skylor Saib
+                - generic [ref=e313]: Request Sent!
+              - generic [ref=e314]:
+                - paragraph [ref=e315]: Autodemo
+                - paragraph [ref=e316]: Auto-generate product demos
+            - button "Open Roughcuts" [ref=e317] [cursor=pointer]:
+              - generic [ref=e321]:
+                - generic [ref=e322]: Ready
+                - paragraph [ref=e323]: Share Your Experience
+                - generic [ref=e324]:
+                  - generic [ref=e325]:
+                    - generic [ref=e326]: First Name
+                    - generic [ref=e327]: James
+                  - generic [ref=e328]:
+                    - generic [ref=e329]: Last Name
+                    - generic [ref=e330]: Squat
+                - generic [ref=e331]:
+                  - generic [ref=e332]: Email Address
+                  - generic [ref=e333]: example@abc.com
+                - generic [ref=e334]:
+                  - generic [ref=e335]: Testimonial
+                  - generic [ref=e336]: Message
+                - generic [ref=e337]: Submit Feedback!
+              - generic [ref=e338]:
+                - paragraph [ref=e339]: Roughcuts
+                - paragraph [ref=e340]: AI-assembled rough edit
+            - button "Open Clipping" [ref=e341] [cursor=pointer]:
+              - generic [ref=e344]:
+                - generic [ref=e345]: fb
+                - generic [ref=e346]: mail
+                - generic [ref=e347]: tt
+                - generic [ref=e348]: link
+                - generic [ref=e349]: ig
+                - generic [ref=e350]: x
+              - generic [ref=e367]:
+                - paragraph [ref=e368]: Clipping
+                - paragraph [ref=e369]: Extract best moments
+        - generic [ref=e370]:
+          - generic [ref=e371]:
+            - generic [ref=e372]:
+              - heading "Basic Tools" [level=2] [ref=e373]
+              - paragraph [ref=e374]: Precise controls for every edit
+            - button "Browse all" [ref=e375] [cursor=pointer]:
+              - text: Browse all
+              - img [ref=e376]
+          - generic [ref=e378]:
+            - button "Open Trim" [ref=e379] [cursor=pointer]:
+              - generic [ref=e382]:
+                - generic [ref=e383]:
+                  - generic [ref=e384]: Requested
+                  - generic [ref=e386]: James Knot
+                - generic [ref=e387]:
+                  - generic [ref=e388]: Requested
+                  - generic [ref=e390]: Alison Parke
+                - generic [ref=e391]:
+                  - generic [ref=e392]: Requested
+                  - generic [ref=e394]: Skylor Saib
+                - generic [ref=e398]: Request Sent!
+              - generic [ref=e399]:
+                - paragraph [ref=e400]: Trim
+                - paragraph [ref=e401]: Cut clip in & out points
+            - button "Open Merge" [ref=e402] [cursor=pointer]:
+              - generic [ref=e406]:
+                - generic [ref=e407]: Ready
+                - paragraph [ref=e408]: Share Your Experience
+                - generic [ref=e409]:
+                  - generic [ref=e410]:
+                    - generic [ref=e411]: First Name
+                    - generic [ref=e412]: James
+                  - generic [ref=e413]:
+                    - generic [ref=e414]: Last Name
+                    - generic [ref=e415]: Squat
+                - generic [ref=e416]:
+                  - generic [ref=e417]: Email Address
+                  - generic [ref=e418]: example@abc.com
+                - generic [ref=e419]:
+                  - generic [ref=e420]: Testimonial
+                  - generic [ref=e421]: Message
+                - generic [ref=e422]: Submit Feedback!
+              - generic [ref=e423]:
+                - paragraph [ref=e424]: Merge
+                - paragraph [ref=e425]: Join clips together
+            - button "Open Speed" [ref=e426] [cursor=pointer]:
+              - generic [ref=e429]:
+                - generic [ref=e430]: fb
+                - generic [ref=e431]: mail
+                - generic [ref=e432]: tt
+                - generic [ref=e433]: link
+                - generic [ref=e434]: ig
+                - generic [ref=e435]: x
+              - generic [ref=e452]:
+                - paragraph [ref=e453]: Speed
+                - paragraph [ref=e454]: Ramp or constant speed
+            - button "Open Reverse" [ref=e455] [cursor=pointer]:
+              - generic [ref=e458]:
+                - generic [ref=e459]: zapier
+                - generic [ref=e460]: slack
+                - generic [ref=e461]: stripe
+                - generic [ref=e462]: "N"
+                - generic [ref=e463]: sheets
+                - generic [ref=e464]: C
+                - generic [ref=e468]: Integrated
+              - generic [ref=e469]:
+                - paragraph [ref=e470]: Reverse
+                - paragraph [ref=e471]: Play footage backwards
+            - button "Open Rotate" [ref=e472] [cursor=pointer]:
+              - generic [ref=e475]:
+                - generic [ref=e477]: Lucas Grant
+                - generic [ref=e482]: Sabrina Joseph
+                - generic [ref=e484]:
+                  - generic [ref=e485]: 30+ Layouts
+                  - generic [ref=e486]: Build Trust
+                - generic [ref=e495]:
+                  - generic [ref=e496]: "* * *"
+                  - generic [ref=e498]: James Parker
+                - generic [ref=e499]:
+                  - generic [ref=e500]: "* * * * *"
+                  - generic [ref=e502]: Jordan Malik
+              - generic [ref=e504]:
+                - paragraph [ref=e505]: Rotate
+                - paragraph [ref=e506]: Flip or rotate frame
+            - button "Open Crop" [ref=e507] [cursor=pointer]:
+              - generic [ref=e510]:
+                - generic [ref=e511]:
+                  - generic [ref=e512]: Requested
+                  - generic [ref=e514]: James Knot
+                - generic [ref=e515]:
+                  - generic [ref=e516]: Requested
+                  - generic [ref=e518]: Alison Parke
+                - generic [ref=e519]:
+                  - generic [ref=e520]: Requested
+                  - generic [ref=e522]: Skylor Saib
+                - generic [ref=e526]: Request Sent!
+              - generic [ref=e527]:
+                - paragraph [ref=e528]: Crop
+                - paragraph [ref=e529]: Trim frame edges
+  - button "Open Next.js Dev Tools" [ref=e535] [cursor=pointer]:
+    - img [ref=e536]

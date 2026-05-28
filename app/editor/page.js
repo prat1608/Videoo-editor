@@ -1,5 +1,10 @@
+import { Suspense } from "react";
 import EditorScreen from "../../components/editor-screen";
 
 export default function EditorPage() {
-  return <EditorScreen />;
+  return (
+    <Suspense>
+      <EditorScreen />
+    </Suspense>
+  );
 }

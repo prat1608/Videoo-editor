@@ -1,0 +1,157 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - img "Videoo" [ref=e5]
+        - button "Collapse sidebar" [ref=e6] [cursor=pointer]:
+          - img [ref=e7]
+      - navigation [ref=e10]:
+        - link "New Project" [ref=e11] [cursor=pointer]:
+          - /url: /editor
+          - img [ref=e13]
+          - generic [ref=e16]: New Project
+        - button "Record New" [ref=e17] [cursor=pointer]:
+          - img [ref=e19]
+          - generic [ref=e22]: Record
+          - generic [ref=e23]: New
+        - button "Assets" [ref=e24] [cursor=pointer]:
+          - img [ref=e26]
+          - generic [ref=e27]: Assets
+      - generic [ref=e28]:
+        - button "Tools & Skills" [ref=e29] [cursor=pointer]:
+          - img [ref=e30]
+          - generic [ref=e33]: Tools & Skills
+          - img [ref=e34]
+        - generic [ref=e36]:
+          - button "Generate Video" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - generic [ref=e43]: Generate Video
+          - button "Auto Captions" [ref=e44] [cursor=pointer]:
+            - img [ref=e45]
+            - generic [ref=e48]: Auto Captions
+          - button "AI Enhance" [ref=e49] [cursor=pointer]:
+            - img [ref=e50]
+            - generic [ref=e53]: AI Enhance
+          - button "Background Music" [ref=e54] [cursor=pointer]:
+            - img [ref=e55]
+            - generic [ref=e59]: Background Music
+          - button "Smart Crop" [ref=e60] [cursor=pointer]:
+            - img [ref=e61]
+            - generic [ref=e64]: Smart Crop
+          - link "More Tools" [ref=e65] [cursor=pointer]:
+            - /url: /tools
+            - generic [ref=e66]: More Tools
+            - img [ref=e67]
+      - generic [ref=e69]:
+        - button "Spaces" [ref=e70] [cursor=pointer]:
+          - img [ref=e71]
+          - generic [ref=e75]: Spaces
+          - img [ref=e76]
+        - generic [ref=e78]:
+          - button "D Default Space" [ref=e79] [cursor=pointer]:
+            - generic [ref=e80]: D
+            - generic [ref=e81]: Default Space
+          - button "New Space" [ref=e82] [cursor=pointer]:
+            - img [ref=e83]
+            - generic [ref=e84]: New Space
+      - generic [ref=e85]:
+        - generic [ref=e86]: Recent
+        - generic [ref=e87]:
+          - button "Untitled Project" [ref=e88] [cursor=pointer]:
+            - generic [ref=e90]: Untitled Project
+          - button "Rough Cuts Project" [ref=e91] [cursor=pointer]:
+            - generic [ref=e93]: Rough Cuts Project
+          - button "Make roughcuts" [ref=e94] [cursor=pointer]:
+            - generic [ref=e96]: Make roughcuts
+          - button "Lion in Snowy Mount..." [ref=e97] [cursor=pointer]:
+            - generic [ref=e99]: Lion in Snowy Mount...
+          - button "/generate-image ima..." [ref=e100] [cursor=pointer]:
+            - generic [ref=e102]: /generate-image ima...
+          - button "Untitled Project" [ref=e103] [cursor=pointer]:
+            - generic [ref=e105]: Untitled Project
+          - button "Untitled Project" [ref=e106] [cursor=pointer]:
+            - generic [ref=e108]: Untitled Project
+          - button "Untitled Project" [ref=e109] [cursor=pointer]:
+            - generic [ref=e111]: Untitled Project
+          - button "Untitled Project" [ref=e112] [cursor=pointer]:
+            - generic [ref=e114]: Untitled Project
+          - button "Untitled Project" [ref=e115] [cursor=pointer]:
+            - generic [ref=e117]: Untitled Project
+          - button "Social Media Clip Cr..." [ref=e118] [cursor=pointer]:
+            - generic [ref=e120]: Social Media Clip Cr...
+      - generic [ref=e121]:
+        - generic [ref=e122]:
+          - link "Settings" [ref=e123] [cursor=pointer]:
+            - /url: /settings/workspace/5628820d-75f4-47be-8221-029b5723f2c6/integrations
+            - img [ref=e124]
+          - button "Docs" [ref=e127] [cursor=pointer]:
+            - img [ref=e128]
+          - button "Support" [ref=e130] [cursor=pointer]:
+            - img [ref=e131]
+          - button "Notifications" [ref=e133] [cursor=pointer]:
+            - img [ref=e134]
+        - button "Account" [ref=e137] [cursor=pointer]:
+          - generic [ref=e138]: P
+    - main [ref=e139]:
+      - generic [ref=e140]:
+        - button "9,261 credits" [ref=e141] [cursor=pointer]:
+          - img [ref=e142]
+          - generic [ref=e145]: 9,261 credits
+        - button "Default Space" [ref=e146] [cursor=pointer]:
+          - img [ref=e147]
+          - generic [ref=e151]: Default Space
+        - link "Open Editor" [ref=e152] [cursor=pointer]:
+          - /url: /editor
+          - generic [ref=e153]: Open Editor
+          - img [ref=e154]
+      - generic [ref=e157]:
+        - heading "Ready to direct, Pratiksha?" [level=1] [ref=e158]
+        - generic [ref=e159]:
+          - textbox "Describe your next shot..." [ref=e161]
+          - generic [ref=e162]:
+            - button "Attach" [ref=e164] [cursor=pointer]:
+              - img [ref=e165]
+            - generic [ref=e166]:
+              - button "DeepSeek V4 Pro" [ref=e168] [cursor=pointer]:
+                - generic [ref=e170]: DeepSeek V4 Pro
+                - img [ref=e171]
+              - button "Send" [ref=e173] [cursor=pointer]:
+                - img [ref=e174]
+        - generic [ref=e176]:
+          - button "Generate" [active] [ref=e177] [cursor=pointer]:
+            - img [ref=e178]
+            - generic [ref=e181]: Generate
+          - button "Script & Strategy" [ref=e182] [cursor=pointer]:
+            - img [ref=e183]
+            - generic [ref=e186]: Script & Strategy
+          - button "Repurpose" [ref=e187] [cursor=pointer]:
+            - img [ref=e188]
+            - generic [ref=e193]: Repurpose
+          - button "Edit" [ref=e194] [cursor=pointer]:
+            - img [ref=e195]
+            - generic [ref=e201]: Edit
+          - button "Captions & Voice" [ref=e202] [cursor=pointer]:
+            - img [ref=e203]
+            - generic [ref=e207]: Captions & Voice
+      - generic [ref=e209]:
+        - generic [ref=e210]:
+          - tablist [ref=e211]:
+            - tab "Recent projects" [selected] [ref=e212] [cursor=pointer]
+            - tab "Examples" [ref=e213] [cursor=pointer]
+          - button "View all" [ref=e214] [cursor=pointer]:
+            - text: View all
+            - generic [ref=e215]: →
+        - generic [ref=e216]:
+          - link "Untitled Project Last edited 9 hrs ago" [ref=e217] [cursor=pointer]:
+            - /url: /editor
+            - generic [ref=e219]:
+              - strong [ref=e220]: Untitled Project
+              - generic [ref=e221]: Last edited 9 hrs ago
+          - link "Rough Cuts Project Last edited 9 hrs ago" [ref=e222] [cursor=pointer]:
+            - /url: /editor
+            - generic [ref=e224]:
+              - strong [ref=e225]: Rough Cuts Project
+              - generic [ref=e226]: Last edited 9 hrs ago
+  - button "Open Next.js Dev Tools" [ref=e232] [cursor=pointer]:
+    - img [ref=e233]
+  - alert [ref=e236]

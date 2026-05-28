@@ -1,0 +1,44 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - img "Videoo Logo" [ref=e6]
+      - generic [ref=e9]:
+        - generic [ref=e11]:
+          - img [ref=e12]
+          - generic [ref=e14]: Login to your account
+        - generic [ref=e15]:
+          - button "Continue with Google" [ref=e16] [cursor=pointer]:
+            - img [ref=e17]
+            - text: Continue with Google
+          - paragraph [ref=e25]: OR
+          - generic [ref=e27]:
+            - textbox "Email Address" [ref=e29]
+            - button "Continue" [disabled] [ref=e30]
+          - paragraph [ref=e31]: Don’t have an account?Sign up
+          - generic [ref=e32]:
+            - generic [ref=e33] [cursor=pointer]: Terms of Use
+            - text: "|"
+            - generic [ref=e34] [cursor=pointer]: Privacy Policy
+    - generic [ref=e37]:
+      - img "Videoo - helps you edit videos" [ref=e38]
+      - generic [ref=e40]:
+        - generic [ref=e41]: helps you
+        - generic:
+          - generic:
+            - generic [ref=e42]: p
+            - generic [ref=e43]: o
+            - generic [ref=e44]: l
+            - generic [ref=e45]: i
+            - generic [ref=e46]: s
+            - generic [ref=e47]: h
+        - generic [ref=e48]: in video
+      - generic:
+        - generic: polish
+        - generic: caption
+        - generic: edit
+        - generic: ship

@@ -2,16 +2,13 @@
 
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
-import Image from "next/image";
 import Link from "next/link";
 import {
   AlertTriangle,
-  Plus,
   ChevronDown,
   ChevronRight,
   Check,
   Video,
-  BarChart2,
   Layers,
   Sparkles,
   FileText,
@@ -20,18 +17,10 @@ import {
   Mic2,
   ArrowUp,
   ArrowUpRight,
-  BookOpen,
   Headphones,
-  Bell,
-  FilePlus2,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Wand2,
-  Subtitles,
   Music,
   Music4,
   Clapperboard,
-  Crop,
   ImageUp,
   LayoutGrid,
   RectangleHorizontal,
@@ -42,22 +31,9 @@ import {
   X,
 } from "lucide-react";
 import { PromptBox } from "@/components/prompt-box";
-import logoMark from "@/assets/Logo.svg";
+import { HomeSidebar } from "@/components/home-sidebar";
+import { IMAGE_STYLES, getImageStyleUrl } from "@/lib/image-styles";
 import { cn } from "@/lib/utils";
-
-const sidebarRecentProjects = [
-  { id: 1, title: "Untitled Project", color: "#5a3a4a" },
-  { id: 2, title: "Rough Cuts Project", color: "#2a2a3a" },
-  { id: 3, title: "Make roughcuts", color: "#3a2a2a" },
-  { id: 4, title: "Lion in Snowy Mount...", color: "#1a1a1a" },
-  { id: 5, title: "/generate-image ima...", color: "#1a1a1a" },
-  { id: 6, title: "Untitled Project", color: "#252525" },
-  { id: 7, title: "Untitled Project", color: "#30263a" },
-  { id: 8, title: "Untitled Project", color: "#3a2a1a" },
-  { id: 9, title: "Untitled Project", color: "#1a2a3a" },
-  { id: 10, title: "Untitled Project", color: "#232323" },
-  { id: 11, title: "Social Media Clip Cr...", color: "#1a1a2a" },
-];
 
 const recentProjectsMain = [
   { id: 1, title: "Untitled Project", time: "Last edited 9 hrs ago", color: "#5a3a4a" },
@@ -72,24 +48,7 @@ const actionChips = [
   { key: "captions", label: "Captions & Voice", icon: Mic2 },
 ];
 
-const homeImageStyles = [
-  { name: "3D Render",     photoId: 3862132, ratio: "16 / 9" },
-  { name: "Monochrome",    photoId: 1266808, ratio: "16 / 9" },
-  { name: "Minecraft",     photoId: 1462726, ratio: "16 / 9" },
-  { name: "Anime",         photoId: 2110951, ratio: "16 / 9" },
-  { name: "Oil Painting",  photoId: 1568607, ratio: "16 / 9" },
-  { name: "Impressionist", photoId: 3621344, ratio: "16 / 9" },
-  { name: "Watercolor",    photoId: 1269968, ratio: "1 / 1"  },
-  { name: "Comic Book",    photoId: 1762851, ratio: "1 / 1"  },
-  { name: "Neon Noir",     photoId: 1183992, ratio: "1 / 1"  },
-  { name: "Cyberpunk",     photoId: 2007647, ratio: "1 / 1"  },
-  { name: "Vintage Film",  photoId: 1209843, ratio: "9 / 16" },
-  { name: "Pencil Sketch", photoId: 958164,  ratio: "9 / 16" },
-  { name: "Pixel Art",     photoId: 1563356, ratio: "9 / 16" },
-  { name: "Cinematic",     photoId: 1552212, ratio: "9 / 16" },
-  { name: "Surreal",       photoId: 1252869, ratio: "9 / 16" },
-  { name: "Studio Ghibli", photoId: 1287145, ratio: "9 / 16" },
-];
+const homeImageStyles = IMAGE_STYLES;
 
 const homeVideoClips = [
   { id: 856396,  name: "Urban Timelapse", ratio: "16 / 9" },
@@ -102,14 +61,6 @@ const homeVideoClips = [
   { id: 6782462, name: "Portrait",        ratio: "9 / 16" },
   { id: 4207907, name: "Urban Walk",      ratio: "9 / 16" },
   { id: 5489782, name: "Vertical",        ratio: "9 / 16" },
-];
-
-const toolsAndSkills = [
-  { key: "generate", label: "Generate Video", icon: Clapperboard },
-  { key: "captions", label: "Auto Captions", icon: Subtitles },
-  { key: "enhance", label: "AI Enhance", icon: Wand2 },
-  { key: "music", label: "Background Music", icon: Music },
-  { key: "crop", label: "Smart Crop", icon: Crop },
 ];
 
 const TOOL_SUGGESTION_CONFIG = {
@@ -213,8 +164,6 @@ const modelProviders = [
 export default function HomeScreen() {
   const [prompt, setPrompt] = useState("");
   const [activeTab, setActiveTab] = useState("recent");
-  const [spacesOpen, setSpacesOpen] = useState(true);
-  const [toolsOpen, setToolsOpen] = useState(true);
   const [modelOpen, setModelOpen] = useState(false);
   const [hoveredProvider, setHoveredProvider] = useState(null);
   const [selectedModel, setSelectedModel] = useState({
@@ -224,9 +173,9 @@ export default function HomeScreen() {
     iconBg: "linear-gradient(135deg, #0ea5e9 0%, #6366f1 60%, #8b5cf6 100%)",
   });
   const [isFocused, setIsFocused] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeGrid, setActiveGrid] = useState(null);
   const [selectedStyle, setSelectedStyle] = useState(null);
+  const [imageStylesExpanded, setImageStylesExpanded] = useState(false);
   const [imageSettings, setImageSettings] = useState({ model: "Imagen 4", ratio: "1:1", resolution: "1024px", quality: "Standard" });
   const [videoSettings, setVideoSettings] = useState({ model: "Sora", ratio: "16:9", duration: "5s", quality: "1080p" });
   const [selectedAttachment, setSelectedAttachment] = useState(null);
@@ -246,6 +195,8 @@ export default function HomeScreen() {
   const [selectedVoice, setSelectedVoice] = useState(null);
 
   const [imageErrorVisible, setImageErrorVisible] = useState(false);
+  const hasPromptText = prompt.trim().length > 0;
+  const showPromptSuggestion = Boolean(promptSuggestion && !suggestionDismissed && !activeGrid && hasPromptText);
 
   useEffect(() => {
     if (activeGrid !== "video" || !["Luma Dream Machine"].includes(videoSettings.model)) {
@@ -334,114 +285,7 @@ export default function HomeScreen() {
 
   return (
     <div className={cn("home-shell", isFocused && "is-focused", activeGrid && "has-grid")}>
-      <aside className={cn("home-sidebar", sidebarCollapsed && "is-collapsed")}>
-        <div className="home-sidebar-logo">
-          {!sidebarCollapsed && <Image src={logoMark} alt="Videoo" priority />}
-          <button
-            type="button"
-            className="home-sidebar-collapse-btn"
-            aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-            onClick={() => setSidebarCollapsed((v) => !v)}
-          >
-            {sidebarCollapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
-          </button>
-        </div>
-
-        <nav className="home-sidebar-nav">
-          <Link href="/editor" className="home-nav-item">
-            <span className="home-nav-icon"><FilePlus2 /></span>
-            <span>New Project</span>
-          </Link>
-          <button type="button" className="home-nav-item">
-            <span className="home-nav-icon"><Video /></span>
-            <span>Record</span>
-            <span className="home-nav-badge">New</span>
-          </button>
-          <button type="button" className="home-nav-item">
-            <span className="home-nav-icon"><BarChart2 /></span>
-            <span>Assets</span>
-          </button>
-        </nav>
-
-        <div className="home-sidebar-section">
-          <button
-            type="button"
-            className="home-sidebar-section-header"
-            onClick={() => setToolsOpen(!toolsOpen)}
-          >
-            <Wand2 />
-            <span>Tools &amp; Skills</span>
-            <ChevronDown className={cn("home-section-chevron", toolsOpen && "is-open")} />
-          </button>
-          {toolsOpen && (
-            <div className="home-tools-list">
-              {toolsAndSkills.map((tool) => (
-                <button key={tool.key} type="button" className="home-tool-item">
-                  <tool.icon className="home-tool-icon" />
-                  <span>{tool.label}</span>
-                </button>
-              ))}
-              <button type="button" className="home-tool-item home-more-tools">
-                <span>More Tools</span>
-                <ChevronRight className="home-more-tools-chevron" />
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="home-sidebar-section">
-          <button
-            type="button"
-            className="home-sidebar-section-header"
-            onClick={() => setSpacesOpen(!spacesOpen)}
-          >
-            <Layers />
-            <span>Spaces</span>
-            <ChevronDown className={cn("home-section-chevron", spacesOpen && "is-open")} />
-          </button>
-          {spacesOpen && (
-            <div className="home-spaces-list">
-              <button type="button" className="home-space-item is-active">
-                <span className="home-space-avatar">D</span>
-                <span>Default Space</span>
-              </button>
-              <button type="button" className="home-nav-item home-new-space">
-                <Plus className="home-new-space-icon" />
-                <span>New Space</span>
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="home-sidebar-section home-recent-section">
-          <div className="home-sidebar-section-label">Recent</div>
-          <div className="home-recent-list">
-            {sidebarRecentProjects.map((project) => (
-              <button key={project.id} type="button" className="home-recent-item">
-                <span className="home-recent-thumb" style={{ background: project.color }} />
-                <span className="home-recent-title">{project.title}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="home-sidebar-footer">
-          <div className="home-sidebar-footer-icons">
-            <button type="button" className="home-footer-icon-button" aria-label="Docs">
-              <BookOpen />
-            </button>
-            <button type="button" className="home-footer-icon-button" aria-label="Support">
-              <Headphones />
-            </button>
-            <button type="button" className="home-footer-icon-button" aria-label="Notifications">
-              <Bell />
-            </button>
-          </div>
-          <button type="button" className="home-user-button" aria-label="Account">
-            <span className="home-user-avatar">P</span>
-          </button>
-        </div>
-      </aside>
+      <HomeSidebar activePath="/" />
 
       <main className="home-main">
         <div className="home-focused-topbar">
@@ -460,28 +304,6 @@ export default function HomeScreen() {
         </div>
         <div className="home-main-inner">
           <h1 className="home-greeting">Ready to direct, Pratiksha?</h1>
-
-          {promptSuggestion && !suggestionDismissed && !activeGrid && (() => {
-            const cfg = TOOL_SUGGESTION_CONFIG[promptSuggestion];
-            if (!cfg) return null;
-            return (
-              <div className="prompt-suggestion-widget">
-                <div className="prompt-suggestion-left">
-                  <cfg.icon size={13} />
-                  <span className="prompt-suggestion-label">{cfg.label}</span>
-                  <span className="prompt-suggestion-key">Tab</span>
-                </div>
-                <div className="prompt-suggestion-right">
-                  <button type="button" className="prompt-suggestion-confirm" onClick={acceptSuggestion}>
-                    Use {cfg.slug}
-                  </button>
-                  <button type="button" className="prompt-suggestion-dismiss" onClick={() => setSuggestionDismissed(true)}>
-                    <X size={12} />
-                  </button>
-                </div>
-              </div>
-            );
-          })()}
 
           {imageErrorVisible && (
             <div className="prompt-image-error">
@@ -635,20 +457,44 @@ export default function HomeScreen() {
             />
           </div>
 
-          <div className="home-action-chips">
-            {actionChips.map((chip) => (
-              <button key={chip.key} type="button" className="home-action-chip">
-                <chip.icon />
-                <span>{chip.label}</span>
-              </button>
-            ))}
-          </div>
+          {showPromptSuggestion && (() => {
+            const cfg = TOOL_SUGGESTION_CONFIG[promptSuggestion];
+            if (!cfg) return null;
+            return (
+              <div className="prompt-suggestion-widget prompt-suggestion-widget--below">
+                <div className="prompt-suggestion-left">
+                  <cfg.icon size={13} />
+                  <span className="prompt-suggestion-label">{cfg.label}</span>
+                  <span className="prompt-suggestion-key">Tab</span>
+                </div>
+                <div className="prompt-suggestion-right">
+                  <button type="button" className="prompt-suggestion-confirm" onClick={acceptSuggestion}>
+                    Use {cfg.slug}
+                  </button>
+                  <button type="button" className="prompt-suggestion-dismiss" onClick={() => setSuggestionDismissed(true)}>
+                    <X size={12} />
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
+
+          {!hasPromptText && (
+            <div className="home-action-chips">
+              {actionChips.map((chip) => (
+                <button key={chip.key} type="button" className="home-action-chip">
+                  <chip.icon />
+                  <span>{chip.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {activeGrid === "image" && (
           <div className="home-style-grid-wrap">
             <div className="video-bento-grid">
-              {homeImageStyles.slice(0, 10).map((style, i) => (
+              {(imageStylesExpanded ? homeImageStyles : homeImageStyles.slice(0, 10)).map((style, i) => (
                 <button
                   key={style.name}
                   type="button"
@@ -656,7 +502,7 @@ export default function HomeScreen() {
                   onClick={() => setSelectedStyle(style.name === selectedStyle ? null : style.name)}
                 >
                   <img
-                    src={`https://images.pexels.com/photos/${style.photoId}/pexels-photo-${style.photoId}.jpeg?auto=compress&cs=tinysrgb&w=600&h=600&fit=crop`}
+                    src={getImageStyleUrl(style)}
                     alt={style.name}
                     className="image-style-thumb"
                   />
@@ -664,6 +510,16 @@ export default function HomeScreen() {
                 </button>
               ))}
             </div>
+            {!imageStylesExpanded && homeImageStyles.length > 10 && (
+              <button type="button" className="style-more-btn" onClick={() => setImageStylesExpanded(true)}>
+                More styles ({homeImageStyles.length - 10} more)
+              </button>
+            )}
+            {imageStylesExpanded && (
+              <button type="button" className="style-more-btn" onClick={() => setImageStylesExpanded(false)}>
+                Show less
+              </button>
+            )}
           </div>
         )}
 
@@ -755,54 +611,56 @@ export default function HomeScreen() {
           </div>
         )}
 
-        <div className="home-main-inner home-main-inner--projects">
-          <div className="home-projects-section">
-            <div className="home-projects-header">
-              <div className="home-projects-tabs" role="tablist">
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === "recent"}
-                  className={cn("home-tab-button", activeTab === "recent" && "is-active")}
-                  onClick={() => setActiveTab("recent")}
-                >
-                  Recent projects
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={activeTab === "examples"}
-                  className={cn("home-tab-button", activeTab === "examples" && "is-active")}
-                  onClick={() => setActiveTab("examples")}
-                >
-                  Examples
+        {!hasPromptText && (
+          <div className="home-main-inner home-main-inner--projects">
+            <div className="home-projects-section">
+              <div className="home-projects-header">
+                <div className="home-projects-tabs" role="tablist">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === "recent"}
+                    className={cn("home-tab-button", activeTab === "recent" && "is-active")}
+                    onClick={() => setActiveTab("recent")}
+                  >
+                    Recent projects
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === "examples"}
+                    className={cn("home-tab-button", activeTab === "examples" && "is-active")}
+                    onClick={() => setActiveTab("examples")}
+                  >
+                    Examples
+                  </button>
+                </div>
+                <button type="button" className="home-view-all">
+                  View all <span aria-hidden="true">→</span>
                 </button>
               </div>
-              <button type="button" className="home-view-all">
-                View all <span aria-hidden="true">→</span>
-              </button>
-            </div>
 
-            <div className="home-projects-list">
-              {activeTab === "recent"
-                ? recentProjectsMain.map((project) => (
-                    <Link key={project.id} href="/editor" className="home-project-card">
-                      <div
-                        className="home-project-thumb"
-                        style={{ background: project.color }}
-                      />
-                      <div className="home-project-info">
-                        <strong>{project.title}</strong>
-                        <span>{project.time}</span>
-                      </div>
-                    </Link>
-                  ))
-                : (
-                  <p className="home-empty-state">No examples available yet.</p>
-                )}
+              <div className="home-projects-list">
+                {activeTab === "recent"
+                  ? recentProjectsMain.map((project) => (
+                      <Link key={project.id} href="/editor" className="home-project-card">
+                        <div
+                          className="home-project-thumb"
+                          style={{ background: project.color }}
+                        />
+                        <div className="home-project-info">
+                          <strong>{project.title}</strong>
+                          <span>{project.time}</span>
+                        </div>
+                      </Link>
+                    ))
+                  : (
+                    <p className="home-empty-state">No examples available yet.</p>
+                  )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </main>
 
     </div>
