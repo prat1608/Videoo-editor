@@ -4558,7 +4558,7 @@ svg {
 
 .image-style-title {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 400;
   color: #fff;
   letter-spacing: -0.01em;
   line-height: 1.3;
@@ -5010,6 +5010,7 @@ svg {
   position: relative;
   width: 100%;
   overflow: hidden;
+  border-radius: 10px;
 }
 
 .video-style-clip {
@@ -7041,47 +7042,48 @@ svg {
 
 /* ── AI Motion Graphics grid ── */
 .home-aimg-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  columns: 3;
+  column-gap: 10px;
 }
 
 .aimg-template-card {
-  display: flex;
-  flex-direction: column;
+  display: block;
+  width: 100%;
   border-radius: 14px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.07);
   background: var(--theme-background-z1);
+  border: 0;
   padding: 0;
   cursor: pointer;
   text-align: left;
-  transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+  break-inside: avoid;
+  margin-bottom: 10px;
+  transition: transform 140ms ease, box-shadow 140ms ease;
   animation: bento-fade-in 400ms ease both;
 }
 
 .aimg-template-card:hover {
   transform: scale(1.03);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
-  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .aimg-template-card.is-selected {
-  border-color: transparent;
-  box-shadow: 0 0 0 2px rgba(104, 109, 224, 1), 0 8px 24px rgba(104, 109, 224, 0.25);
+  outline: 2px solid rgba(104, 109, 182, 0.9);
+  outline-offset: 2px;
 }
 
 .aimg-card-visual {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  padding: 8px;
+  overflow: hidden;
 }
 
 .aimg-card-category {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   height: 18px;
@@ -7096,10 +7098,218 @@ svg {
   text-transform: uppercase;
 }
 
-.aimg-card-name {
-  padding: 8px 10px 9px;
-  font-size: 0.8rem;
+/* ── Trending video card popover (motion.so style) ───────────── */
+
+.trending-popover-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  animation: trending-fade-in 180ms ease both;
+}
+
+@keyframes trending-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.trending-popover {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  width: min(1080px, 92vw);
+  max-height: 88vh;
+  animation: trending-scale-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes trending-scale-in {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+.trending-popover-video {
+  flex: 1;
+  min-width: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+}
+
+.trending-popover-player {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.trending-popover-meta {
+  width: 300px;
+  flex-shrink: 0;
+  background: #111213;
+  border: 0.6px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  overflow-y: auto;
+}
+
+.trending-popover-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 0.6px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.5);
+  transition: background 140ms ease, color 140ms ease;
+  flex-shrink: 0;
+}
+
+.trending-popover-close:hover {
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+}
+
+.trending-meta-label {
+  display: block;
+  font-size: 10px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.2;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.32);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.trending-meta-section {
+  padding-right: 28px;
+}
+
+.trending-meta-prompt {
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0;
+}
+
+.trending-meta-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding-top: 2px;
+  border-top: 0.6px solid rgba(255, 255, 255, 0.07);
+}
+
+.trending-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.trending-meta-row .trending-meta-label {
+  margin-bottom: 0;
+}
+
+.trending-meta-value {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 500;
+}
+
+.trending-meta-footer {
+  margin-top: auto;
+  border-top: 0.6px solid rgba(255, 255, 255, 0.07);
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trending-meta-date {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 400;
+}
+
+.trending-meta-use {
+  width: 100%;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.11);
+  border: 0.6px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 140ms ease;
+}
+
+.trending-meta-use:hover {
+  background: rgba(255, 255, 255, 0.17);
+}
+
+/* ── Image popover left panel ─────────────────────── */
+.trending-popover-image {
+  flex: 1;
+  min-width: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trending-popover-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Audio popover left panel ─────────────────────── */
+.trending-popover-audio {
+  width: 340px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0a0a0a;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: stretch;
+}
+
+.trending-popover-audio-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Motion graphics card: video thumbnail ────────── */
+.aimg-card-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.85;
 }

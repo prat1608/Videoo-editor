@@ -52,52 +52,95 @@ const actionChips = [
 const homeImageStyles = IMAGE_STYLES;
 
 const imageStylePrompts = {
-  "Illustration":   "A cozy village street in autumn with colorful falling leaves, soft illustration style with warm golden tones",
-  "Anime":          "A determined young hero standing atop a skyscraper overlooking a neon-lit cyberpunk city at night, anime style",
-  "3D Render":      "A sleek futuristic workspace with floating holographic screens, ultra-realistic 3D render with volumetric lighting",
-  "Comic Book":     "A hero leaping across rooftops in a rainy city, dynamic perspective, bold comic book art style with halftone dots",
-  "Pixel Art":      "A vibrant 8-bit fantasy dungeon scene with glowing torches and treasure chests, retro pixel art style",
-  "Watercolor":     "A misty Japanese garden with cherry blossoms reflecting in a still pond, delicate watercolor painting style",
-  "Oil Painting":   "A dramatic storm-swept ocean with a lone lighthouse at dusk, rich textures, classical oil painting style",
-  "Cinematic":      "A lone astronaut standing on a red rocky alien planet with twin moons rising on the horizon, cinematic wide shot",
-  "Pencil Sketch":  "A detailed pencil sketch of a wise old owl perched on a twisted oak branch, fine cross-hatching texture",
-  "Monochrome":     "A dramatic close-up portrait of a weathered sailor in a storm, high-contrast black and white photography",
-  "Minecraft":      "An epic Minecraft castle fortress built on a floating island surrounded by clouds and waterfalls",
-  "Neon Noir":      "A shadowy detective silhouetted against a rain-soaked neon-lit alley, moody neon noir aesthetic",
-  "Cyberpunk":      "A bustling cyberpunk street market at night with holographic advertisements and augmented people",
-  "Vintage Film":   "A romantic couple walking through Paris in the 1960s, grainy vintage film photography aesthetic",
-  "Surreal":        "A giant whale swimming through clouds above a tranquil desert landscape, surrealist dreamscape painting",
-  "Studio Ghibli":  "A young girl with a magical spirit companion exploring an enchanted forest, Studio Ghibli animation style",
-  "Impressionist":  "A sun-drenched French countryside with lavender fields and a distant château, loose impressionist brushwork",
-  "Photorealistic": "A majestic snow leopard resting on a rocky mountain ledge at sunset, ultra-photorealistic photography",
-  "Abstract":       "Swirling vortex of electric blue and magenta forming a cosmic nebula, abstract generative digital art",
+  "Illustration":   "Cozy autumn village street, hand-painted editorial illustration, warm amber and crimson falling maple leaves, soft gouache texture, golden-hour side lighting, Monocle Magazine cover quality, 4:3 landscape, Procreate finish, no text",
+  "Anime":          "Determined teenage hero in black school uniform standing on rain-slicked Tokyo skyscraper edge, neon-lit cyberpunk megacity below, Makoto Shinkai lighting, volumetric god-rays through clouds, 16:9, Studio MAPPA animation quality, ultra-detailed cel shading",
+  "3D Render":      "Sleek near-future workspace, floating semi-transparent holographic displays showing data streams, warm tungsten accents against cool blue environment, Octane render, global illumination, sub-surface scattering on frosted glass, 4K, no people, product-viz quality",
+  "Comic Book":     "Dynamic superhero leaping between rooftops in torrential rain, extreme low-angle foreshortening, bold Jack Kirby line work, halftone dot overlay on shadows, Ben-Day color printing texture, 4-color palette, dramatic thunderstorm backdrop, speech bubble absent",
+  "Pixel Art":      "Sprawling isometric 8-bit fantasy dungeon, glowing amber torch sconces, overflowing treasure chests, detailed pixel characters mid-battle, layered parallax depth, classic NES palette of 56 colors, no anti-aliasing, 512×512 pixel canvas upscaled 4×",
+  "Watercolor":     "Misty Kyoto zen garden at dawn, ancient stone lanterns, weeping cherry blossoms reflected in perfectly still koi pond, wet-on-wet watercolor technique, visible paper grain, loose brushwork on foliage, controlled bleeds, Arches 300gsm cold-press texture",
+  "Oil Painting":   "Storm-swept North Sea at dusk, lone Victorian lighthouse on rocky headland, heavy impasto brushwork on wave crests, Rembrandt chiaroscuro lighting, raw umber and burnt sienna palette, varnish texture, museum-quality Old Masters oil on linen",
+  "Cinematic":      "Lone astronaut in worn NASA suit standing on rust-red alien plateau, twin crescent moons rising on purple horizon, anamorphic 2.39:1 letterbox, Roger Deakins cinematography, practical suit lighting only, shallow depth of field, 35mm film grain, ARRI ALEXA LUT",
+  "Pencil Sketch":  "Wise great horned owl perched on gnarled oak branch, meticulous graphite pencil study, fine cross-hatching in shadow areas, stippling on feather texture, 6B pencil deepest blacks, putty eraser highlights, sketchbook paper tooth visible, botanical illustration quality",
+  "Monochrome":     "Dramatic close-up portrait of 70-year-old fisherman in oilskin jacket mid-storm, Zone System exposure, Ansel Adams contrast, catch-light in weathered eyes, rain droplets on face, Leica M6 with 50mm Summilux, pushed Kodak Tri-X 400 at 1600 ISO, gelatin silver print",
+  "Minecraft":      "Epic Minecraft castle citadel on a floating obsidian island, cascading waterfalls off the edges, surrounding cloud layer, fully detailed with battlements and towers, distant biome visible through cloud gaps, 4K screenshot with Complementary Shaders ray-tracing enabled",
+  "Neon Noir":      "Trench-coated private detective silhouette in rain-drenched 2070s neo-noir alley, red and teal neon kanji signs bleeding onto wet cobblestones, cigarette smoke volumetric, Blade Runner 2049 color grade, anamorphic lens flares, 16:9, photorealistic CGI",
+  "Cyberpunk":      "Sprawling Level-5 street market at 3 AM, market stalls selling illegal augmentations, holographic AR vendor displays, rain on pavement reflecting chrome neon, crowd of 60% cybernetically augmented people, extreme detail, Cyberpunk 2077 concept art quality",
+  "Vintage Film":   "Romantic couple in 1960s Paris, woman in Brigitte Bardot polka-dot sundress, Champs-Élysées café terrace, Super 8mm film grain heavy, Kodachrome II color science, light leaks on right edge, slightly underexposed shadows, French New Wave cinematography",
+  "Surreal":        "Photorealistic sperm whale swimming through cumulus clouds at 3000m above Sahara desert, golden late-afternoon light, casting whale shadow on sand dunes below, hyperdetailed mammal skin, René Magritte meets Gregory Crewdson, 8K, surrealist realism",
+  "Studio Ghibli":  "Young girl with shoulder-length hair and a small luminous spirit fox companion exploring a moonlit enchanted forest, Studio Ghibli production-quality key frame, Kazuo Oga background painting style, soft cel animation, hand-inked outlines, warm lantern glow, no text",
+  "Impressionist":  "Sun-flooded Provençal lavender fields stretching to limestone château, loose alla prima oil technique, visible energetic brushstrokes, broken color theory, Monet palette knife texture, afternoon backlight causing violet shadows, plein-air quality, 4:3",
+  "Photorealistic": "Snow leopard (Panthera uncia) at rest on granite ridge at 4800m altitude, setting alpenglow turning fur rose-gold, Canon EOS R5 + 600mm f/4L, 1/1600s, ISO 800, tack-sharp eye focus, bokeh background of distant Himalayas, National Geographic photo quality",
+  "Abstract":       "Swirling vortex of charged particles, electric cobalt blue and vivid magenta plasma arms forming a cosmic nebula core, procedural noise displacement, volumetric glow, deep space black void, generative art output from TouchDesigner, 8K, no recognizable objects",
+};
+
+const homeImageMeta = {
+  "Illustration":   { model: "Imagen 4",             created: "May 10, 2026" },
+  "Anime":          { model: "Flux 1.1 Pro",          created: "May 7, 2026"  },
+  "3D Render":      { model: "DALL·E 3",              created: "Apr 28, 2026" },
+  "Comic Book":     { model: "Stable Diffusion 3.5",  created: "May 14, 2026" },
+  "Pixel Art":      { model: "Imagen 4",              created: "May 2, 2026"  },
+  "Watercolor":     { model: "Flux 1.1 Pro",          created: "May 19, 2026" },
+  "Oil Painting":   { model: "DALL·E 3",              created: "Apr 21, 2026" },
+  "Cinematic":      { model: "Imagen 4",              created: "May 11, 2026" },
+  "Pencil Sketch":  { model: "Stable Diffusion 3.5",  created: "May 6, 2026"  },
+  "Monochrome":     { model: "Flux 1.1 Pro",          created: "Apr 30, 2026" },
+  "Minecraft":      { model: "Imagen 4",              created: "May 16, 2026" },
+  "Neon Noir":      { model: "DALL·E 3",              created: "May 9, 2026"  },
+  "Cyberpunk":      { model: "Flux 1.1 Pro",          created: "May 4, 2026"  },
+  "Vintage Film":   { model: "Stable Diffusion 3.5",  created: "May 22, 2026" },
+  "Surreal":        { model: "DALL·E 3",              created: "Apr 25, 2026" },
+  "Studio Ghibli":  { model: "Imagen 4",              created: "May 17, 2026" },
+  "Impressionist":  { model: "Flux 1.1 Pro",          created: "May 3, 2026"  },
+  "Photorealistic": { model: "Imagen 4",              created: "May 20, 2026" },
+  "Abstract":       { model: "Stable Diffusion 3.5",  created: "May 8, 2026"  },
 };
 
 const homeVideoClips = [
-  { name: "Urban Timelapse", src: "/video-styles/Urban Timelapse.mp4", ratio: "16 / 9", prompt: "A cinematic timelapse of a busy city intersection at night with streaking car light trails and glowing storefronts" },
-  { name: "Street Style",    src: "/video-styles/Street Style.mp4",    ratio: "9 / 16", prompt: "A confident model walking through a vibrant urban neighborhood, vertical cinematic street style video" },
-  { name: "Forest Trail",    src: "/video-styles/Forest Trails.mp4",   ratio: "16 / 9", prompt: "A first-person walk through a lush green forest trail with dappled sunlight filtering through the canopy" },
-  { name: "Ocean Waves",     src: "/video-styles/Ocean waves.mp4",     ratio: "16 / 9", prompt: "Slow-motion turquoise ocean waves gently breaking on a white sandy beach at golden hour" },
-  { name: "Abstract",        src: "/video-styles/Abstract.mp4",        ratio: "16 / 9", prompt: "Flowing liquid metallic shapes morphing and transforming in slow motion against a dark background, abstract motion" },
-  { name: "Portrait",        src: "/video-styles/Portrait.mp4",        ratio: "9 / 16", prompt: "A cinematic vertical portrait of a musician playing guitar in a warmly lit studio, shallow depth of field" },
-  { name: "Lifestyle",       src: "/video-styles/Lifestyle.mp4",       ratio: "16 / 9", prompt: "A warm lifestyle montage of friends laughing and sharing a meal at a sunlit outdoor café" },
-  { name: "Vertical",        src: "/video-styles/Vertical.mp4",        ratio: "9 / 16", prompt: "Aerial drone shot slowly descending through morning mist over rolling mountain peaks, vertical video" },
-  { name: "Close Up",        src: "/video-styles/Close up.mp4",        ratio: "16 / 9", prompt: "Extreme macro close-up of water droplets falling in slow motion onto a blooming flower" },
+  { name: "Urban Timelapse", src: "/video-styles/Urban Timelapse.mp4", ratio: "16 / 9", aspectRatio: "16:9", model: "Kling 1.6",            style: "Cinematic",   curation: "Trending",  created: "May 12, 2026",
+    prompt: "Cinematic timelapse, busy downtown intersection at 2 AM, neon-lit storefronts reflecting on wet asphalt, streaking amber and white car light trails, handheld stabilized wide shot, f/2.8 anamorphic lens, slight lens flare, film grain overlay, 24fps motion blur, hyper-realistic, photographic quality" },
+  { name: "Street Style",    src: "/video-styles/Street Style.mp4",    ratio: "9 / 16", aspectRatio: "9:16",  model: "Runway Gen-3",         style: "Documentary", curation: "Featured",  created: "May 8, 2026",
+    prompt: "Vertical documentary-style video, confident model in oversized leather jacket walking through a vibrant Soho street market, golden hour sidelight, shallow depth of field 85mm portrait lens, slow tracking shot, bokeh background of blurred market stalls, desaturated moody grade, skin tones preserved, cinematic 4K" },
+  { name: "Forest Trail",    src: "/video-styles/Forest Trails.mp4",   ratio: "16 / 9", aspectRatio: "16:9", model: "Sora",                 style: "Handheld",    curation: "Curated",   created: "Apr 30, 2026",
+    prompt: "First-person handheld walk through a dense Pacific Northwest old-growth forest, shafts of god-rays filtering through towering Douglas firs, soft morning mist at ankle level, footsteps on mossy earth, shallow focus on foreground ferns, Sony FX3 color science, warm tungsten grade, birdsong ambience implied, 4K 60fps" },
+  { name: "Ocean Waves",     src: "/video-styles/Ocean waves.mp4",     ratio: "16 / 9", aspectRatio: "16:9", model: "Luma Dream Machine",   style: "Slow Motion", curation: "Trending",  created: "May 5, 2026",
+    prompt: "Ultra slow-motion 1000fps phantom camera, translucent turquoise wave breaking on white coral sand, backlit by a golden sunset at 6 PM, water droplets suspended mid-air, fine sea foam lattice detail, horizon perfectly level, wide anamorphic 2.39:1, teal and orange complementary grade, zero noise, IMAX quality" },
+  { name: "Abstract",        src: "/video-styles/Abstract.mp4",        ratio: "16 / 9", aspectRatio: "16:9", model: "Kling 1.6",            style: "Abstract",    curation: "Featured",  created: "May 15, 2026",
+    prompt: "Fluid simulation abstract motion, liquid chrome and rose-gold metallic shapes continuously morphing and folding into each other, pitch-black void background, volumetric specular highlights, sub-surface scattering, 3D procedural noise displacement, seamless loop-ready, Octane render quality, 8K resolution, no text" },
+  { name: "Portrait",        src: "/video-styles/Portrait.mp4",        ratio: "9 / 16", aspectRatio: "9:16",  model: "Runway Gen-3",         style: "Portrait",    curation: "Curated",   created: "May 3, 2026",
+    prompt: "Vertical cinematic portrait, jazz musician playing a 1960s Gibson hollow-body guitar in a warmly lit vinyl-record shop, practitioner lighting with one soft tungsten key, f/1.4 85mm, extreme shallow depth of field, background records softly bokeh'd, amber and shadow tones, slow push-in dolly move, grain at 800 ISO" },
+  { name: "Lifestyle",       src: "/video-styles/Lifestyle.mp4",       ratio: "16 / 9", aspectRatio: "16:9", model: "Sora",                 style: "Lifestyle",   curation: "Trending",  created: "May 18, 2026",
+    prompt: "Warm lifestyle brand film, diverse group of friends at a sun-drenched Parisian terrace café, laughing and passing dishes of food, handheld verité style, natural diffused light through linen awning, Canon C70 color science, lifestyle grade with lifted blacks, shallow focus racks between faces, golden editorial feel" },
+  { name: "Vertical",        src: "/video-styles/Vertical.mp4",        ratio: "9 / 16", aspectRatio: "9:16",  model: "Kling 1.6",            style: "Aerial",      curation: "Featured",  created: "May 1, 2026",
+    prompt: "Vertical aerial drone descent through billowing clouds at dawn over the Swiss Alps, layered ridgelines fading into atmospheric haze, DJI Inspire 3 footage, f/2.8 wide, first light on snow caps turning coral pink, slow constant descent 0.5 m/s, vertigo-inducing depth, no color fringing, cinematic LOG-C graded" },
+  { name: "Close Up",        src: "/video-styles/Close up.mp4",        ratio: "16 / 9", aspectRatio: "16:9", model: "Luma Dream Machine",   style: "Macro",       curation: "Curated",   created: "Apr 25, 2026",
+    prompt: "Ultra-macro 8:1 magnification, single water droplet falling in 4000fps slow motion onto a fully bloomed pink peony, impact crown splash frozen mid-air, backlit with a soft LED ring, translucent petals visible through water, clinical sharpness across the splash radius, white studio background, photorealistic CGI quality" },
 ];
 
 const homeAimgTemplates = [
-  { id: 1,  name: "Logo Reveal",      category: "Branding",    gradient: "135deg,#7c3aed 0%,#c026d3 100%",  prompt: "Animated logo reveal with glowing particles and smooth scale-up, purple and gold light rays" },
-  { id: 2,  name: "Kinetic Title",    category: "Typography",  gradient: "135deg,#0ea5e9 0%,#6366f1 100%",  prompt: "Kinetic typography animation with bold text flying in from multiple angles, dynamic blue-indigo palette" },
-  { id: 3,  name: "Story Countdown",  category: "Social",      gradient: "135deg,#ef4444 0%,#f97316 100%",  prompt: "Energetic countdown timer for social media stories, bouncy numerals with red-orange gradient burst" },
-  { id: 4,  name: "Data Viz",         category: "Infographic", gradient: "135deg,#10b981 0%,#0ea5e9 100%",  prompt: "Smooth animated infographic with growing bar charts and pie charts, clean teal and blue palette" },
-  { id: 5,  name: "Particle Burst",   category: "VFX",         gradient: "135deg,#1e1b4b 0%,#7c3aed 100%",  prompt: "Explosive particle burst with thousands of colorful sparks scattering from center, dark purple background" },
-  { id: 6,  name: "Lower Third",      category: "Broadcast",   gradient: "135deg,#0f172a 0%,#1d4ed8 100%",  prompt: "Professional broadcast lower third with smooth slide-in line and name reveal, dark navy and blue" },
-  { id: 7,  name: "Social Intro",     category: "Social",      gradient: "135deg,#ec4899 0%,#8b5cf6 100%",  prompt: "Eye-catching social media intro with trendy stacked typography and pink-purple gradient transitions" },
-  { id: 8,  name: "Glitch Effect",    category: "VFX",         gradient: "135deg,#042f2e 0%,#0d0d0d 100%",  prompt: "Cyberpunk glitch with RGB channel splitting, scanlines and digital distortion on black background" },
-  { id: 9,  name: "Minimal Text",     category: "Typography",  gradient: "135deg,#1e293b 0%,#475569 100%",  prompt: "Elegant minimal text animation with slow fade and scale, sophisticated slate palette and serif font" },
-  { id: 10, name: "Neon Glow",        category: "VFX",         gradient: "135deg,#0a0a0a 0%,#00c47a 100%",  prompt: "Neon glow animation with bright green light trails and flicker on pure black, futuristic aesthetic" },
-  { id: 11, name: "Cinematic Title",  category: "Film",        gradient: "135deg,#0a0a0a 0%,#92400e 100%",  prompt: "Epic cinematic title sequence with golden light ray reveal and dramatic letter spacing, orchestral feel" },
-  { id: 12, name: "Explainer Scene",  category: "Business",    gradient: "135deg,#1e40af 0%,#7c3aed 100%",  prompt: "Flat-design explainer animation with icons drawing on screen to illustrate a product concept, blue-purple" },
+  { id: 1,  name: "Logo Reveal",     category: "Branding",    gradient: "135deg,#7c3aed 0%,#c026d3 100%",  src: "/motion-graphics/logo-reveal.mp4",     model: "After Effects + AI",    style: "Particles",   curation: "Featured",  created: "May 8, 2026",
+    prompt: "Animated logo reveal, wordmark builds from scattered luminous particles converging to form letterforms, radial god-ray burst in purple and gold on reveal, smooth ease-in-out scale from 0.6 to 1.0, dust motes linger in air post-reveal, 3-second hold, pure black background, 1920×1080, 24fps, loop-ready pre-roll" },
+  { id: 2,  name: "Kinetic Title",   category: "Typography",  gradient: "135deg,#0ea5e9 0%,#6366f1 100%",  src: "/motion-graphics/kinetic-title.mp4",   model: "Motion Bro + AI",       style: "Kinetic Type", curation: "Trending",  created: "May 12, 2026",
+    prompt: "Kinetic typography title card, bold condensed sans-serif words rocket in from six directions with elastic overshoot, individual letters stagger at 3-frame offsets, velocity lines trail each character, dynamic blue-indigo duotone color grade, rhythmic snap to beats at 120 BPM, 5-second sequence, 1080×1080 square" },
+  { id: 3,  name: "Story Countdown", category: "Social",      gradient: "135deg,#ef4444 0%,#f97316 100%",  src: "/motion-graphics/story-countdown.mp4", model: "Rive + AI",             style: "Bouncy",      curation: "Trending",  created: "May 15, 2026",
+    prompt: "Social media story countdown timer, large numerals 5–1 with bouncy spring physics (overshoot 1.4), radial red-orange gradient burst on each number change, circular progress ring animating around numeral, final frame confetti particle burst, 9:16 vertical 1080×1920, 60fps, vibrant saturation +30" },
+  { id: 4,  name: "Data Viz",        category: "Infographic", gradient: "135deg,#10b981 0%,#0ea5e9 100%",  src: "/motion-graphics/data-viz.mp4",        model: "D3.js + Lottie",        style: "Clean",       curation: "Curated",   created: "Apr 30, 2026",
+    prompt: "Smooth animated data visualization, 5 bar chart columns grow from baseline with staggered 200ms offsets and ease-out cubic, 3 pie chart sectors sweep in sequentially, value labels count up in real time, teal-to-sky-blue gradient fills, thin grid lines fade in, minimal sans-serif labels, white background, 16:9, 30fps" },
+  { id: 5,  name: "Particle Burst",  category: "VFX",         gradient: "135deg,#1e1b4b 0%,#7c3aed 100%",  src: "/motion-graphics/particle-burst.mp4",  model: "TouchDesigner + AI",    style: "Explosion",   curation: "Featured",  created: "May 5, 2026",
+    prompt: "Explosive particle system, 8,000 individual sparks eject from a single center point with randomized velocity and drag, multi-color gradient from violet core to cyan tips, motion blur per particle, Z-depth fog fade at 400px, sparks fade out over 1.2 seconds, dark navy vignette background, 4K 60fps, no audio" },
+  { id: 6,  name: "Lower Third",     category: "Broadcast",   gradient: "135deg,#0f172a 0%,#1d4ed8 100%",  src: "/motion-graphics/lower-third.mp4",     model: "Motion Array + AI",     style: "Broadcast",   curation: "Curated",   created: "May 2, 2026",
+    prompt: "Professional news lower third, thin accent line wipes in from left over 18 frames, name text fades up with 6-frame stagger from title text, subtle background fill slides in behind text block, clean navy and electric-blue palette, Inter Bold / Inter Regular font pairing, 1920×1080, 25fps, broadcast safe colors" },
+  { id: 7,  name: "Social Intro",    category: "Social",      gradient: "135deg,#ec4899 0%,#8b5cf6 100%",  src: "/motion-graphics/social-intro.mp4",    model: "Jitter + AI",           style: "Gradient",    curation: "Trending",  created: "May 18, 2026",
+    prompt: "Trendy social media intro, three stacked bold text lines pop in with scale-from-center spring animation, animated liquid mesh gradient transitions between pink, purple, and coral, circular avatar placeholder pulses with glow, 3-second hold on full composition, 9:16 1080×1920, 60fps, Instagram Reels optimized" },
+  { id: 8,  name: "Glitch Effect",   category: "VFX",         gradient: "135deg,#042f2e 0%,#0d0d0d 100%",  src: "/motion-graphics/glitch-effect.mp4",   model: "Notch + AI",            style: "Glitch",      curation: "Featured",  created: "May 9, 2026",
+    prompt: "Cyberpunk digital glitch treatment, RGB channel splitting with ±12px horizontal offset, CRT scanline overlay at 50% opacity, random block displacement artifacts trigger every 8–14 frames, horizontal voltage-spike bar tears, brief static noise frames, vignette flicker, pitch-black base, 4K 24fps, seamless loop" },
+  { id: 9,  name: "Minimal Text",    category: "Typography",  gradient: "135deg,#1e293b 0%,#475569 100%",  src: "/motion-graphics/logo-reveal.mp4",     model: "Cavalry + AI",          style: "Minimal",     curation: "Curated",   created: "May 3, 2026",
+    prompt: "Elegant minimal text animation, single serif headline fades in at 40% opacity then resolves to 100% over 60 frames, secondary caption slides up 8px beneath hairline divider, refined slate and off-white palette, generous negative space, 2-second breathing hold, subtle vignette, 16:9 1920×1080, 24fps, editorial quality" },
+  { id: 10, name: "Neon Glow",       category: "VFX",         gradient: "135deg,#0a0a0a 0%,#00c47a 100%",  src: "/motion-graphics/particle-burst.mp4",  model: "TouchDesigner + AI",    style: "Neon",        curation: "Trending",  created: "May 14, 2026",
+    prompt: "Neon sign animation on pure black, bright emerald green phosphor glow with animated flicker sequence (3 flicker pulses then stable), light bloom radius 24px, subtle reflection puddle on floor plane below sign, electrical buzz implied by slight hue oscillation, futuristic aesthetic, 16:9 4K, 60fps, loopable" },
+  { id: 11, name: "Cinematic Title", category: "Film",        gradient: "135deg,#0a0a0a 0%,#92400e 100%",  src: "/motion-graphics/lower-third.mp4",     model: "Blackmagic Fusion + AI", style: "Epic",        curation: "Featured",  created: "May 1, 2026",
+    prompt: "Epic feature film title sequence, golden volumetric light rays sweep across screen from top-left, large serif title fades in through the rays with anamorphic lens flare, letterbox 2.39:1 black bars, subtle dust particles in atmosphere, dramatic orchestral hit implied by motion timing, 4K ARRI look LUT, 24fps" },
+  { id: 12, name: "Explainer Scene", category: "Business",    gradient: "135deg,#1e40af 0%,#7c3aed 100%",  src: "/motion-graphics/data-viz.mp4",        model: "Lottie + AI",           style: "Flat Design", curation: "Curated",   created: "Apr 25, 2026",
+    prompt: "Flat-design product explainer animation, line-art icons draw on with stroke animation at 60fps, 4 sequential scene panels wipe left-to-right, icons enlarge on feature highlight with bounce ease, blue and purple duotone fills, clean geometric compositions, Nunito font labels, 16:9 1920×1080, 30fps, 60-second runtime" },
 ];
 
 const TOOL_SUGGESTION_CONFIG = {
@@ -185,8 +228,6 @@ export default function HomeScreen() {
   });
   const [isFocused, setIsFocused] = useState(false);
   const [activeGrid, setActiveGrid] = useState(null);
-  const [selectedStyle, setSelectedStyle] = useState(null);
-  const [selectedAimgTemplate, setSelectedAimgTemplate] = useState(null);
 
   const [imageSettings, setImageSettings] = useState({ model: "Imagen 4", ratio: "1:1", resolution: "1024px", quality: "Standard" });
   const [videoSettings, setVideoSettings] = useState({ model: "Sora", ratio: "16:9", duration: "5s", quality: "1080p" });
@@ -203,6 +244,10 @@ export default function HomeScreen() {
   const [sfxSettings, setSfxSettings] = useState({ model: "ElevenLabs SFX", duration: "3s" });
   const [voiceoverSettings, setVoiceoverSettings] = useState({ model: "ElevenLabs", voice: "Nova", speed: "1x", language: "English" });
   const [playingId, setPlayingId] = useState(null);
+  const [activeVideoCard, setActiveVideoCard] = useState(null);
+  const [activeImageCard, setActiveImageCard] = useState(null);
+  const [activeAudioCard, setActiveAudioCard] = useState(null);
+  const [activeAimgCard, setActiveAimgCard] = useState(null);
 
   const [imageErrorVisible, setImageErrorVisible] = useState(false);
   const hasPromptText = prompt.trim().length > 0;
@@ -518,13 +563,14 @@ export default function HomeScreen() {
                 <button
                   key={style.name}
                   type="button"
-                  className={cn("image-style-card", selectedStyle === style.name && "is-selected")}
+                  className={cn("image-style-card", activeImageCard?.name === style.name && "is-selected")}
                   style={{ animationDelay: `${i * 40}ms` }}
-                  onClick={() => {
-                    const isDeselecting = selectedStyle === style.name;
-                    setSelectedStyle(isDeselecting ? null : style.name);
-                    if (!isDeselecting) setPrompt(imageStylePrompts[style.name] ?? style.name);
-                  }}
+                  onClick={() => setActiveImageCard({
+                    ...style,
+                    src: getImageStyleUrl(style),
+                    prompt: imageStylePrompts[style.name] ?? style.name,
+                    ...(homeImageMeta[style.name] ?? {}),
+                  })}
                 >
                   <img
                     src={getImageStyleUrl(style)}
@@ -548,13 +594,9 @@ export default function HomeScreen() {
                 <button
                   key={vid.name}
                   type="button"
-                  className={cn("video-style-card", selectedStyle === vid.name && "is-selected")}
+                  className={cn("video-style-card", activeVideoCard?.name === vid.name && "is-selected")}
                   style={{ animationDelay: `${i * 40}ms` }}
-                  onClick={() => {
-                    const isDeselecting = selectedStyle === vid.name;
-                    setSelectedStyle(isDeselecting ? null : vid.name);
-                    if (!isDeselecting) setPrompt(vid.prompt);
-                  }}
+                  onClick={() => setActiveVideoCard(vid)}
                 >
                   <div className="video-clip-wrap" style={{ aspectRatio: vid.ratio }}>
                     <video
@@ -590,6 +632,7 @@ export default function HomeScreen() {
                   isPlaying={playingId === item.id}
                   onPlayToggle={(id) => setPlayingId((p) => (p === id ? null : id))}
                   onSelect={(p) => setPrompt((prev) => (prev.trim() ? prev.trim() + " " : "") + p)}
+                  onCardClick={(it) => setActiveAudioCard({ ...it, mode: "audio" })}
                 />
               ))}
             </div>
@@ -610,6 +653,7 @@ export default function HomeScreen() {
                   isPlaying={playingId === item.id}
                   onPlayToggle={(id) => setPlayingId((p) => (p === id ? null : id))}
                   onSelect={(p) => setPrompt((prev) => (prev.trim() ? prev.trim() + " " : "") + p)}
+                  onCardClick={(it) => setActiveAudioCard({ ...it, mode: activeGrid })}
                 />
               ))}
             </div>
@@ -627,18 +671,15 @@ export default function HomeScreen() {
                 <button
                   key={tmpl.id}
                   type="button"
-                  className={cn("aimg-template-card", selectedAimgTemplate === tmpl.id && "is-selected")}
+                  className={cn("aimg-template-card", activeAimgCard?.id === tmpl.id && "is-selected")}
                   style={{ animationDelay: `${i * 35}ms` }}
-                  onClick={() => {
-                    const isDeselecting = selectedAimgTemplate === tmpl.id;
-                    setSelectedAimgTemplate(isDeselecting ? null : tmpl.id);
-                    if (!isDeselecting) setPrompt(tmpl.prompt);
-                  }}
+                  onClick={() => setActiveAimgCard(tmpl)}
                 >
                   <div className="aimg-card-visual" style={{ background: `linear-gradient(${tmpl.gradient})` }}>
+                    <video src={tmpl.src} muted loop playsInline autoPlay className="aimg-card-video" />
                     <span className="aimg-card-category">{tmpl.category}</span>
+                    <span className="image-style-label">{tmpl.name}</span>
                   </div>
-                  <span className="aimg-card-name">{tmpl.name}</span>
                 </button>
               ))}
             </div>
@@ -697,6 +738,221 @@ export default function HomeScreen() {
         )}
       </main>
 
+      {activeVideoCard && createPortal(
+        <div
+          className="trending-popover-backdrop"
+          onClick={() => setActiveVideoCard(null)}
+          onKeyDown={(e) => e.key === "Escape" && setActiveVideoCard(null)}
+        >
+          <div className="trending-popover" onClick={(e) => e.stopPropagation()}>
+            <div className="trending-popover-video">
+              <video
+                key={activeVideoCard.src}
+                src={activeVideoCard.src}
+                controls
+                autoPlay
+                playsInline
+                className="trending-popover-player"
+                style={{ aspectRatio: activeVideoCard.ratio }}
+              />
+            </div>
+            <div className="trending-popover-meta">
+              <button
+                type="button"
+                className="trending-popover-close"
+                onClick={() => setActiveVideoCard(null)}
+                aria-label="Close"
+              >
+                <X size={14} />
+              </button>
+
+              <div className="trending-meta-section">
+                <span className="trending-meta-label">PROMPT</span>
+                <p className="trending-meta-prompt">{activeVideoCard.prompt}</p>
+              </div>
+
+              <div className="trending-meta-settings">
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">MODEL</span>
+                  <span className="trending-meta-value">{activeVideoCard.model}</span>
+                </div>
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">ASPECT RATIO</span>
+                  <span className="trending-meta-value">{activeVideoCard.aspectRatio}</span>
+                </div>
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">STYLE</span>
+                  <span className="trending-meta-value">{activeVideoCard.style}</span>
+                </div>
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">CURATION</span>
+                  <span className="trending-meta-value">{activeVideoCard.curation}</span>
+                </div>
+              </div>
+
+              <div className="trending-meta-footer">
+                <div className="trending-meta-created">
+                  <span className="trending-meta-label">CREATED</span>
+                  <span className="trending-meta-date">{activeVideoCard.created}</span>
+                </div>
+                <button
+                  type="button"
+                  className="trending-meta-use"
+                  onClick={() => {
+                    setPrompt(activeVideoCard.prompt);
+                    setActiveVideoCard(null);
+                  }}
+                >
+                  Use Prompt
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── Image style popover ── */}
+      {activeImageCard && createPortal(
+        <div className="trending-popover-backdrop" onClick={() => setActiveImageCard(null)} onKeyDown={(e) => e.key === "Escape" && setActiveImageCard(null)}>
+          <div className="trending-popover" onClick={(e) => e.stopPropagation()}>
+            <div className="trending-popover-image">
+              <img src={activeImageCard.src} alt={activeImageCard.name} className="trending-popover-img" />
+            </div>
+            <div className="trending-popover-meta">
+              <button type="button" className="trending-popover-close" onClick={() => setActiveImageCard(null)} aria-label="Close"><X size={14} /></button>
+              <div className="trending-meta-section">
+                <span className="trending-meta-label">PROMPT</span>
+                <p className="trending-meta-prompt">{activeImageCard.prompt}</p>
+              </div>
+              <div className="trending-meta-settings">
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">MODEL</span>
+                  <span className="trending-meta-value">{activeImageCard.model}</span>
+                </div>
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">STYLE</span>
+                  <span className="trending-meta-value">{activeImageCard.name}</span>
+                </div>
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">ASPECT RATIO</span>
+                  <span className="trending-meta-value">{activeImageCard.ratio?.replace(" / ", ":")}</span>
+                </div>
+              </div>
+              <div className="trending-meta-footer">
+                <div className="trending-meta-created">
+                  <span className="trending-meta-label">CREATED</span>
+                  <span className="trending-meta-date">{activeImageCard.created}</span>
+                </div>
+                <button type="button" className="trending-meta-use" onClick={() => { setPrompt(activeImageCard.prompt); setActiveImageCard(null); }}>Use Prompt</button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── Audio popover ── */}
+      {activeAudioCard && createPortal(
+        <div className="trending-popover-backdrop" onClick={() => setActiveAudioCard(null)} onKeyDown={(e) => e.key === "Escape" && setActiveAudioCard(null)}>
+          <div className="trending-popover" onClick={(e) => e.stopPropagation()}>
+            <div className="trending-popover-audio">
+              <img src={activeAudioCard.img} alt={activeAudioCard.title} className="trending-popover-audio-art" />
+            </div>
+            <div className="trending-popover-meta">
+              <button type="button" className="trending-popover-close" onClick={() => setActiveAudioCard(null)} aria-label="Close"><X size={14} /></button>
+              <div className="trending-meta-section">
+                <span className="trending-meta-label">PROMPT</span>
+                <p className="trending-meta-prompt">{activeAudioCard.prompt}</p>
+              </div>
+              <div className="trending-meta-settings">
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">MODEL</span>
+                  <span className="trending-meta-value">{activeAudioCard.model}</span>
+                </div>
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">GENRE / TYPE</span>
+                  <span className="trending-meta-value">{activeAudioCard.tag}</span>
+                </div>
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">DURATION</span>
+                  <span className="trending-meta-value">{activeAudioCard.duration}</span>
+                </div>
+                {activeAudioCard.bpm && (
+                  <div className="trending-meta-row">
+                    <span className="trending-meta-label">BPM</span>
+                    <span className="trending-meta-value">{activeAudioCard.bpm}</span>
+                  </div>
+                )}
+                {activeAudioCard.voice && (
+                  <div className="trending-meta-row">
+                    <span className="trending-meta-label">VOICE</span>
+                    <span className="trending-meta-value">{activeAudioCard.voice}</span>
+                  </div>
+                )}
+                {activeAudioCard.speed && (
+                  <div className="trending-meta-row">
+                    <span className="trending-meta-label">SPEED</span>
+                    <span className="trending-meta-value">{activeAudioCard.speed}</span>
+                  </div>
+                )}
+              </div>
+              <div className="trending-meta-footer">
+                <div className="trending-meta-created">
+                  <span className="trending-meta-label">CREATED</span>
+                  <span className="trending-meta-date">{activeAudioCard.created}</span>
+                </div>
+                <button type="button" className="trending-meta-use" onClick={() => { setPrompt(activeAudioCard.prompt); setActiveAudioCard(null); }}>Use Prompt</button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── Motion graphics popover ── */}
+      {activeAimgCard && createPortal(
+        <div className="trending-popover-backdrop" onClick={() => setActiveAimgCard(null)} onKeyDown={(e) => e.key === "Escape" && setActiveAimgCard(null)}>
+          <div className="trending-popover" onClick={(e) => e.stopPropagation()}>
+            <div className="trending-popover-video">
+              <video key={activeAimgCard.src} src={activeAimgCard.src} controls autoPlay playsInline className="trending-popover-player" />
+            </div>
+            <div className="trending-popover-meta">
+              <button type="button" className="trending-popover-close" onClick={() => setActiveAimgCard(null)} aria-label="Close"><X size={14} /></button>
+              <div className="trending-meta-section">
+                <span className="trending-meta-label">PROMPT</span>
+                <p className="trending-meta-prompt">{activeAimgCard.prompt}</p>
+              </div>
+              <div className="trending-meta-settings">
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">MODEL</span>
+                  <span className="trending-meta-value">{activeAimgCard.model}</span>
+                </div>
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">CATEGORY</span>
+                  <span className="trending-meta-value">{activeAimgCard.category}</span>
+                </div>
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">STYLE</span>
+                  <span className="trending-meta-value">{activeAimgCard.style}</span>
+                </div>
+                <div className="trending-meta-row">
+                  <span className="trending-meta-label">CURATION</span>
+                  <span className="trending-meta-value">{activeAimgCard.curation}</span>
+                </div>
+              </div>
+              <div className="trending-meta-footer">
+                <div className="trending-meta-created">
+                  <span className="trending-meta-label">CREATED</span>
+                  <span className="trending-meta-date">{activeAimgCard.created}</span>
+                </div>
+                <button type="button" className="trending-meta-use" onClick={() => { setPrompt(activeAimgCard.prompt); setActiveAimgCard(null); }}>Use Prompt</button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

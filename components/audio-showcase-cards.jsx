@@ -12,130 +12,130 @@ export const MODE_BADGE = {
 
 export const MUSIC_SHOWCASE = [
   {
-    id: 1, title: "Summer Vibes",  tag: "Cinematic",  duration: "0:30",
+    id: 1, title: "Summer Vibes",  tag: "Cinematic",  duration: "0:30", model: "Suno v4",    bpm: 120, created: "May 10, 2026",
     img: "/audio-thumbnails/summer-vibes.png",
-    prompt: "Upbeat cinematic summer track with warm piano, bright brass, and energetic percussion. 120 BPM, major key, joyful and optimistic mood.",
+    prompt: "Upbeat cinematic summer track, warm Steinway grand piano melody, bright French horn brass stabs, energetic live snare rolls, shimmering hi-hat groove. 120 BPM, C major, rich orchestral string swell on chorus, joyful and optimistic mood, mastered at -14 LUFS, no vocals, 30 seconds.",
   },
   {
-    id: 2, title: "Deep Focus",    tag: "Ambient",    duration: "1:00",
+    id: 2, title: "Deep Focus",    tag: "Ambient",    duration: "1:00", model: "Udio 2.0",   bpm: 70,  created: "May 7, 2026",
     img: "/audio-thumbnails/deep-focus.png",
-    prompt: "Ambient electronic study music with soft synthesizer pads, gentle arpeggios, and subtle rain textures. 70 BPM, calm and focused atmosphere.",
+    prompt: "Ambient electronic study music, lush Moog synthesizer pads with long attack and slow release, gentle rising arpeggios in Dorian mode, subtle rain texture foley, no percussion, wide stereo reverb, 70 BPM, calm and cognitively focused atmosphere, binaural-ready mix, 60 seconds loopable.",
   },
   {
-    id: 3, title: "Urban Flow",    tag: "Hip-Hop",    duration: "0:45",
+    id: 3, title: "Urban Flow",    tag: "Hip-Hop",    duration: "0:45", model: "Suno v4",    bpm: 90,  created: "May 14, 2026",
     img: "/audio-thumbnails/urban-flow.png",
-    prompt: "Hip-hop beat with heavy 808 bass, crisp hi-hats, and soulful vocal chops. 90 BPM, dark and confident energy.",
+    prompt: "Trap-influenced hip-hop instrumental, heavy 808 sub-bass with pitch slides, crisp 32nd-note hi-hat rolls, punchy snare on 2 and 4, chopped R&B vocal sample loop, dark minor pentatonic Rhodes melody, vinyl crackle texture, 90 BPM, G minor, dark and confident energy, 45 seconds.",
   },
   {
-    id: 4, title: "Morning Calm",  tag: "Acoustic",   duration: "0:30",
+    id: 4, title: "Morning Calm",  tag: "Acoustic",   duration: "0:30", model: "MusicGen 2", bpm: 65,  created: "Apr 30, 2026",
     img: "/audio-thumbnails/morning-calm.png",
-    prompt: "Soft acoustic guitar with gentle fingerpicking, light strings, and morning bird ambience. 65 BPM, peaceful and uplifting.",
+    prompt: "Intimate solo acoustic fingerpicking guitar, Martin D-28 tone with room ambience, light pizzicato string quartet enters at bar 8, subtle morning birdsong field recording in background, 65 BPM, D major, fingerstyle technique, warm and peaceful mood, dynamic range preserved, 30 seconds.",
   },
   {
-    id: 5, title: "Night Drive",   tag: "Electronic", duration: "1:00",
+    id: 5, title: "Night Drive",   tag: "Electronic", duration: "1:00", model: "Udio 2.0",   bpm: 100, created: "May 3, 2026",
     img: "/audio-thumbnails/night-drive.png",
-    prompt: "Dark electronic track with pulsing synths, deep bass, and cinematic textures. 100 BPM, moody and atmospheric.",
+    prompt: "Dark synthwave electronic track, pulsing Prophet-5 synthesizer bassline, arpeggiating lead synth with analog delay, noir cinematic textures, four-on-the-floor kick with sidechain compression, gated reverb snare, 100 BPM, F# minor, moody and atmospheric, Blade Runner aesthetic, 60 seconds.",
   },
   {
-    id: 6, title: "Coffee Shop",   tag: "Lo-Fi",      duration: "0:30",
+    id: 6, title: "Coffee Shop",   tag: "Lo-Fi",      duration: "0:30", model: "MusicGen 2", bpm: 75,  created: "May 19, 2026",
     img: "/audio-thumbnails/coffee-shop.png",
-    prompt: "Lo-fi jazz with mellow piano, brushed drums, vinyl crackle, and warm bass. 75 BPM, cozy and relaxed.",
+    prompt: "Lo-fi jazz beat, mellow Rhodes electric piano with slight key wobble, brushed jazz drums on vinyl playback, deep upright bass walking line, vinyl surface noise and crackling throughout, soft tape saturation, 75 BPM, Eb major seventh chords, cozy café atmosphere, loopable, 30 seconds.",
   },
   {
-    id: 7, title: "Epic Quest",    tag: "Cinematic",  duration: "0:45",
+    id: 7, title: "Epic Quest",    tag: "Cinematic",  duration: "0:45", model: "Suno v4",    bpm: 130, created: "May 16, 2026",
     img: "/audio-thumbnails/epic-quest.png",
-    prompt: "Orchestral adventure music with powerful brass, dramatic strings, and thunderous percussion. 130 BPM, heroic and triumphant.",
+    prompt: "Full orchestral adventure cue, Berlin Brass ensemble fanfare, swelling 60-piece string section, taiko drumline and orchestral timpani, choir of 80 voices on chorus hit, concert hall acoustics, 130 BPM, D minor with Mixolydian lifts, heroic and triumphant, Hans Zimmer production style, trailer-ready mastering, 45 seconds.",
   },
   {
-    id: 8, title: "Chill Wave",    tag: "Ambient",    duration: "0:30",
+    id: 8, title: "Chill Wave",    tag: "Ambient",    duration: "0:30", model: "Udio 2.0",   bpm: 85,  created: "May 21, 2026",
     img: "/audio-thumbnails/chill-wave.png",
-    prompt: "Smooth ambient electronic with soft reverb pads, gentle bass, and dreamy textures. 85 BPM, relaxed and introspective.",
+    prompt: "Smooth chillwave electronic, washed-out Juno-106 chord pads with shimmer reverb, dreamy Telecaster guitar licks through chorus pedal, slow 4/4 groove with ghost-note rimshot, sub-bass hum, 85 BPM, A-flat major, laid-back and introspective mood, cassette tape lo-fi warmth, seamless loop, 30 seconds.",
   },
 ];
 
 export const SFX_SHOWCASE = [
   {
-    id: 1, title: "Thunder Crack",  tag: "Nature",      duration: "0:03",
+    id: 1, title: "Thunder Crack",  tag: "Nature",      duration: "0:03", model: "ElevenLabs SFX", created: "May 12, 2026",
     img: "/audio-thumbnails/night-drive.png",
-    prompt: "Powerful thunderclap with natural rumble, distant echo, and rain fade. Realistic outdoor thunder sound effect.",
+    prompt: "Powerful close-range thunderclap, initial sharp crack transient followed by 2-second low-frequency rumble decay, natural outdoor reverb, light rain fade at tail, stereo field width 90%, realistic field-recording texture, peak at -6 dBFS, 3 seconds.",
   },
   {
-    id: 2, title: "Sword Clash",    tag: "Impacts",     duration: "0:02",
+    id: 2, title: "Sword Clash",    tag: "Impacts",     duration: "0:02", model: "Audiocraft",     created: "May 5, 2026",
     img: "/audio-thumbnails/epic-quest.png",
-    prompt: "Sharp metallic clang of two swords colliding with resonant ring and short reverb tail. Medieval combat sound effect.",
+    prompt: "Sharp metallic clang of two high-carbon steel swords colliding, bright 4–6 kHz ring on impact, short plate reverb tail 400ms, sub-bass body hit underlayer, slightly left-panned clash with right-side scrape, 2 seconds, medieval combat foley.",
   },
   {
-    id: 3, title: "City Rain",      tag: "Ambience",    duration: "0:05",
+    id: 3, title: "City Rain",      tag: "Ambience",    duration: "0:05", model: "Stability Audio", created: "Apr 28, 2026",
     img: "/audio-thumbnails/urban-flow.png",
-    prompt: "Dense urban rain ambience with heavy rainfall, distant traffic, and occasional thunder. Loopable, 5 seconds.",
+    prompt: "Dense urban rain ambience, heavy rainfall on concrete and metal surfaces, distant car splashes and engine rumble, occasional mid-distance thunder roll, wide stereo, loopable 5-second segment with seamless crossfade points, -18 LUFS RMS.",
   },
   {
-    id: 4, title: "Footsteps",      tag: "Foley",       duration: "0:03",
+    id: 4, title: "Footsteps",      tag: "Foley",       duration: "0:03", model: "ElevenLabs SFX", created: "May 18, 2026",
     img: "/audio-thumbnails/coffee-shop.png",
-    prompt: "Crisp footsteps on wooden floor, steady walking pace, 3 steps, natural room acoustics. Foley sound effect.",
+    prompt: "Crisp leather-soled dress shoe footsteps on hardwood floor, 3 evenly-spaced steps at walking pace (~90 BPM), natural small-room acoustic with subtle reverb, slight creak on second step, no background noise, mono foley recording, 3 seconds.",
   },
   {
-    id: 5, title: "Sci-Fi Whoosh",  tag: "Transitions", duration: "0:02",
+    id: 5, title: "Sci-Fi Whoosh",  tag: "Transitions", duration: "0:02", model: "Audiocraft",     created: "May 9, 2026",
     img: "/audio-thumbnails/deep-focus.png",
-    prompt: "Fast futuristic whoosh with rising pitch, digital glitch elements, and energy decay. 2 seconds, sci-fi transition.",
+    prompt: "Fast futuristic transition whoosh, pitch rises 3 octaves over 200ms, digital data-stream glitch texture layered mid-sweep, sharp energy decay at end with slight stereo spread, subtle sub-thud on tail, 2 seconds, sci-fi UI transition sfx.",
   },
   {
-    id: 6, title: "Notification",   tag: "UI",          duration: "0:01",
+    id: 6, title: "Notification",   tag: "UI",          duration: "0:01", model: "ElevenLabs SFX", created: "May 22, 2026",
     img: "/audio-thumbnails/morning-calm.png",
-    prompt: "Clean digital notification ping with soft attack and quick decay. Modern UI sound, friendly and subtle.",
+    prompt: "Clean digital notification ping, two ascending sine-wave tones at 880Hz and 1320Hz, soft 5ms attack, 300ms natural decay, slight harmonic warmth, no reverb, mono, normalized to -12 dBFS, friendly and unobtrusive mobile UI sound, 1 second.",
   },
   {
-    id: 7, title: "Forest Birds",   tag: "Nature",      duration: "0:05",
+    id: 7, title: "Forest Birds",   tag: "Nature",      duration: "0:05", model: "Stability Audio", created: "May 1, 2026",
     img: "/audio-thumbnails/chill-wave.png",
-    prompt: "Morning forest ambience with birdsong, gentle breeze through leaves, and distant stream. Natural and peaceful.",
+    prompt: "Dawn forest ambience, 3–4 distinct birdsong species layered at varying distances, gentle breeze through deciduous leaves, faint babbling brook 20m away, wide natural stereo, binaural-ready, seamless loop, 5 seconds, -22 LUFS, spring morning.",
   },
   {
-    id: 8, title: "Heavy Impact",   tag: "Impacts",     duration: "0:02",
+    id: 8, title: "Heavy Impact",   tag: "Impacts",     duration: "0:02", model: "Audiocraft",     created: "May 15, 2026",
     img: "/audio-thumbnails/summer-vibes.png",
-    prompt: "Deep powerful impact hit with sub-bass punch, sharp crack, and long reverb tail. Cinematic action sound.",
+    prompt: "Cinematic heavy impact, sub-bass punch below 80Hz, sharp high-transient crack at 3–5 kHz, wide hall reverb tail 800ms, slight LFO wobble on sub after impact, designed for fight scenes and trailer hits, stereo, 2 seconds, peak -3 dBFS.",
   },
 ];
 
 export const VO_SHOWCASE = [
   {
-    id: 1, title: "Product Intro",   tag: "Nova",    duration: "0:15",
+    id: 1, title: "Product Intro",   tag: "Nova",    duration: "0:15", model: "ElevenLabs", voice: "Nova",    speed: "1x",    created: "May 11, 2026",
     img: "/audio-thumbnails/deep-focus.png",
-    prompt: "Introducing Videoo — the AI video editor that transforms your ideas into stunning content. Create, edit, and share like never before.",
+    prompt: "Introducing Videoo — the AI video editor that transforms your ideas into stunning content. Create, edit, and share like never before. Voice: Nova, warm female tone, steady measured pace, slight upward inflection on brand name, subtle studio reverb, 15 seconds.",
   },
   {
-    id: 2, title: "Ad Narration",    tag: "Onyx",    duration: "0:20",
+    id: 2, title: "Ad Narration",    tag: "Onyx",    duration: "0:20", model: "OpenAI TTS", voice: "Onyx",    speed: "0.95x", created: "May 6, 2026",
     img: "/audio-thumbnails/summer-vibes.png",
-    prompt: "When performance matters, choose Videoo. Professional-grade video editing powered by artificial intelligence, available to everyone.",
+    prompt: "When performance matters, choose Videoo. Professional-grade video editing powered by artificial intelligence, available to everyone. Voice: Onyx, deep authoritative male baritone, deliberate pacing with emphasis on 'performance' and 'professional', broadcast-quality EQ, 20 seconds.",
   },
   {
-    id: 3, title: "Tutorial Guide",  tag: "Alloy",   duration: "0:30",
+    id: 3, title: "Tutorial Guide",  tag: "Alloy",   duration: "0:30", model: "ElevenLabs", voice: "Alloy",   speed: "1x",    created: "Apr 25, 2026",
     img: "/audio-thumbnails/morning-calm.png",
-    prompt: "Welcome to your first project. Start by dragging your footage into the timeline, then select a clip to begin editing.",
+    prompt: "Welcome to your first project. Start by dragging your footage into the timeline, then select a clip to begin editing. Voice: Alloy, clear and friendly neutral tone, instructional pacing with natural pauses between steps, e-learning style delivery, 30 seconds.",
   },
   {
-    id: 4, title: "Podcast Intro",   tag: "Fable",   duration: "0:10",
+    id: 4, title: "Podcast Intro",   tag: "Fable",   duration: "0:10", model: "Cartesia",   voice: "Fable",   speed: "1.1x",  created: "May 18, 2026",
     img: "/audio-thumbnails/urban-flow.png",
-    prompt: "You're listening to The Creative Edge — where we explore the intersection of technology and storytelling. I'm your host.",
+    prompt: "You're listening to The Creative Edge — where we explore the intersection of technology and storytelling. I'm your host. Voice: Fable, warm conversational male tone, confident opening cadence, podcast-style presence mic recording, slight compression, 10 seconds.",
   },
   {
-    id: 5, title: "Explainer Clip",  tag: "Shimmer", duration: "0:25",
+    id: 5, title: "Explainer Clip",  tag: "Shimmer", duration: "0:25", model: "OpenAI TTS", voice: "Shimmer", speed: "1x",    created: "May 13, 2026",
     img: "/audio-thumbnails/chill-wave.png",
-    prompt: "Here's how it works: describe what you want to create, our AI generates the perfect edit, and you're done in minutes.",
+    prompt: "Here's how it works: describe what you want to create, our AI generates the perfect edit, and you're done in minutes. Voice: Shimmer, bright enthusiastic female tone, upbeat explainer energy, rising intonation on key features, clean studio recording, 25 seconds.",
   },
   {
-    id: 6, title: "Brand Story",     tag: "Echo",    duration: "0:20",
+    id: 6, title: "Brand Story",     tag: "Echo",    duration: "0:20", model: "ElevenLabs", voice: "Echo",    speed: "0.9x",  created: "May 8, 2026",
     img: "/audio-thumbnails/coffee-shop.png",
-    prompt: "We started with a simple belief — everyone has a story worth telling. Videoo gives you the tools to tell yours beautifully.",
+    prompt: "We started with a simple belief — everyone has a story worth telling. Videoo gives you the tools to tell yours beautifully. Voice: Echo, thoughtful reflective male tone, slower emotive pacing, slight pause before 'beautifully', brand film narration quality, 20 seconds.",
   },
   {
-    id: 7, title: "Event Promo",     tag: "Nova",    duration: "0:15",
+    id: 7, title: "Event Promo",     tag: "Nova",    duration: "0:15", model: "ElevenLabs", voice: "Nova",    speed: "1.1x",  created: "May 20, 2026",
     img: "/audio-thumbnails/epic-quest.png",
-    prompt: "Join us this Friday for the biggest creative event of the year. Workshops, demos, and surprises await. Register now.",
+    prompt: "Join us this Friday for the biggest creative event of the year. Workshops, demos, and surprises await. Register now. Voice: Nova, energetic and urgent female tone, event-hype delivery, punchy ending call to action, radio commercial style, 15 seconds.",
   },
   {
-    id: 8, title: "App Walkthrough", tag: "Alloy",   duration: "0:30",
+    id: 8, title: "App Walkthrough", tag: "Alloy",   duration: "0:30", model: "Cartesia",   voice: "Alloy",   speed: "1x",    created: "May 2, 2026",
     img: "/audio-thumbnails/night-drive.png",
-    prompt: "Step one: create a new project. Step two: upload your media. Step three: apply AI effects with a single click. Simple.",
+    prompt: "Step one: create a new project. Step two: upload your media. Step three: apply AI effects with a single click. Simple. Voice: Alloy, calm and methodical neutral tone, equal beats between numbered steps, clean diction, minimal reverb, software demo narration, 30 seconds.",
   },
 ];
 
@@ -145,16 +145,16 @@ export const SHOWCASE_DATA = {
   voiceover: VO_SHOWCASE,
 };
 
-export function ShowcaseCard({ item, mode, isPlaying, onPlayToggle, onSelect }) {
+export function ShowcaseCard({ item, mode, isPlaying, onPlayToggle, onSelect, onCardClick }) {
   const badge = MODE_BADGE[mode];
 
   return (
     <div
       className={cn("ga-scard", isPlaying && "is-playing")}
-      onClick={() => onSelect(item.prompt)}
+      onClick={() => onCardClick ? onCardClick(item) : onSelect(item.prompt)}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onSelect(item.prompt)}
+      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && (onCardClick ? onCardClick(item) : onSelect(item.prompt))}
     >
       <div className="ga-scard-art" style={item.img ? undefined : { background: item.bg }}>
         {item.img ? (
@@ -190,7 +190,7 @@ export function ShowcaseCard({ item, mode, isPlaying, onPlayToggle, onSelect }) 
   );
 }
 
-export function ShowcaseListRow({ item, mode, isPlaying, onPlayToggle, onSelect }) {
+export function ShowcaseListRow({ item, mode, isPlaying, onPlayToggle, onSelect, onCardClick }) {
   const [thumbHovered, setThumbHovered] = useState(false);
   const [btnHovered, setBtnHovered] = useState(false);
   const badge = MODE_BADGE[mode];
@@ -256,8 +256,11 @@ export function ShowcaseListRow({ item, mode, isPlaying, onPlayToggle, onSelect 
         </span>
       </button>
 
-      {/* Track info */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      {/* Track info — clicking opens the popover */}
+      <div
+        style={{ flex: 1, minWidth: 0, cursor: onCardClick ? "pointer" : "default" }}
+        onClick={() => onCardClick && onCardClick(item)}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "5px" }}>
           <span style={{ fontSize: "0.98rem", fontWeight: 600, color: "var(--text)", letterSpacing: "-0.015em" }}>
             {item.title}
@@ -281,7 +284,7 @@ export function ShowcaseListRow({ item, mode, isPlaying, onPlayToggle, onSelect 
       {/* Use Prompt button */}
       <button
         type="button"
-        onClick={() => onSelect(item.prompt)}
+        onClick={() => onCardClick ? onCardClick(item) : onSelect(item.prompt)}
         onMouseEnter={() => setBtnHovered(true)}
         onMouseLeave={() => setBtnHovered(false)}
         style={{
