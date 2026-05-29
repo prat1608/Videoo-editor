@@ -33,6 +33,7 @@ import {
 import { PromptBox } from "@/components/prompt-box";
 import { HomeSidebar } from "@/components/home-sidebar";
 import { IMAGE_STYLES, getImageStyleUrl } from "@/lib/image-styles";
+import { ShowcaseCard, ShowcaseListRow, MUSIC_SHOWCASE, SFX_SHOWCASE, VO_SHOWCASE } from "@/components/audio-showcase-cards";
 import { cn } from "@/lib/utils";
 
 const recentProjectsMain = [
@@ -50,17 +51,53 @@ const actionChips = [
 
 const homeImageStyles = IMAGE_STYLES;
 
+const imageStylePrompts = {
+  "Illustration":   "A cozy village street in autumn with colorful falling leaves, soft illustration style with warm golden tones",
+  "Anime":          "A determined young hero standing atop a skyscraper overlooking a neon-lit cyberpunk city at night, anime style",
+  "3D Render":      "A sleek futuristic workspace with floating holographic screens, ultra-realistic 3D render with volumetric lighting",
+  "Comic Book":     "A hero leaping across rooftops in a rainy city, dynamic perspective, bold comic book art style with halftone dots",
+  "Pixel Art":      "A vibrant 8-bit fantasy dungeon scene with glowing torches and treasure chests, retro pixel art style",
+  "Watercolor":     "A misty Japanese garden with cherry blossoms reflecting in a still pond, delicate watercolor painting style",
+  "Oil Painting":   "A dramatic storm-swept ocean with a lone lighthouse at dusk, rich textures, classical oil painting style",
+  "Cinematic":      "A lone astronaut standing on a red rocky alien planet with twin moons rising on the horizon, cinematic wide shot",
+  "Pencil Sketch":  "A detailed pencil sketch of a wise old owl perched on a twisted oak branch, fine cross-hatching texture",
+  "Monochrome":     "A dramatic close-up portrait of a weathered sailor in a storm, high-contrast black and white photography",
+  "Minecraft":      "An epic Minecraft castle fortress built on a floating island surrounded by clouds and waterfalls",
+  "Neon Noir":      "A shadowy detective silhouetted against a rain-soaked neon-lit alley, moody neon noir aesthetic",
+  "Cyberpunk":      "A bustling cyberpunk street market at night with holographic advertisements and augmented people",
+  "Vintage Film":   "A romantic couple walking through Paris in the 1960s, grainy vintage film photography aesthetic",
+  "Surreal":        "A giant whale swimming through clouds above a tranquil desert landscape, surrealist dreamscape painting",
+  "Studio Ghibli":  "A young girl with a magical spirit companion exploring an enchanted forest, Studio Ghibli animation style",
+  "Impressionist":  "A sun-drenched French countryside with lavender fields and a distant château, loose impressionist brushwork",
+  "Photorealistic": "A majestic snow leopard resting on a rocky mountain ledge at sunset, ultra-photorealistic photography",
+  "Abstract":       "Swirling vortex of electric blue and magenta forming a cosmic nebula, abstract generative digital art",
+};
+
 const homeVideoClips = [
-  { id: 856396,  name: "Urban Timelapse", ratio: "16 / 9" },
-  { id: 1093662, name: "Ocean Waves",     ratio: "16 / 9" },
-  { id: 2795750, name: "Forest Trail",    ratio: "16 / 9" },
-  { id: 3195394, name: "Abstract",        ratio: "1 / 1"  },
-  { id: 3584816, name: "Lifestyle",       ratio: "1 / 1"  },
-  { id: 4098981, name: "Close Up",        ratio: "1 / 1"  },
-  { id: 4226768, name: "Street Style",    ratio: "9 / 16" },
-  { id: 6782462, name: "Portrait",        ratio: "9 / 16" },
-  { id: 4207907, name: "Urban Walk",      ratio: "9 / 16" },
-  { id: 5489782, name: "Vertical",        ratio: "9 / 16" },
+  { name: "Urban Timelapse", src: "/video-styles/Urban Timelapse.mp4", ratio: "16 / 9", prompt: "A cinematic timelapse of a busy city intersection at night with streaking car light trails and glowing storefronts" },
+  { name: "Street Style",    src: "/video-styles/Street Style.mp4",    ratio: "9 / 16", prompt: "A confident model walking through a vibrant urban neighborhood, vertical cinematic street style video" },
+  { name: "Forest Trail",    src: "/video-styles/Forest Trails.mp4",   ratio: "16 / 9", prompt: "A first-person walk through a lush green forest trail with dappled sunlight filtering through the canopy" },
+  { name: "Ocean Waves",     src: "/video-styles/Ocean waves.mp4",     ratio: "16 / 9", prompt: "Slow-motion turquoise ocean waves gently breaking on a white sandy beach at golden hour" },
+  { name: "Abstract",        src: "/video-styles/Abstract.mp4",        ratio: "16 / 9", prompt: "Flowing liquid metallic shapes morphing and transforming in slow motion against a dark background, abstract motion" },
+  { name: "Portrait",        src: "/video-styles/Portrait.mp4",        ratio: "9 / 16", prompt: "A cinematic vertical portrait of a musician playing guitar in a warmly lit studio, shallow depth of field" },
+  { name: "Lifestyle",       src: "/video-styles/Lifestyle.mp4",       ratio: "16 / 9", prompt: "A warm lifestyle montage of friends laughing and sharing a meal at a sunlit outdoor café" },
+  { name: "Vertical",        src: "/video-styles/Vertical.mp4",        ratio: "9 / 16", prompt: "Aerial drone shot slowly descending through morning mist over rolling mountain peaks, vertical video" },
+  { name: "Close Up",        src: "/video-styles/Close up.mp4",        ratio: "16 / 9", prompt: "Extreme macro close-up of water droplets falling in slow motion onto a blooming flower" },
+];
+
+const homeAimgTemplates = [
+  { id: 1,  name: "Logo Reveal",      category: "Branding",    gradient: "135deg,#7c3aed 0%,#c026d3 100%",  prompt: "Animated logo reveal with glowing particles and smooth scale-up, purple and gold light rays" },
+  { id: 2,  name: "Kinetic Title",    category: "Typography",  gradient: "135deg,#0ea5e9 0%,#6366f1 100%",  prompt: "Kinetic typography animation with bold text flying in from multiple angles, dynamic blue-indigo palette" },
+  { id: 3,  name: "Story Countdown",  category: "Social",      gradient: "135deg,#ef4444 0%,#f97316 100%",  prompt: "Energetic countdown timer for social media stories, bouncy numerals with red-orange gradient burst" },
+  { id: 4,  name: "Data Viz",         category: "Infographic", gradient: "135deg,#10b981 0%,#0ea5e9 100%",  prompt: "Smooth animated infographic with growing bar charts and pie charts, clean teal and blue palette" },
+  { id: 5,  name: "Particle Burst",   category: "VFX",         gradient: "135deg,#1e1b4b 0%,#7c3aed 100%",  prompt: "Explosive particle burst with thousands of colorful sparks scattering from center, dark purple background" },
+  { id: 6,  name: "Lower Third",      category: "Broadcast",   gradient: "135deg,#0f172a 0%,#1d4ed8 100%",  prompt: "Professional broadcast lower third with smooth slide-in line and name reveal, dark navy and blue" },
+  { id: 7,  name: "Social Intro",     category: "Social",      gradient: "135deg,#ec4899 0%,#8b5cf6 100%",  prompt: "Eye-catching social media intro with trendy stacked typography and pink-purple gradient transitions" },
+  { id: 8,  name: "Glitch Effect",    category: "VFX",         gradient: "135deg,#042f2e 0%,#0d0d0d 100%",  prompt: "Cyberpunk glitch with RGB channel splitting, scanlines and digital distortion on black background" },
+  { id: 9,  name: "Minimal Text",     category: "Typography",  gradient: "135deg,#1e293b 0%,#475569 100%",  prompt: "Elegant minimal text animation with slow fade and scale, sophisticated slate palette and serif font" },
+  { id: 10, name: "Neon Glow",        category: "VFX",         gradient: "135deg,#0a0a0a 0%,#00c47a 100%",  prompt: "Neon glow animation with bright green light trails and flicker on pure black, futuristic aesthetic" },
+  { id: 11, name: "Cinematic Title",  category: "Film",        gradient: "135deg,#0a0a0a 0%,#92400e 100%",  prompt: "Epic cinematic title sequence with golden light ray reveal and dramatic letter spacing, orchestral feel" },
+  { id: 12, name: "Explainer Scene",  category: "Business",    gradient: "135deg,#1e40af 0%,#7c3aed 100%",  prompt: "Flat-design explainer animation with icons drawing on screen to illustrate a product concept, blue-purple" },
 ];
 
 const TOOL_SUGGESTION_CONFIG = {
@@ -97,32 +134,6 @@ const voiceOptions = ["Nova", "Onyx", "Alloy", "Echo", "Fable", "Shimmer"];
 const speedOptions = ["0.75x", "1x", "1.25x", "1.5x"];
 const languageOptions = ["English", "Spanish", "French", "German"];
 
-const homeAudioMoods = [
-  { name: "Cinematic",    desc: "Epic orchestral" },
-  { name: "Ambient",      desc: "Atmospheric beds" },
-  { name: "Electronic",   desc: "Modern synths" },
-  { name: "Jazz",         desc: "Laid-back grooves" },
-  { name: "Hip-Hop",      desc: "Punchy beats" },
-  { name: "Acoustic",     desc: "Warm & organic" },
-  { name: "Lo-Fi",        desc: "Chill vibes" },
-  { name: "Corporate",    desc: "Clean & upbeat" },
-];
-const homeSfxCategories = [
-  { name: "Nature",         desc: "Rain, wind, birds" },
-  { name: "Foley",          desc: "Steps, cloth, props" },
-  { name: "Impacts",        desc: "Hits & explosions" },
-  { name: "UI / Interface", desc: "Clicks & alerts" },
-  { name: "Transitions",    desc: "Whooshes & sweeps" },
-  { name: "Ambience",       desc: "Room tone & spaces" },
-];
-const homeVoiceProfiles = [
-  { name: "Nova",    desc: "Warm, feminine" },
-  { name: "Onyx",    desc: "Deep, masculine" },
-  { name: "Alloy",   desc: "Neutral, clear" },
-  { name: "Echo",    desc: "Smooth, conversational" },
-  { name: "Fable",   desc: "British, articulate" },
-  { name: "Shimmer", desc: "Bright, energetic" },
-];
 
 const modelProviders = [
   {
@@ -175,7 +186,8 @@ export default function HomeScreen() {
   const [isFocused, setIsFocused] = useState(false);
   const [activeGrid, setActiveGrid] = useState(null);
   const [selectedStyle, setSelectedStyle] = useState(null);
-  const [imageStylesExpanded, setImageStylesExpanded] = useState(false);
+  const [selectedAimgTemplate, setSelectedAimgTemplate] = useState(null);
+
   const [imageSettings, setImageSettings] = useState({ model: "Imagen 4", ratio: "1:1", resolution: "1024px", quality: "Standard" });
   const [videoSettings, setVideoSettings] = useState({ model: "Sora", ratio: "16:9", duration: "5s", quality: "1080p" });
   const [selectedAttachment, setSelectedAttachment] = useState(null);
@@ -190,9 +202,7 @@ export default function HomeScreen() {
   const [audioSettings, setAudioSettings] = useState({ model: "Suno v4", mood: "Cinematic", duration: "30s", quality: "HD" });
   const [sfxSettings, setSfxSettings] = useState({ model: "ElevenLabs SFX", duration: "3s" });
   const [voiceoverSettings, setVoiceoverSettings] = useState({ model: "ElevenLabs", voice: "Nova", speed: "1x", language: "English" });
-  const [selectedAudioMood, setSelectedAudioMood] = useState(null);
-  const [selectedSfxCategory, setSelectedSfxCategory] = useState(null);
-  const [selectedVoice, setSelectedVoice] = useState(null);
+  const [playingId, setPlayingId] = useState(null);
 
   const [imageErrorVisible, setImageErrorVisible] = useState(false);
   const hasPromptText = prompt.trim().length > 0;
@@ -285,7 +295,14 @@ export default function HomeScreen() {
 
   return (
     <div className={cn("home-shell", isFocused && "is-focused", activeGrid && "has-grid")}>
-      <HomeSidebar activePath="/" />
+      <HomeSidebar
+        activePath="/"
+        onToolSelect={(key) => {
+          setActiveGrid(key);
+          setPromptSuggestion(null);
+          setSuggestionDismissed(false);
+        }}
+      />
 
       <main className="home-main">
         <div className="home-focused-topbar">
@@ -493,13 +510,21 @@ export default function HomeScreen() {
 
         {activeGrid === "image" && (
           <div className="home-style-grid-wrap">
-            <div className="video-bento-grid">
-              {(imageStylesExpanded ? homeImageStyles : homeImageStyles.slice(0, 10)).map((style, i) => (
+            <div className="home-gen-text-header">
+              <span className="image-style-title">Trending: 2026 picks</span>
+            </div>
+            <div className="home-image-style-grid">
+              {homeImageStyles.map((style, i) => (
                 <button
                   key={style.name}
                   type="button"
-                  className={cn("image-style-card", `bento-item-${i}`, selectedStyle === style.name && "is-selected")}
-                  onClick={() => setSelectedStyle(style.name === selectedStyle ? null : style.name)}
+                  className={cn("image-style-card", selectedStyle === style.name && "is-selected")}
+                  style={{ animationDelay: `${i * 40}ms` }}
+                  onClick={() => {
+                    const isDeselecting = selectedStyle === style.name;
+                    setSelectedStyle(isDeselecting ? null : style.name);
+                    if (!isDeselecting) setPrompt(imageStylePrompts[style.name] ?? style.name);
+                  }}
                 >
                   <img
                     src={getImageStyleUrl(style)}
@@ -510,37 +535,40 @@ export default function HomeScreen() {
                 </button>
               ))}
             </div>
-            {!imageStylesExpanded && homeImageStyles.length > 10 && (
-              <button type="button" className="style-more-btn" onClick={() => setImageStylesExpanded(true)}>
-                More styles ({homeImageStyles.length - 10} more)
-              </button>
-            )}
-            {imageStylesExpanded && (
-              <button type="button" className="style-more-btn" onClick={() => setImageStylesExpanded(false)}>
-                Show less
-              </button>
-            )}
           </div>
         )}
 
         {activeGrid === "video" && (
           <div className="home-style-grid-wrap">
-            <div className="video-bento-grid">
-              {homeVideoClips.map((vid, i) => {
-                const poster = `https://images.pexels.com/videos/${vid.id}/free-video-${vid.id}.jpg?auto=compress&cs=tinysrgb&dpr=1&fit=crop`;
-                const src    = `https://videos.pexels.com/video-files/${vid.id}/free-${vid.id}-hd_1920_1080_25fps.mp4`;
-                return (
-                  <button
-                    key={vid.id}
-                    type="button"
-                    className={cn("video-style-card", `bento-item-${i}`, selectedStyle === String(vid.id) && "is-selected")}
-                    onClick={() => setSelectedStyle(String(vid.id) === selectedStyle ? null : String(vid.id))}
-                  >
-                    <video src={src} poster={poster} muted loop playsInline autoPlay className="video-style-clip" />
+            <div className="home-gen-text-header">
+              <span className="image-style-title">For You</span>
+            </div>
+            <div className="home-video-style-grid">
+              {homeVideoClips.map((vid, i) => (
+                <button
+                  key={vid.name}
+                  type="button"
+                  className={cn("video-style-card", selectedStyle === vid.name && "is-selected")}
+                  style={{ animationDelay: `${i * 40}ms` }}
+                  onClick={() => {
+                    const isDeselecting = selectedStyle === vid.name;
+                    setSelectedStyle(isDeselecting ? null : vid.name);
+                    if (!isDeselecting) setPrompt(vid.prompt);
+                  }}
+                >
+                  <div className="video-clip-wrap" style={{ aspectRatio: vid.ratio }}>
+                    <video
+                      src={vid.src}
+                      muted
+                      loop
+                      playsInline
+                      autoPlay
+                      className="video-style-clip"
+                    />
                     <span className="image-style-label">{vid.name}</span>
-                  </button>
-                );
-              })}
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
         )}
@@ -548,63 +576,69 @@ export default function HomeScreen() {
         {activeGrid === "audio" && (
           <div className="home-style-grid-wrap">
             <div className="home-gen-text-header">
-              <span className="image-style-title">Audio Moods</span>
-              <span className="image-style-subtitle">Choose a mood for your generated audio</span>
+              <span className="image-style-title">Vibe on them</span>
             </div>
-            <div className="home-gen-text-grid">
-              {homeAudioMoods.map((mood, i) => (
-                <button
-                  key={mood.name}
-                  type="button"
-                  className={cn("gen-text-card", `bento-item-${i}`, selectedAudioMood === mood.name && "is-selected")}
-                  onClick={() => setSelectedAudioMood(selectedAudioMood === mood.name ? null : mood.name)}
-                >
-                  <span className="gen-text-card-name">{mood.name}</span>
-                  <span className="gen-text-card-desc">{mood.desc}</span>
-                </button>
+            <div
+              className="ga-scard-grid"
+              style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: "14px" }}
+            >
+              {MUSIC_SHOWCASE.map((item) => (
+                <ShowcaseCard
+                  key={item.id}
+                  item={item}
+                  mode="audio"
+                  isPlaying={playingId === item.id}
+                  onPlayToggle={(id) => setPlayingId((p) => (p === id ? null : id))}
+                  onSelect={(p) => setPrompt((prev) => (prev.trim() ? prev.trim() + " " : "") + p)}
+                />
               ))}
             </div>
           </div>
         )}
 
-        {activeGrid === "sfx" && (
+        {(activeGrid === "sfx" || activeGrid === "voiceover") && (
           <div className="home-style-grid-wrap">
             <div className="home-gen-text-header">
-              <span className="image-style-title">SFX Categories</span>
-              <span className="image-style-subtitle">Choose a category for your sound effects</span>
+              <span className="image-style-title">Vibe on them</span>
             </div>
-            <div className="home-gen-text-grid">
-              {homeSfxCategories.map((cat, i) => (
-                <button
-                  key={cat.name}
-                  type="button"
-                  className={cn("gen-text-card", `bento-item-${i}`, selectedSfxCategory === cat.name && "is-selected")}
-                  onClick={() => setSelectedSfxCategory(selectedSfxCategory === cat.name ? null : cat.name)}
-                >
-                  <span className="gen-text-card-name">{cat.name}</span>
-                  <span className="gen-text-card-desc">{cat.desc}</span>
-                </button>
+            <div className="ga-list" style={{ display: "flex", flexDirection: "column" }}>
+              {(activeGrid === "sfx" ? SFX_SHOWCASE : VO_SHOWCASE).map((item) => (
+                <ShowcaseListRow
+                  key={item.id}
+                  item={item}
+                  mode={activeGrid}
+                  isPlaying={playingId === item.id}
+                  onPlayToggle={(id) => setPlayingId((p) => (p === id ? null : id))}
+                  onSelect={(p) => setPrompt((prev) => (prev.trim() ? prev.trim() + " " : "") + p)}
+                />
               ))}
             </div>
           </div>
         )}
 
-        {activeGrid === "voiceover" && (
+        {activeGrid === "aimg" && (
           <div className="home-style-grid-wrap">
             <div className="home-gen-text-header">
-              <span className="image-style-title">Voice Profiles</span>
-              <span className="image-style-subtitle">Choose a voice for your voiceover</span>
+              <span className="image-style-title">Motion Graphics Templates</span>
+              <span className="image-style-subtitle">Click a template to auto-fill a prompt</span>
             </div>
-            <div className="home-gen-text-grid">
-              {homeVoiceProfiles.map((voice, i) => (
+            <div className="home-aimg-grid">
+              {homeAimgTemplates.map((tmpl, i) => (
                 <button
-                  key={voice.name}
+                  key={tmpl.id}
                   type="button"
-                  className={cn("gen-text-card", `bento-item-${i}`, selectedVoice === voice.name && "is-selected")}
-                  onClick={() => setSelectedVoice(selectedVoice === voice.name ? null : voice.name)}
+                  className={cn("aimg-template-card", selectedAimgTemplate === tmpl.id && "is-selected")}
+                  style={{ animationDelay: `${i * 35}ms` }}
+                  onClick={() => {
+                    const isDeselecting = selectedAimgTemplate === tmpl.id;
+                    setSelectedAimgTemplate(isDeselecting ? null : tmpl.id);
+                    if (!isDeselecting) setPrompt(tmpl.prompt);
+                  }}
                 >
-                  <span className="gen-text-card-name">{voice.name}</span>
-                  <span className="gen-text-card-desc">{voice.desc}</span>
+                  <div className="aimg-card-visual" style={{ background: `linear-gradient(${tmpl.gradient})` }}>
+                    <span className="aimg-card-category">{tmpl.category}</span>
+                  </div>
+                  <span className="aimg-card-name">{tmpl.name}</span>
                 </button>
               ))}
             </div>

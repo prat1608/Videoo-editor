@@ -1635,9 +1635,7 @@ export default function EditorScreen() {
                     {showAudioGrid && (
                       <div className="image-style-panel">
                         <div className="image-style-header">
-                          <span className="image-style-title">Audio Moods</span>
-                          <span className="image-style-subtitle">Choose a mood for your generated audio</span>
-                        </div>
+                          <span className="image-style-title">Audio Moods</span>                        </div>
                         <div className="image-style-grid">
                           {audioMoods.map((mood, i) => (
                             <button
@@ -1656,9 +1654,7 @@ export default function EditorScreen() {
                     {showSfxGrid && (
                       <div className="image-style-panel">
                         <div className="image-style-header">
-                          <span className="image-style-title">SFX Categories</span>
-                          <span className="image-style-subtitle">Choose a category for your sound effect</span>
-                        </div>
+                          <span className="image-style-title">SFX Categories</span>                        </div>
                         <div className="image-style-grid">
                           {sfxCategories.map((cat, i) => (
                             <button
@@ -1677,9 +1673,7 @@ export default function EditorScreen() {
                     {showVoiceoverGrid && (
                       <div className="image-style-panel">
                         <div className="image-style-header">
-                          <span className="image-style-title">Voice Selection</span>
-                          <span className="image-style-subtitle">Choose a voice for your voiceover</span>
-                        </div>
+                          <span className="image-style-title">Voice Selection</span>                        </div>
                         <div className="image-style-grid">
                           {voiceProfiles.map((voice, i) => (
                             <button

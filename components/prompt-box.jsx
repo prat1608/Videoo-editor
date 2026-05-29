@@ -174,6 +174,7 @@ export function PromptBox({
                 autodemo:  "Auto Demo",
                 roughcuts: "Rough Cuts",
                 clipping:  "Clipping",
+                aimg:      "AI Motion Graphics",
                 trim:      "Trim",
                 merge:     "Merge",
                 speed:     "Speed",

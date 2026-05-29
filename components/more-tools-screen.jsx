@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Search,
   ArrowRight,
+  ArrowUpRight,
 } from "lucide-react";
 import { HomeSidebar } from "@/components/home-sidebar";
 import { cn } from "@/lib/utils";
@@ -32,7 +33,7 @@ const SECTIONS = [
     subtitle: "Create anything from a prompt",
     category: "Generation",
     tools: [
-      { id: "generate-image",     grid: "image",      name: "Generate Image",     desc: "Create polished visuals from a simple text prompt.", icon: ImageUp },
+      { id: "generate-image",     grid: "image",      name: "Generate Image",     desc: "Create polished visuals from a simple text prompt.", icon: ImageUp, art: "generate-image" },
       { id: "generate-video",     grid: "video",      name: "Generate Video",     desc: "Turn text or images into ready-to-edit video clips.", icon: Film },
       { id: "generate-music",     grid: "music",      name: "Generate Music",     desc: "Produce custom background tracks that fit your edit.", icon: Music4 },
       { id: "generate-voiceover", grid: "voiceover",  name: "Generate Voiceover", desc: "Create natural AI narration for scenes, ads, and explainers.", icon: Mic },
@@ -68,6 +69,17 @@ const SECTIONS = [
 
 function ToolCardArtwork({ art }) {
   switch (art) {
+    case "generate-image":
+      return (
+        <div className="tc-scene tc-scene-generate-image" aria-hidden="true">
+          <img
+            className="tc-generate-image-art"
+            src="/tools/generate-image-card.png"
+            alt=""
+            draggable="false"
+          />
+        </div>
+      );
     case "requests":
       return (
         <div className="tc-scene tc-scene-requests" aria-hidden="true">
@@ -207,6 +219,7 @@ function ToolCardArtwork({ art }) {
 
 function ToolCard({ tool, art }) {
   const router = useRouter();
+  const Icon = tool.icon;
 
   return (
     <button
@@ -215,17 +228,45 @@ function ToolCard({ tool, art }) {
       onClick={() => router.push(`/editor?tool=${tool.grid}`)}
       aria-label={`Open ${tool.name}`}
     >
-      <div className={cn("tc-visual", `is-${art}`)}>
-        <div className="tc-grid-overlay" />
-        <div className="tc-glow tc-glow-left" />
-        <div className="tc-glow tc-glow-right" />
-        <div className="tc-visual-frame">
-          <ToolCardArtwork art={art} />
-        </div>
+      <div className="tc-card-top">
+        <span className="tc-icon-bubble">
+          <Icon aria-hidden="true" />
+        </span>
+        <span className="tc-card-title">{tool.name}</span>
+        <span className="tc-open-bubble">
+          <ArrowUpRight aria-hidden="true" />
+        </span>
       </div>
-      <div className="tc-body">
-        <p className="tc-name">{tool.name}</p>
-        <p className="tc-desc">{tool.desc}</p>
+
+      <div className={cn("tc-visual", `is-${art}`)}>
+        <div className="tc-art-main">
+          <div className="tc-grid-overlay" />
+          <div className="tc-glow tc-glow-left" />
+          <div className="tc-glow tc-glow-right" />
+          <div className="tc-visual-frame">
+            <ToolCardArtwork art={art} />
+          </div>
+        </div>
+
+        <div className="tc-thumb-rail" aria-hidden="true">
+          <span className="tc-thumb tc-thumb-one">
+            <ToolCardArtwork art={art} />
+          </span>
+          <span className="tc-thumb tc-thumb-two">
+            <ToolCardArtwork art={art} />
+          </span>
+          <span className="tc-more-count">+7</span>
+        </div>
+
+        <div className="tc-body">
+          <span className="tc-body-icon">
+            <Icon aria-hidden="true" />
+          </span>
+          <span className="tc-body-copy">
+            <span className="tc-name">{tool.name}</span>
+            <span className="tc-desc">{tool.desc}</span>
+          </span>
+        </div>
       </div>
     </button>
   );
@@ -304,7 +345,7 @@ export default function MoreToolsScreen() {
               <SectionHeader title={section.title} subtitle={section.subtitle} />
               <div className="mt2-grid">
                 {section.tools.map((tool, index) => (
-                  <ToolCard key={tool.id} tool={tool} art={ART_VARIANTS[index % ART_VARIANTS.length]} />
+                  <ToolCard key={tool.id} tool={tool} art={tool.art ?? ART_VARIANTS[index % ART_VARIANTS.length]} />
                 ))}
               </div>
             </section>

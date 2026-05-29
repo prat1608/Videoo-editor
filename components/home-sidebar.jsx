@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -8,26 +8,49 @@ import {
   Bell,
   BookOpen,
   ChevronDown,
-  ChevronRight,
   Clapperboard,
-  Crop,
   FilePlus2,
+  Film,
   Headphones,
+  ImageUp,
   Layers,
-  Mic2,
-  Music,
+  Mic,
+  Music4,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
   RefreshCw,
   Scissors,
   Settings2,
-  Subtitles,
+  Sparkles,
   Video,
+  Volume2,
   Wand2,
 } from "lucide-react";
 import logoMark from "@/assets/Logo.svg";
 import { cn } from "@/lib/utils";
+
+const toolsAndSkillsMenu = [
+  {
+    group: "Generation",
+    items: [
+      { key: "image",     label: "Generate Image",     icon: ImageUp },
+      { key: "video",     label: "Generate Video",     icon: Film },
+      { key: "audio",     label: "Generate Music",     icon: Music4 },
+      { key: "voiceover", label: "Generate Voiceover", icon: Mic },
+      { key: "sfx",       label: "Generate SFX",       icon: Volume2 },
+      { key: "aimg",      label: "AI Motion Graphics", icon: Sparkles },
+    ],
+  },
+  {
+    group: "Skills",
+    items: [
+      { key: "autodemo",  label: "Autodemo",  icon: Clapperboard },
+      { key: "roughcuts", label: "Roughcuts", icon: RefreshCw },
+      { key: "clipping",  label: "Clipping",  icon: Scissors },
+    ],
+  },
+];
 
 const sidebarRecentProjects = [
   { id: 1, title: "Untitled Project", color: "#5a3a4a" },
@@ -43,20 +66,49 @@ const sidebarRecentProjects = [
   { id: 11, title: "Social Media Clip Cr...", color: "#1a1a2a" },
 ];
 
-const toolsAndSkills = [
-  { key: "generate", label: "Generate Video", icon: Clapperboard },
-  { key: "captions", label: "Auto Captions", icon: Subtitles },
-  { key: "enhance", label: "AI Enhance", icon: Wand2 },
-  { key: "music", label: "Background Music", icon: Music },
-  { key: "crop", label: "Smart Crop", icon: Crop },
-];
-
-export function HomeSidebar({ activePath = "/" }) {
+export function HomeSidebar({ activePath = "/", onToolSelect }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [spacesOpen, setSpacesOpen] = useState(true);
-  const [toolsOpen, setToolsOpen] = useState(true);
+  const [toolsPopoverOpen, setToolsPopoverOpen] = useState(false);
+  const [toolsPopoverPos, setToolsPopoverPos] = useState({ top: 150, left: 256 });
+
+  const toolsTriggerRef = useRef(null);
+  const toolsPopoverRef = useRef(null);
+
+  useEffect(() => {
+    if (!toolsPopoverOpen) return;
+    function handleClickOutside(e) {
+      if (
+        !toolsTriggerRef.current?.contains(e.target) &&
+        !toolsPopoverRef.current?.contains(e.target)
+      ) {
+        setToolsPopoverOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [toolsPopoverOpen]);
+
+  function openToolsPopover() {
+    if (toolsPopoverOpen) {
+      setToolsPopoverOpen(false);
+      return;
+    }
+    const rect = toolsTriggerRef.current?.getBoundingClientRect();
+    setToolsPopoverPos({
+      top: rect?.top ?? 150,
+      left: (rect?.right ?? 220) + 8,
+    });
+    setToolsPopoverOpen(true);
+  }
+
+  function handleToolSelect(key) {
+    setToolsPopoverOpen(false);
+    onToolSelect?.(key);
+  }
 
   return (
+    <>
     <aside className={cn("home-sidebar", sidebarCollapsed && "is-collapsed")}>
       <div className="home-sidebar-logo">
         {!sidebarCollapsed && <Image src={logoMark} alt="Videoo" priority />}
@@ -84,36 +136,16 @@ export function HomeSidebar({ activePath = "/" }) {
           <span className="home-nav-icon"><BarChart2 /></span>
           <span>Assets</span>
         </button>
-      </nav>
-
-      <div className="home-sidebar-section">
         <button
+          ref={toolsTriggerRef}
           type="button"
-          className="home-sidebar-section-header"
-          onClick={() => setToolsOpen((v) => !v)}
+          className={cn("home-nav-item", toolsPopoverOpen && "is-active")}
+          onClick={openToolsPopover}
         >
-          <Wand2 />
+          <span className="home-nav-icon"><Wand2 /></span>
           <span>Tools &amp; Skills</span>
-          <ChevronDown className={cn("home-section-chevron", toolsOpen && "is-open")} />
         </button>
-        {toolsOpen && (
-          <div className="home-tools-list">
-            {toolsAndSkills.map((tool) => (
-              <button key={tool.key} type="button" className="home-tool-item">
-                <tool.icon className="home-tool-icon" />
-                <span>{tool.label}</span>
-              </button>
-            ))}
-            <Link
-              href="/tools"
-              className={cn("home-tool-item home-more-tools", activePath === "/tools" && "is-active")}
-            >
-              <span>More Tools</span>
-              <ChevronRight className="home-more-tools-chevron" />
-            </Link>
-          </div>
-        )}
-      </div>
+      </nav>
 
       <div className="home-sidebar-section">
         <button
@@ -174,6 +206,33 @@ export function HomeSidebar({ activePath = "/" }) {
           <span className="home-user-avatar">P</span>
         </button>
       </div>
+
     </aside>
+
+    {toolsPopoverOpen && (
+      <div
+        ref={toolsPopoverRef}
+        className="home-tools-popover"
+        style={{ position: "fixed", top: toolsPopoverPos.top, left: toolsPopoverPos.left }}
+      >
+        {toolsAndSkillsMenu.map((group) => (
+          <div key={group.group} className="home-tools-popover-group">
+            <div className="home-tools-popover-group-label">{group.group}</div>
+            {group.items.map((item) => (
+              <button
+                key={item.key}
+                type="button"
+                className="home-tools-popover-item"
+                onClick={() => handleToolSelect(item.key)}
+              >
+                <item.icon size={14} />
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+    )}
+    </>
   );
 }
