@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Check, ChevronDown, ImageUp, Plus, SlidersHorizontal, X } from "lucide-react";
+import { Check, ChevronDown, ImageUp, Mic, Monitor, MonitorPlay, Plus, Settings, SlidersHorizontal, Video, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -89,6 +89,10 @@ export function PromptBox({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsAnchorRect, setSettingsAnchorRect] = useState(null);
   const [narrow, setNarrow] = useState(false);
+  const [plusOpen, setPlusOpen] = useState(false);
+  const [plusAnchorRect, setPlusAnchorRect] = useState(null);
+  const plusRef = useRef(null);
+  const plusPopoverRef = useRef(null);
 
   const isHome = variant === "home";
   const showImageGrid = activeGrid === "image";
@@ -128,6 +132,28 @@ export function PromptBox({
     document.addEventListener("mousedown", handle);
     return () => document.removeEventListener("mousedown", handle);
   }, [settingsOpen]);
+
+  useEffect(() => {
+    if (!plusOpen) return;
+    function handle(e) {
+      if (!plusRef.current?.contains(e.target) && !plusPopoverRef.current?.contains(e.target)) {
+        setPlusOpen(false);
+        setPlusAnchorRect(null);
+      }
+    }
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [plusOpen]);
+
+  function togglePlus(e) {
+    if (plusOpen) {
+      setPlusOpen(false);
+      setPlusAnchorRect(null);
+    } else {
+      setPlusAnchorRect(e.currentTarget.getBoundingClientRect());
+      setPlusOpen(true);
+    }
+  }
 
   function toggleChip(key, e) {
     if (openChip === key) {
@@ -382,7 +408,13 @@ export function PromptBox({
       {/* Action bar */}
       <div className={c.actions} ref={actionsRef}>
         <div className={c.left ?? undefined}>
-          <button type="button" className={c.plus} aria-label="Attach">
+          <button
+            ref={plusRef}
+            type="button"
+            className={cn(c.plus, plusOpen && "is-active")}
+            aria-label="Attach"
+            onClick={togglePlus}
+          >
             <Plus />
           </button>
 
@@ -467,6 +499,48 @@ export function PromptBox({
               );
             });
           })()}
+        </div>,
+        document.body
+      )}
+
+      {/* Plus / attach popover */}
+      {plusOpen && plusAnchorRect && createPortal(
+        <div
+          ref={plusPopoverRef}
+          className="assets-popup"
+          style={{
+            position: "fixed",
+            left: plusAnchorRect.left,
+            bottom: window.innerHeight - plusAnchorRect.top + 8,
+            zIndex: 9999,
+          }}
+        >
+          <div className="assets-popup-label">Record source</div>
+          {[
+            { Icon: Mic,         label: "Audio" },
+            { Icon: Video,       label: "Camera" },
+            { Icon: Monitor,     label: "Screen" },
+            { Icon: MonitorPlay, label: "Screen + Camera" },
+          ].map(({ Icon, label }) => (
+            <button
+              key={label}
+              type="button"
+              className="assets-popup-item"
+              onClick={() => { setPlusOpen(false); setPlusAnchorRect(null); }}
+            >
+              <Icon className="assets-popup-item-icon" />
+              <span>{label}</span>
+            </button>
+          ))}
+          <div className="assets-popup-sep" />
+          <button
+            type="button"
+            className="assets-popup-item"
+            onClick={() => { setPlusOpen(false); setPlusAnchorRect(null); }}
+          >
+            <Settings className="assets-popup-item-icon" />
+            <span>Settings</span>
+          </button>
         </div>,
         document.body
       )}

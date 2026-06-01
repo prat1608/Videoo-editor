@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { HomeSidebar } from "@/components/home-sidebar";
 import { PromptBox } from "@/components/prompt-box";
-import { ShowcaseCard, ShowcaseListRow, SHOWCASE_DATA } from "@/components/audio-showcase-cards";
+import { ShowcaseCard, MarketplaceView, SHOWCASE_DATA } from "@/components/audio-showcase-cards";
 import { cn } from "@/lib/utils";
 
 const MODES = [
@@ -15,11 +15,6 @@ const MODES = [
   { key: "voiceover", label: "Voiceover", icon: Mic     },
 ];
 
-const SECTION_LABELS = {
-  audio:     "Staff Picks",
-  sfx:       "Staff Picks",
-  voiceover: "Staff Picks",
-};
 
 const audioModels          = ["Suno v4", "Udio 2.0", "MusicGen 2"];
 const audioMoodOptions     = ["Cinematic", "Ambient", "Electronic", "Jazz", "Hip-Hop", "Acoustic", "Lo-Fi", "Corporate"];
@@ -125,39 +120,35 @@ export default function GenerateAudioScreen() {
         </div>
 
         <div className="ga-showcase">
-          <div className="ga-showcase-header">
-            <h2 className="ga-showcase-title">{SECTION_LABELS[selectedMode]}</h2>
-            <button type="button" className="ga-showcase-see-all">
-              See all <ArrowRight />
-            </button>
-          </div>
-
           {selectedMode === "audio" ? (
-            <div className="ga-scroll-row">
-              {SHOWCASE_DATA.audio.map((item) => (
-                <ShowcaseCard
-                  key={item.id}
-                  item={item}
-                  mode="audio"
-                  isPlaying={playingId === item.id}
-                  onPlayToggle={togglePlay}
-                  onSelect={selectCard}
-                />
-              ))}
-            </div>
+            <>
+              <div className="ga-showcase-header">
+                <h2 className="ga-showcase-title">Staff Picks</h2>
+                <button type="button" className="ga-showcase-see-all">
+                  See all <ArrowRight />
+                </button>
+              </div>
+              <div className="ga-scroll-row">
+                {SHOWCASE_DATA.audio.map((item) => (
+                  <ShowcaseCard
+                    key={item.id}
+                    item={item}
+                    mode="audio"
+                    isPlaying={playingId === item.id}
+                    onPlayToggle={togglePlay}
+                    onSelect={selectCard}
+                  />
+                ))}
+              </div>
+            </>
           ) : (
-            <div className="ga-list" style={{ display: "flex", flexDirection: "column" }}>
-              {SHOWCASE_DATA[selectedMode].map((item) => (
-                <ShowcaseListRow
-                  key={item.id}
-                  item={item}
-                  mode={selectedMode}
-                  isPlaying={playingId === item.id}
-                  onPlayToggle={togglePlay}
-                  onSelect={selectCard}
-                />
-              ))}
-            </div>
+            <MarketplaceView
+              mode={selectedMode}
+              items={SHOWCASE_DATA[selectedMode]}
+              playingId={playingId}
+              onPlayToggle={togglePlay}
+              onSelect={selectCard}
+            />
           )}
         </div>
       </main>

@@ -1964,6 +1964,63 @@ svg {
   color: #b0b3e8;
 }
 
+.assets-popup {
+  min-width: 220px;
+  background: var(--theme-background-z1);
+  border: 0.6px solid var(--border);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: model-dropdown-in 140ms ease;
+}
+
+.assets-popup-label {
+  padding: 6px 10px 4px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  user-select: none;
+}
+
+.assets-popup-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 100ms ease;
+}
+
+.assets-popup-item:hover {
+  background: var(--theme-hover-bg);
+}
+
+.assets-popup-item-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--text-soft);
+}
+
+.assets-popup-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 4px;
+}
+
 .video-settings-wrap {
   position: relative;
 }
@@ -4557,7 +4614,7 @@ svg {
 }
 
 .image-style-title {
-  font-size: 28px;
+  font-size: 18px;
   font-weight: 400;
   color: #fff;
   letter-spacing: -0.01em;
@@ -6940,8 +6997,7 @@ svg {
   z-index: 2;
 }
 
-.ga-scard:hover .ga-scard-play-btn,
-.ga-scard.is-playing .ga-scard-play-btn {
+.ga-scard:hover .ga-scard-play-btn {
   opacity: 1;
   transform: scale(1);
 }
@@ -6961,6 +7017,69 @@ svg {
 
 .ga-scard.is-playing .ga-scard-play-btn svg {
   margin-left: 0;
+}
+
+/* ── Vinyl record overlay ── */
+.ga-scard-vinyl {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.78);
+  border-radius: inherit;
+  animation: vinyl-fade-in 280ms ease both;
+}
+
+.ga-scard-vinyl-disc {
+  width: 80%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  position: relative;
+  animation: vinyl-spin 3s linear infinite;
+  background-image: url('https://gallery.yopriceville.com/var/resizes/Free-Clipart-Pictures/Music-PNG/Gramophone_Vinyl_LP_Record_PNG_Transparent_Clip_Art_Image.png');
+  background-size: 106% 106%;
+  background-position: center;
+  box-shadow: 0 0 20px 4px rgba(0, 0, 0, 0.6);
+}
+
+.ga-scard-vinyl-label {
+  position: absolute;
+  top: 33%;
+  left: 33%;
+  width: 34%;
+  height: 34%;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 3px rgba(150, 150, 150, 0.4);
+}
+
+.ga-scard-vinyl-label img,
+.ga-scard-vinyl-label-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ga-scard.is-playing .ga-scard-play-btn {
+  z-index: 3;
+  opacity: 0;
+}
+
+.ga-scard.is-playing:hover .ga-scard-play-btn {
+  opacity: 1;
+}
+
+@keyframes vinyl-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes vinyl-fade-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 /* ── Duration badge ── */
@@ -7003,6 +7122,14 @@ svg {
   letter-spacing: 0.01em;
 }
 
+.ga-scard-footer-duration {
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted, rgba(255,255,255,0.45));
+  letter-spacing: 0.01em;
+}
+
 /* ── Home screen audio card grid ── */
 .home-audio-grid-heading {
   margin: 0 0 20px;
@@ -7040,36 +7167,108 @@ svg {
   }
 }
 
+/* ── AI Motion Graphics category tabs ── */
+.aimg-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 6px;
+  margin-bottom: 14px;
+}
+
+.aimg-tab {
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+  white-space: nowrap;
+}
+
+.aimg-tab:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.aimg-tab.is-active {
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+  font-weight: 600;
+}
+
 /* ── AI Motion Graphics grid ── */
 .home-aimg-grid {
   columns: 3;
-  column-gap: 10px;
+  column-gap: 12px;
 }
 
 .aimg-template-card {
   display: block;
   width: 100%;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
-  background: var(--theme-background-z1);
-  border: 0;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 0;
   cursor: pointer;
   text-align: left;
   break-inside: avoid;
-  margin-bottom: 10px;
-  transition: transform 140ms ease, box-shadow 140ms ease;
+  margin-bottom: 12px;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35),
+              0 6px 18px rgba(0, 0, 0, 0.28),
+              inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  transition: transform 380ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 220ms ease;
   animation: bento-fade-in 400ms ease both;
 }
 
+/* Shimmer sweep */
+.aimg-template-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.07) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  transition: transform 0ms;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.aimg-template-card:hover::before {
+  transform: translateX(100%);
+  transition: transform 520ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .aimg-template-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  transform: translateY(-6px) scale(1.022);
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4),
+              0 28px 64px rgba(0, 0, 0, 0.65),
+              0 0 0 1px rgba(255, 255, 255, 0.18),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Video zooms in gently on hover */
+.aimg-template-card:hover .aimg-card-video {
+  transform: scale(1.06);
 }
 
 .aimg-template-card.is-selected {
-  outline: 2px solid rgba(104, 109, 182, 0.9);
-  outline-offset: 2px;
+  border-color: rgba(104, 109, 182, 0.85);
+  box-shadow: 0 0 0 1px rgba(104, 109, 182, 0.85);
 }
 
 .aimg-card-visual {
@@ -7079,23 +7278,63 @@ svg {
   overflow: hidden;
 }
 
-.aimg-card-category {
+/* Hover prompt overlay */
+.aimg-card-hover-overlay {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.1) 65%, transparent 100%);
+  opacity: 0;
+  transition: opacity 220ms ease;
+  pointer-events: none;
   z-index: 2;
+}
+
+.aimg-template-card:hover .aimg-card-hover-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.aimg-card-hover-prompt {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aimg-card-try-btn {
   display: inline-flex;
   align-items: center;
-  height: 18px;
-  padding: 0 7px;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.65rem;
+  gap: 5px;
+  align-self: flex-start;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  color: #fff;
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.aimg-card-try-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* ── Trending video card popover (motion.so style) ───────────── */
@@ -7248,6 +7487,10 @@ svg {
 }
 
 .trending-meta-use {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   width: 100%;
   height: 38px;
   border-radius: 10px;
@@ -7257,6 +7500,7 @@ svg {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  text-decoration: none;
   transition: background 140ms ease;
 }
 
@@ -7285,15 +7529,19 @@ svg {
 }
 
 /* ── Audio popover left panel ─────────────────────── */
+.trending-popover:has(.trending-popover-audio) {
+  width: min(640px, 92vw);
+}
+
 .trending-popover-audio {
-  width: 340px;
+  width: 300px;
+  height: 300px;
   flex-shrink: 0;
+  aspect-ratio: 1 / 1;
   border-radius: 16px;
   overflow: hidden;
   background: #0a0a0a;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: stretch;
 }
 
 .trending-popover-audio-art {
@@ -7312,4 +7560,429 @@ svg {
   object-fit: cover;
   display: block;
   opacity: 0.85;
+  transform: scale(1);
+  will-change: transform;
+  transition: transform 700ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ═══════════════════════════════════════
+   Marketplace View  (.ga-market-*)
+   ═══════════════════════════════════════ */
+
+.ga-market {
+  width: 100%;
+}
+
+/* ── Section heading ── */
+.ga-market-heading {
+  margin: 0 0 20px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.03em;
+}
+
+/* ── Category cards ── */
+.ga-market-cats-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.ga-market-cats {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ga-market-cats::-webkit-scrollbar {
+  display: none;
+}
+
+.ga-market-cat {
+  position: relative;
+  flex-shrink: 0;
+  width: 152px;
+  height: 100px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 180ms ease;
+}
+
+.ga-market-cat:hover {
+  transform: scale(1.03);
+}
+
+.ga-market-cat-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ga-market-cat-label {
+  position: absolute;
+  bottom: 8px;
+  left: 10px;
+  right: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+  line-height: 1.2;
+  text-align: left;
+}
+
+.ga-market-cats-arrow {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 0.6px solid var(--border);
+  background: var(--theme-background-z1);
+  color: var(--text-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.ga-market-cats-arrow:hover {
+  background: var(--panel-hover);
+  color: var(--text);
+}
+
+/* ── Filter bar ── */
+.ga-market-filterbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.ga-market-filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ga-market-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 0.6px solid var(--border);
+  background: transparent;
+  color: var(--text-soft);
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.ga-market-filter-pill:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.ga-market-search-wrap {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 0.6px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+}
+
+.ga-market-search {
+  flex: 1;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.ga-market-search::placeholder {
+  color: var(--text-dim);
+}
+
+/* ── Filter pill dropdown ── */
+.ga-filter-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.ga-market-filter-pill.is-active {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.ga-market-filter-pill.is-open {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--text);
+}
+
+.ga-filter-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 160px;
+  background: #242426;
+  border: 0.6px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 4px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: model-dropdown-in 130ms ease;
+}
+
+.ga-filter-option {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: 0;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.82rem;
+  font-weight: 400;
+  text-align: left;
+  cursor: pointer;
+  transition: background 100ms ease, color 100ms ease;
+}
+
+.ga-filter-option:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.ga-filter-option.is-active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-weight: 500;
+}
+
+/* ── List header ── */
+.ga-market-list-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 0 10px;
+  border-bottom: 0.6px solid var(--border);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-soft);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.ga-market-head-spacer {
+  flex-shrink: 0;
+  width: 48px;
+}
+
+.ga-market-head-track {
+  flex: 1;
+  min-width: 0;
+}
+
+.ga-market-head-wave {
+  flex-shrink: 0;
+  width: 190px;
+}
+
+.ga-market-head-dur {
+  flex-shrink: 0;
+  width: 72px;
+  text-align: right;
+}
+
+.ga-market-head-metric {
+  flex-shrink: 0;
+  width: 50px;
+  text-align: right;
+}
+
+.ga-market-head-actions {
+  flex-shrink: 0;
+  width: 80px;
+}
+
+/* ── Track rows ── */
+.ga-market-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0;
+  border-bottom: 0.6px solid var(--border);
+  transition: background 140ms ease;
+  border-radius: 8px;
+}
+
+.ga-market-row:last-child {
+  border-bottom: none;
+}
+
+.ga-market-row:hover {
+  background: rgba(255, 255, 255, 0.025);
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.ga-market-thumb {
+  position: relative;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.ga-market-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ga-market-thumb-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.48);
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.ga-market-thumb-overlay.is-visible {
+  opacity: 1;
+}
+
+.ga-market-row-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ga-market-row-title {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+
+.ga-market-row-meta {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Waveform ── */
+.ga-waveform {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  width: 190px;
+  height: 28px;
+  overflow: hidden;
+}
+
+.ga-waveform-bar {
+  display: block;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 1px;
+  flex-shrink: 0;
+  transition: background 140ms ease;
+}
+
+.ga-market-row:hover .ga-waveform-bar,
+.ga-market-row.is-playing .ga-waveform-bar {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.ga-market-row-dur {
+  flex-shrink: 0;
+  width: 72px;
+  text-align: right;
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.ga-market-row-metric {
+  flex-shrink: 0;
+  width: 50px;
+  text-align: right;
+  font-size: 0.82rem;
+  color: var(--text-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Row action button ── */
+.ga-market-row-actions {
+  flex-shrink: 0;
+  width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.ga-market-try-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 0.6px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.ga-market-try-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.24);
 }

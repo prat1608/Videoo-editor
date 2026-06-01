@@ -28,12 +28,13 @@ import {
   Clock,
   Gauge,
   Mic,
+  Repeat,
   X,
 } from "lucide-react";
 import { PromptBox } from "@/components/prompt-box";
 import { HomeSidebar } from "@/components/home-sidebar";
 import { IMAGE_STYLES, getImageStyleUrl } from "@/lib/image-styles";
-import { ShowcaseCard, ShowcaseListRow, MUSIC_SHOWCASE, SFX_SHOWCASE, VO_SHOWCASE } from "@/components/audio-showcase-cards";
+import { ShowcaseCard, MarketplaceView, MUSIC_SHOWCASE, SHOWCASE_DATA } from "@/components/audio-showcase-cards";
 import { cn } from "@/lib/utils";
 
 const recentProjectsMain = [
@@ -117,30 +118,22 @@ const homeVideoClips = [
 ];
 
 const homeAimgTemplates = [
-  { id: 1,  name: "Logo Reveal",     category: "Branding",    gradient: "135deg,#7c3aed 0%,#c026d3 100%",  src: "/motion-graphics/logo-reveal.mp4",     model: "After Effects + AI",    style: "Particles",   curation: "Featured",  created: "May 8, 2026",
-    prompt: "Animated logo reveal, wordmark builds from scattered luminous particles converging to form letterforms, radial god-ray burst in purple and gold on reveal, smooth ease-in-out scale from 0.6 to 1.0, dust motes linger in air post-reveal, 3-second hold, pure black background, 1920×1080, 24fps, loop-ready pre-roll" },
-  { id: 2,  name: "Kinetic Title",   category: "Typography",  gradient: "135deg,#0ea5e9 0%,#6366f1 100%",  src: "/motion-graphics/kinetic-title.mp4",   model: "Motion Bro + AI",       style: "Kinetic Type", curation: "Trending",  created: "May 12, 2026",
-    prompt: "Kinetic typography title card, bold condensed sans-serif words rocket in from six directions with elastic overshoot, individual letters stagger at 3-frame offsets, velocity lines trail each character, dynamic blue-indigo duotone color grade, rhythmic snap to beats at 120 BPM, 5-second sequence, 1080×1080 square" },
-  { id: 3,  name: "Story Countdown", category: "Social",      gradient: "135deg,#ef4444 0%,#f97316 100%",  src: "/motion-graphics/story-countdown.mp4", model: "Rive + AI",             style: "Bouncy",      curation: "Trending",  created: "May 15, 2026",
-    prompt: "Social media story countdown timer, large numerals 5–1 with bouncy spring physics (overshoot 1.4), radial red-orange gradient burst on each number change, circular progress ring animating around numeral, final frame confetti particle burst, 9:16 vertical 1080×1920, 60fps, vibrant saturation +30" },
-  { id: 4,  name: "Data Viz",        category: "Infographic", gradient: "135deg,#10b981 0%,#0ea5e9 100%",  src: "/motion-graphics/data-viz.mp4",        model: "D3.js + Lottie",        style: "Clean",       curation: "Curated",   created: "Apr 30, 2026",
-    prompt: "Smooth animated data visualization, 5 bar chart columns grow from baseline with staggered 200ms offsets and ease-out cubic, 3 pie chart sectors sweep in sequentially, value labels count up in real time, teal-to-sky-blue gradient fills, thin grid lines fade in, minimal sans-serif labels, white background, 16:9, 30fps" },
-  { id: 5,  name: "Particle Burst",  category: "VFX",         gradient: "135deg,#1e1b4b 0%,#7c3aed 100%",  src: "/motion-graphics/particle-burst.mp4",  model: "TouchDesigner + AI",    style: "Explosion",   curation: "Featured",  created: "May 5, 2026",
-    prompt: "Explosive particle system, 8,000 individual sparks eject from a single center point with randomized velocity and drag, multi-color gradient from violet core to cyan tips, motion blur per particle, Z-depth fog fade at 400px, sparks fade out over 1.2 seconds, dark navy vignette background, 4K 60fps, no audio" },
-  { id: 6,  name: "Lower Third",     category: "Broadcast",   gradient: "135deg,#0f172a 0%,#1d4ed8 100%",  src: "/motion-graphics/lower-third.mp4",     model: "Motion Array + AI",     style: "Broadcast",   curation: "Curated",   created: "May 2, 2026",
-    prompt: "Professional news lower third, thin accent line wipes in from left over 18 frames, name text fades up with 6-frame stagger from title text, subtle background fill slides in behind text block, clean navy and electric-blue palette, Inter Bold / Inter Regular font pairing, 1920×1080, 25fps, broadcast safe colors" },
-  { id: 7,  name: "Social Intro",    category: "Social",      gradient: "135deg,#ec4899 0%,#8b5cf6 100%",  src: "/motion-graphics/social-intro.mp4",    model: "Jitter + AI",           style: "Gradient",    curation: "Trending",  created: "May 18, 2026",
-    prompt: "Trendy social media intro, three stacked bold text lines pop in with scale-from-center spring animation, animated liquid mesh gradient transitions between pink, purple, and coral, circular avatar placeholder pulses with glow, 3-second hold on full composition, 9:16 1080×1920, 60fps, Instagram Reels optimized" },
-  { id: 8,  name: "Glitch Effect",   category: "VFX",         gradient: "135deg,#042f2e 0%,#0d0d0d 100%",  src: "/motion-graphics/glitch-effect.mp4",   model: "Notch + AI",            style: "Glitch",      curation: "Featured",  created: "May 9, 2026",
-    prompt: "Cyberpunk digital glitch treatment, RGB channel splitting with ±12px horizontal offset, CRT scanline overlay at 50% opacity, random block displacement artifacts trigger every 8–14 frames, horizontal voltage-spike bar tears, brief static noise frames, vignette flicker, pitch-black base, 4K 24fps, seamless loop" },
-  { id: 9,  name: "Minimal Text",    category: "Typography",  gradient: "135deg,#1e293b 0%,#475569 100%",  src: "/motion-graphics/logo-reveal.mp4",     model: "Cavalry + AI",          style: "Minimal",     curation: "Curated",   created: "May 3, 2026",
-    prompt: "Elegant minimal text animation, single serif headline fades in at 40% opacity then resolves to 100% over 60 frames, secondary caption slides up 8px beneath hairline divider, refined slate and off-white palette, generous negative space, 2-second breathing hold, subtle vignette, 16:9 1920×1080, 24fps, editorial quality" },
-  { id: 10, name: "Neon Glow",       category: "VFX",         gradient: "135deg,#0a0a0a 0%,#00c47a 100%",  src: "/motion-graphics/particle-burst.mp4",  model: "TouchDesigner + AI",    style: "Neon",        curation: "Trending",  created: "May 14, 2026",
-    prompt: "Neon sign animation on pure black, bright emerald green phosphor glow with animated flicker sequence (3 flicker pulses then stable), light bloom radius 24px, subtle reflection puddle on floor plane below sign, electrical buzz implied by slight hue oscillation, futuristic aesthetic, 16:9 4K, 60fps, loopable" },
-  { id: 11, name: "Cinematic Title", category: "Film",        gradient: "135deg,#0a0a0a 0%,#92400e 100%",  src: "/motion-graphics/lower-third.mp4",     model: "Blackmagic Fusion + AI", style: "Epic",        curation: "Featured",  created: "May 1, 2026",
-    prompt: "Epic feature film title sequence, golden volumetric light rays sweep across screen from top-left, large serif title fades in through the rays with anamorphic lens flare, letterbox 2.39:1 black bars, subtle dust particles in atmosphere, dramatic orchestral hit implied by motion timing, 4K ARRI look LUT, 24fps" },
-  { id: 12, name: "Explainer Scene", category: "Business",    gradient: "135deg,#1e40af 0%,#7c3aed 100%",  src: "/motion-graphics/data-viz.mp4",        model: "Lottie + AI",           style: "Flat Design", curation: "Curated",   created: "Apr 25, 2026",
-    prompt: "Flat-design product explainer animation, line-art icons draw on with stroke animation at 60fps, 4 sequential scene panels wipe left-to-right, icons enlarge on feature highlight with bounce ease, blue and purple duotone fills, clean geometric compositions, Nunito font labels, 16:9 1920×1080, 30fps, 60-second runtime" },
+  { id: "notion-showcase",      name: "Notion Showcase",     category: "Product",    gradient: "135deg,#1a1a1a 0%,#2d2d2d 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-notion.mp4",     zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/notion-showcase.zip",     model: "HyperFrames", style: "Product Walkthrough", curation: "Official", created: "2026", duration: "15s",
+    prompt: "Minimalist SaaS product walkthrough, pure white canvas, Inter typeface at 18px with 160% line-height, UI panels slide in from bottom with cubic-bezier(0.16,1,0.3,1) ease, database rows populate sequentially with 40ms stagger, soft drop shadows at 0 8px 32px rgba(0,0,0,0.08), accent color #000 on white, 1920×1080, 24fps, 15-second sequence, Notion brand identity." },
+  { id: "dribbble-showcase",    name: "Dribbble Showcase",   category: "Design",     gradient: "135deg,#ea4c89 0%,#c32361 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-dribbble.mp4",   zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/dribbble-showcase.zip",   model: "HyperFrames", style: "Design Showcase",    curation: "Official", created: "2026", duration: "20s",
+    prompt: "Playful design portfolio reel, shot cards scale from 0.92 to 1.0 with spring stiffness 280 damping 22, hot-pink #EA4C89 accent on midnight background, 3×3 masonry grid assembles with 60ms column-stagger, hover states reveal like-count with +1 float animation, confetti burst on final frame, Inter Display 700 titles, 1920×1080, 60fps, 20-second loop." },
+  { id: "stripe-showcase",      name: "Stripe Showcase",     category: "Fintech",    gradient: "135deg,#635bff 0%,#00d4ff 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-stripe.mp4",     zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/stripe-showcase.zip",     model: "HyperFrames", style: "Product Walkthrough", curation: "Official", created: "2026", duration: "25s",
+    prompt: "Premium fintech product film, indigo #635BFF to cyan #00D4FF gradient hero, payment card materialises with 800ms ease-out scale from 0 with soft ambient occlusion, transaction rows stream in at 90ms intervals with green success pulses, code editor panel slides in from right showing Stripe API response JSON, glassmorphism panels at 12px blur 0.08 opacity, SF Mono code type, 1920×1080, 24fps, 25 seconds." },
+  { id: "raycast-showcase",     name: "Raycast Showcase",    category: "Developer",  gradient: "135deg,#ff6b35 0%,#f7c59f 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-raycast.mp4",    zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/raycast-showcase.zip",    model: "HyperFrames", style: "App Demo",           curation: "Official", created: "2026", duration: "15s",
+    prompt: "Developer tool spotlight, command-palette spawns with 180ms backdrop-blur transition from 0 to 20px, result rows highlight sequentially at 55ms each with orange-amber #FF6B35 selection glow, keyboard shortcut badges pop with scale(1.12) bounce, dark charcoal #1C1C1E shell with hairline borders at rgba(255,255,255,0.08), monospace JetBrains Mono labels, ambient particle dust at 4% opacity, 1920×1080, 60fps, 15-second demo." },
+  { id: "fitness-app-showcase", name: "Fitness App",         category: "Mobile App", gradient: "135deg,#00b09b 0%,#96c93d 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/primitives/fitness-app-showcase/renders/fitness-app-showcase.mp4", zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/fitness-app-showcase.zip", model: "HyperFrames", style: "App Demo",           curation: "Official", created: "2026", duration: "5.5s",
+    prompt: "High-energy fitness app reveal, activity ring animates from 0° to 312° with stroke-dashoffset over 900ms ease-in-out, teal #00B09B to lime #96C93D gradient fills, step counter increments with rolling digit animation at 30fps, heart-rate graph draws live with cubic spline interpolation, mobile UI floats on subtle 3D Y-axis tilt 6°, frosted glass metric cards blur 16px, SF Pro Rounded numerals, 1920×1080, 5.5-second loop." },
+  { id: "spotify-bento",        name: "Spotify Bento",       category: "Music",      gradient: "135deg,#1db954 0%,#191414 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/compositions/spotify-bento/renders/spotify-bento.mp4",       zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/spotify-bento.zip",       model: "HyperFrames", style: "Bento Grid",         curation: "Official", created: "2026", duration: "26.5s",
+    prompt: "Infinite-scroll bento album grid, 12 album art tiles arranged in asymmetric 4-column layout pan continuously rightward at 48px/s with seamless wrap-around, Spotify green #1DB954 progress bars pulse beneath each tile, waveform visualiser oscillates at 60fps, pure black #191414 background, circular album art with 8px radius and 1px rgba(255,255,255,0.12) border, Circular Std Bold titles, slow zoom on hero tile, 1920×1080, 26.5-second seamless loop." },
+  { id: "x-post-overlay",       name: "X Post Overlay",      category: "Social",     gradient: "135deg,#000000 0%,#1a1a1a 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/overlays/x-post-overlay/renders/x-post-overlay.mp4",      zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/x-post-overlay.zip",      model: "HyperFrames", style: "Overlay",            curation: "Official", created: "2026", duration: "4s",
+    prompt: "Broadcast-ready X post overlay, card slides up from -120px to 0 over 420ms with cubic-bezier(0.34,1.56,0.64,1) spring overshoot, avatar renders with crisp 40px circle clip and 1.5px white border, reply/repost/like counters tick up individually with 80ms stagger, pure black #000 background with subtle noise texture at 2% opacity, X logo mark in white at 14px, system-ui font stack at 15px/140%, 4-second hold then fade-out, 1920×1080, 60fps." },
+  { id: "ui-3d-reveal",         name: "UI 3D Reveal",        category: "UI/UX",      gradient: "135deg,#1e3a5f 0%,#7c3aed 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/primitives/ui-3d-reveal/renders/ui-3d-reveal.mp4",        zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/ui-3d-reveal.zip",        model: "HyperFrames", style: "3D Perspective",     curation: "Official", created: "2026", duration: "13s",
+    prompt: "Cinematic UI perspective reveal, interface begins at rotateX(38deg) rotateY(-12deg) scale(0.78) with deep-blue #1E3A5F to violet #7C3AED gradient background, transitions to flat orthographic over 1.4s with perspective(1200px) ease-out, sequential layer pop-ins at 120ms offsets each with subtle depth-shadow, ambient iridescent light sweep across the surface at frame 60, 8px corner radius on panels, Inter 500 labels, 1920×1080, 24fps, 13-second sequence." },
 ];
 
 const TOOL_SUGGESTION_CONFIG = {
@@ -248,6 +241,13 @@ export default function HomeScreen() {
   const [activeImageCard, setActiveImageCard] = useState(null);
   const [activeAudioCard, setActiveAudioCard] = useState(null);
   const [activeAimgCard, setActiveAimgCard] = useState(null);
+  const [aimgCategoryFilter, setAimgCategoryFilter] = useState("All");
+  const [videoCurationFilter, setVideoCurationFilter] = useState("All");
+  const [musicTagFilter, setMusicTagFilter] = useState("All");
+
+  const aimgCategories = ["All", ...Array.from(new Set(homeAimgTemplates.map((t) => t.category)))];
+  const videoCurations = ["All", ...Array.from(new Set(homeVideoClips.map((v) => v.curation)))];
+  const musicTags = ["All", ...Array.from(new Set(MUSIC_SHOWCASE.map((m) => m.tag)))];
 
   const [imageErrorVisible, setImageErrorVisible] = useState(false);
   const hasPromptText = prompt.trim().length > 0;
@@ -589,28 +589,47 @@ export default function HomeScreen() {
             <div className="home-gen-text-header">
               <span className="image-style-title">For You</span>
             </div>
-            <div className="home-video-style-grid">
-              {homeVideoClips.map((vid, i) => (
+            <div className="aimg-tabs">
+              {videoCurations.map((c) => (
                 <button
-                  key={vid.name}
+                  key={c}
                   type="button"
-                  className={cn("video-style-card", activeVideoCard?.name === vid.name && "is-selected")}
-                  style={{ animationDelay: `${i * 40}ms` }}
-                  onClick={() => setActiveVideoCard(vid)}
+                  className={cn("aimg-tab", videoCurationFilter === c && "is-active")}
+                  onClick={() => setVideoCurationFilter(c)}
                 >
-                  <div className="video-clip-wrap" style={{ aspectRatio: vid.ratio }}>
-                    <video
-                      src={vid.src}
-                      muted
-                      loop
-                      playsInline
-                      autoPlay
-                      className="video-style-clip"
-                    />
-                    <span className="image-style-label">{vid.name}</span>
-                  </div>
+                  {c}
                 </button>
               ))}
+            </div>
+            <div className="home-aimg-grid">
+              {homeVideoClips
+                .filter((v) => videoCurationFilter === "All" || v.curation === videoCurationFilter)
+                .map((vid, i) => (
+                  <div
+                    key={vid.name}
+                    role="button"
+                    tabIndex={0}
+                    className={cn("aimg-template-card", activeVideoCard?.name === vid.name && "is-selected")}
+                    style={{ animationDelay: `${i * 40}ms` }}
+                    onClick={() => setActiveVideoCard(vid)}
+                    onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setActiveVideoCard(vid)}
+                  >
+                    <div className="aimg-card-visual">
+                      <video src={vid.src} muted loop playsInline autoPlay className="aimg-card-video" />
+                      <div className="aimg-card-hover-overlay">
+                        <p className="aimg-card-hover-prompt">{vid.prompt}</p>
+                        <button
+                          type="button"
+                          className="aimg-card-try-btn"
+                          onClick={(e) => { e.stopPropagation(); setActiveVideoCard(vid); }}
+                        >
+                          <Repeat size={11} />
+                          Try it
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
         )}
@@ -620,68 +639,97 @@ export default function HomeScreen() {
             <div className="home-gen-text-header">
               <span className="image-style-title">Vibe on them</span>
             </div>
+            <div className="aimg-tabs">
+              {musicTags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  className={cn("aimg-tab", musicTagFilter === tag && "is-active")}
+                  onClick={() => setMusicTagFilter(tag)}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
             <div
               className="ga-scard-grid"
               style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: "14px" }}
             >
-              {MUSIC_SHOWCASE.map((item) => (
-                <ShowcaseCard
-                  key={item.id}
-                  item={item}
-                  mode="audio"
-                  isPlaying={playingId === item.id}
-                  onPlayToggle={(id) => setPlayingId((p) => (p === id ? null : id))}
-                  onSelect={(p) => setPrompt((prev) => (prev.trim() ? prev.trim() + " " : "") + p)}
-                  onCardClick={(it) => setActiveAudioCard({ ...it, mode: "audio" })}
-                />
-              ))}
+              {MUSIC_SHOWCASE
+                .filter((m) => musicTagFilter === "All" || m.tag === musicTagFilter)
+                .map((item) => (
+                  <ShowcaseCard
+                    key={item.id}
+                    item={item}
+                    mode="audio"
+                    isPlaying={playingId === item.id}
+                    onPlayToggle={(id) => setPlayingId((p) => (p === id ? null : id))}
+                    onSelect={(p) => setPrompt((prev) => (prev.trim() ? prev.trim() + " " : "") + p)}
+                    onCardClick={(it) => setActiveAudioCard({ ...it, mode: "audio" })}
+                  />
+                ))}
             </div>
           </div>
         )}
 
         {(activeGrid === "sfx" || activeGrid === "voiceover") && (
           <div className="home-style-grid-wrap">
-            <div className="home-gen-text-header">
-              <span className="image-style-title">Vibe on them</span>
-            </div>
-            <div className="ga-list" style={{ display: "flex", flexDirection: "column" }}>
-              {(activeGrid === "sfx" ? SFX_SHOWCASE : VO_SHOWCASE).map((item) => (
-                <ShowcaseListRow
-                  key={item.id}
-                  item={item}
-                  mode={activeGrid}
-                  isPlaying={playingId === item.id}
-                  onPlayToggle={(id) => setPlayingId((p) => (p === id ? null : id))}
-                  onSelect={(p) => setPrompt((prev) => (prev.trim() ? prev.trim() + " " : "") + p)}
-                  onCardClick={(it) => setActiveAudioCard({ ...it, mode: activeGrid })}
-                />
-              ))}
-            </div>
+            <MarketplaceView
+              mode={activeGrid}
+              items={SHOWCASE_DATA[activeGrid]}
+              playingId={playingId}
+              onPlayToggle={(id) => setPlayingId((p) => (p === id ? null : id))}
+              onSelect={(p) => setPrompt((prev) => (prev.trim() ? prev.trim() + " " : "") + p)}
+            />
           </div>
         )}
 
         {activeGrid === "aimg" && (
           <div className="home-style-grid-wrap">
             <div className="home-gen-text-header">
-              <span className="image-style-title">Motion Graphics Templates</span>
-              <span className="image-style-subtitle">Click a template to auto-fill a prompt</span>
+              <span className="image-style-title">Start with an example</span>
             </div>
-            <div className="home-aimg-grid">
-              {homeAimgTemplates.map((tmpl, i) => (
+            <div className="aimg-tabs">
+              {aimgCategories.map((cat) => (
                 <button
-                  key={tmpl.id}
+                  key={cat}
                   type="button"
-                  className={cn("aimg-template-card", activeAimgCard?.id === tmpl.id && "is-selected")}
-                  style={{ animationDelay: `${i * 35}ms` }}
-                  onClick={() => setActiveAimgCard(tmpl)}
+                  className={cn("aimg-tab", aimgCategoryFilter === cat && "is-active")}
+                  onClick={() => setAimgCategoryFilter(cat)}
                 >
-                  <div className="aimg-card-visual" style={{ background: `linear-gradient(${tmpl.gradient})` }}>
-                    <video src={tmpl.src} muted loop playsInline autoPlay className="aimg-card-video" />
-                    <span className="aimg-card-category">{tmpl.category}</span>
-                    <span className="image-style-label">{tmpl.name}</span>
-                  </div>
+                  {cat}
                 </button>
               ))}
+            </div>
+            <div className="home-aimg-grid">
+              {homeAimgTemplates
+                .filter((t) => aimgCategoryFilter === "All" || t.category === aimgCategoryFilter)
+                .map((tmpl, i) => (
+                  <div
+                    key={tmpl.id}
+                    role="button"
+                    tabIndex={0}
+                    className={cn("aimg-template-card", activeAimgCard?.id === tmpl.id && "is-selected")}
+                    style={{ animationDelay: `${i * 35}ms` }}
+                    onClick={() => setActiveAimgCard(tmpl)}
+                    onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setActiveAimgCard(tmpl)}
+                  >
+                    <div className="aimg-card-visual">
+                      <video src={tmpl.src} muted loop playsInline autoPlay className="aimg-card-video" />
+                      <div className="aimg-card-hover-overlay">
+                        <p className="aimg-card-hover-prompt">{tmpl.prompt}</p>
+                        <button
+                          type="button"
+                          className="aimg-card-try-btn"
+                          onClick={(e) => { e.stopPropagation(); setActiveAimgCard(tmpl); }}
+                        >
+                          <Repeat size={11} />
+                          Try it
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
         )}
@@ -940,13 +988,27 @@ export default function HomeScreen() {
                   <span className="trending-meta-label">CURATION</span>
                   <span className="trending-meta-value">{activeAimgCard.curation}</span>
                 </div>
+                {activeAimgCard.duration && (
+                  <div className="trending-meta-row">
+                    <span className="trending-meta-label">DURATION</span>
+                    <span className="trending-meta-value">{activeAimgCard.duration}</span>
+                  </div>
+                )}
               </div>
               <div className="trending-meta-footer">
                 <div className="trending-meta-created">
-                  <span className="trending-meta-label">CREATED</span>
-                  <span className="trending-meta-date">{activeAimgCard.created}</span>
+                  <span className="trending-meta-label">SOURCE</span>
+                  <span className="trending-meta-date">hyperframes.dev</span>
                 </div>
-                <button type="button" className="trending-meta-use" onClick={() => { setPrompt(activeAimgCard.prompt); setActiveAimgCard(null); }}>Use Prompt</button>
+                <a
+                  href={activeAimgCard.indexUrl ?? activeAimgCard.zipUrl ?? "https://www.hyperframes.dev"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="trending-meta-use"
+                >
+                  <Repeat size={13} />
+                  Try it
+                </a>
               </div>
             </div>
           </div>

@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Play, Pause, RotateCcw } from "lucide-react";
+import { useRef, useState } from "react";
+import {
+  Play, Pause, RotateCcw,
+  ChevronRight,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const MODE_BADGE = {
@@ -145,9 +148,7 @@ export const SHOWCASE_DATA = {
   voiceover: VO_SHOWCASE,
 };
 
-export function ShowcaseCard({ item, mode, isPlaying, onPlayToggle, onSelect, onCardClick }) {
-  const badge = MODE_BADGE[mode];
-
+export function ShowcaseCard({ item, isPlaying, onPlayToggle, onSelect, onCardClick }) {
   return (
     <div
       className={cn("ga-scard", isPlaying && "is-playing")}
@@ -168,6 +169,19 @@ export function ShowcaseCard({ item, mode, isPlaying, onPlayToggle, onSelect, on
 
         <div className="ga-scard-dim" />
 
+        {isPlaying && (
+          <div className="ga-scard-vinyl">
+            <div className="ga-scard-vinyl-disc">
+              <div className="ga-scard-vinyl-label">
+                {item.img
+                  ? <img src={item.img} alt={item.title} />
+                  : <span className="ga-scard-vinyl-label-fallback" style={{ background: item.bg }} />
+                }
+              </div>
+            </div>
+          </div>
+        )}
+
         <button
           type="button"
           className="ga-scard-play-btn"
@@ -177,14 +191,11 @@ export function ShowcaseCard({ item, mode, isPlaying, onPlayToggle, onSelect, on
           {isPlaying ? <Pause /> : <Play />}
         </button>
 
-        <span className="ga-scard-duration">{item.duration}</span>
       </div>
 
       <div className="ga-scard-footer">
         <span className="ga-scard-title">{item.title}</span>
-        <span className="ga-scard-badge" style={{ background: badge.bg, color: badge.color }}>
-          {item.tag}
-        </span>
+        <span className="ga-scard-footer-duration">{item.duration}</span>
       </div>
     </div>
   );
@@ -301,6 +312,151 @@ export function ShowcaseListRow({ item, mode, isPlaying, onPlayToggle, onSelect,
         <RotateCcw style={{ width: 13, height: 13 }} />
         Use Prompt
       </button>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Marketplace view — used by SFX & Voiceover modes
+   ─────────────────────────────────────────────────────────────*/
+
+const SFX_CATEGORIES = [
+  { label: "Nature",      img: "/audio-thumbnails/morning-calm.png" },
+  { label: "Impacts",     img: "/audio-thumbnails/epic-quest.png"   },
+  { label: "Ambience",    img: "/audio-thumbnails/night-drive.png"  },
+  { label: "Foley",       img: "/audio-thumbnails/coffee-shop.png"  },
+  { label: "Transitions", img: "/audio-thumbnails/deep-focus.png"   },
+  { label: "UI Sounds",   img: "/audio-thumbnails/chill-wave.png"   },
+  { label: "Cinematic",   img: "/audio-thumbnails/summer-vibes.png" },
+  { label: "Experimental",img: "/audio-thumbnails/urban-flow.png"   },
+];
+
+const VO_CATEGORIES = [
+  { label: "Commercial",  img: "/audio-thumbnails/night-drive.png"  },
+  { label: "Tutorial",    img: "/audio-thumbnails/deep-focus.png"   },
+  { label: "Podcast",     img: "/audio-thumbnails/urban-flow.png"   },
+  { label: "Narration",   img: "/audio-thumbnails/epic-quest.png"   },
+  { label: "Explainer",   img: "/audio-thumbnails/summer-vibes.png" },
+  { label: "Brand Film",  img: "/audio-thumbnails/chill-wave.png"   },
+  { label: "Events",      img: "/audio-thumbnails/morning-calm.png" },
+  { label: "Walkthrough", img: "/audio-thumbnails/coffee-shop.png"  },
+];
+
+
+const WAVE_HEIGHTS = [4,6,10,8,5,9,13,10,7,5,8,11,9,5,7,12,9,6,4,8,14,11,7,5,9,12,8,5,6,10,7,4,6,9,12,10,6,5,8,4,6,10,13,9,6,4];
+
+function WaveformViz() {
+  return (
+    <div className="ga-waveform">
+      {WAVE_HEIGHTS.map((h, i) => (
+        <span key={i} className="ga-waveform-bar" style={{ height: `${h}px` }} />
+      ))}
+    </div>
+  );
+}
+
+function formatDur(dur) {
+  const [m, s] = dur.split(":").map(Number);
+  return m === 0 ? `${s}s` : `${m}m ${s}s`;
+}
+
+function MarketplaceRow({ item, mode, isPlaying, onPlayToggle, onSelect }) {
+  const [thumbHov, setThumbHov] = useState(false);
+  const showOverlay = thumbHov || isPlaying;
+  const metricVal = mode === "voiceover" ? item.speed : (item.bpm ? String(item.bpm) : "—");
+  const metaLine  = mode === "voiceover" ? `${item.model} | ${item.voice}` : `${item.model} | ${item.tag}`;
+
+  return (
+    <div className={cn("ga-market-row", isPlaying && "is-playing")}>
+      <button
+        type="button"
+        className="ga-market-thumb"
+        aria-label={isPlaying ? "Pause" : "Play"}
+        onClick={() => onPlayToggle(item.id)}
+        onMouseEnter={() => setThumbHov(true)}
+        onMouseLeave={() => setThumbHov(false)}
+      >
+        <img src={item.img} alt={item.title} className="ga-market-thumb-img" draggable={false} />
+        <span className={cn("ga-market-thumb-overlay", showOverlay && "is-visible")}>
+          {isPlaying
+            ? <Pause style={{ width: 14, height: 14, fill: "#fff", stroke: "none" }} />
+            : <Play  style={{ width: 14, height: 14, fill: "#fff", stroke: "none", marginLeft: 2 }} />
+          }
+        </span>
+      </button>
+
+      <div className="ga-market-row-info">
+        <span className="ga-market-row-title">{item.title}</span>
+        <span className="ga-market-row-meta">{metaLine}</span>
+      </div>
+
+      <WaveformViz />
+
+      <span className="ga-market-row-dur">{formatDur(item.duration)}</span>
+      <span className="ga-market-row-metric">{metricVal}</span>
+
+      <div className="ga-market-row-actions">
+        <button type="button" className="ga-market-try-btn" onClick={() => onSelect(item.prompt)}>
+          <RotateCcw style={{ width: 13, height: 13 }} />
+          Try it
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function MarketplaceView({ mode, items, playingId, onPlayToggle, onSelect }) {
+  const catsRef = useRef(null);
+
+  const categories  = mode === "sfx" ? SFX_CATEGORIES : VO_CATEGORIES;
+  const metricLabel = mode === "voiceover" ? "Speed" : "BPM";
+  const filtered = items;
+
+  return (
+    <div className="ga-market">
+      <h2 className="image-style-title">For Every Mood</h2>
+
+      {/* Category cards */}
+      <div className="ga-market-cats-wrap">
+        <div className="ga-market-cats" ref={catsRef}>
+          {categories.map(cat => (
+            <button key={cat.label} type="button" className="ga-market-cat">
+              <img src={cat.img} alt={cat.label} className="ga-market-cat-img" draggable={false} />
+              <span className="ga-market-cat-label">{cat.label}</span>
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          className="ga-market-cats-arrow"
+          aria-label="Scroll categories"
+          onClick={() => catsRef.current?.scrollBy({ left: 330, behavior: "smooth" })}
+        >
+          <ChevronRight style={{ width: 16, height: 16 }} />
+        </button>
+      </div>
+
+      {/* List header */}
+      <div className="ga-market-list-head">
+        <span className="ga-market-head-spacer" />
+        <span className="ga-market-head-track">Track</span>
+        <span className="ga-market-head-wave" />
+        <span className="ga-market-head-dur">Duration</span>
+        <span className="ga-market-head-metric">{metricLabel}</span>
+        <span className="ga-market-head-actions" />
+      </div>
+
+      {/* Rows */}
+      {filtered.map(item => (
+        <MarketplaceRow
+          key={item.id}
+          item={item}
+          mode={mode}
+          isPlaying={playingId === item.id}
+          onPlayToggle={onPlayToggle}
+          onSelect={onSelect}
+        />
+      ))}
     </div>
   );
 }
