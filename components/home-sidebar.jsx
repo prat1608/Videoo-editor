@@ -9,6 +9,7 @@ import {
   BookOpen,
   ChevronDown,
   Clapperboard,
+  Download,
   FilePlus2,
   Film,
   Headphones,
@@ -48,6 +49,7 @@ const toolsAndSkillsMenu = [
       { key: "autodemo",  label: "Autodemo",  icon: Clapperboard },
       { key: "roughcuts", label: "Roughcuts", icon: RefreshCw },
       { key: "clipping",  label: "Clipping",  icon: Scissors },
+      { key: "ytimport",  label: "Import Video", icon: Download },
     ],
   },
 ];

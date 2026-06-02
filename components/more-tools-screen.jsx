@@ -15,6 +15,7 @@ import {
   Scissors,
   Volume2,
   Clapperboard,
+  Download,
   RefreshCw,
   Search,
   ArrowRight,
@@ -49,6 +50,7 @@ const SECTIONS = [
       { id: "autodemo",  grid: "autodemo",  name: "Autodemo",  desc: "Auto-generate product demos with structure, pacing, and highlights.", icon: Clapperboard },
       { id: "roughcuts", grid: "roughcuts", name: "Roughcuts", desc: "Let AI assemble a first-pass rough edit from your footage.", icon: RefreshCw },
       { id: "clipping",  grid: "clipping",  name: "Clipping",  desc: "Pull out the best moments for reels, shorts, and social posts.", icon: Scissors },
+      { id: "ytimport",  grid: "ytimport",  name: "Import Video", desc: "Import videos from YouTube, TikTok, Instagram, X, Vimeo, Twitch, and 1,800+ platforms via yt-dlp.", icon: Download },
     ],
   },
   {

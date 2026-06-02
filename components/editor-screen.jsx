@@ -40,6 +40,7 @@ import {
   Trash2,
   Type,
   Undo2,
+  Download,
   Upload,
   Volume2,
   VolumeX,
@@ -179,7 +180,8 @@ const toolsSections = [
     tools: [
       { id: "autodemo", name: "Autodemo", desc: "Auto-generate product demos", icon: Zap },
       { id: "roughcuts", name: "Roughcuts", desc: "AI-assembled rough edit", icon: Scissors },
-      { id: "clipping", name: "Clipping", desc: "Extract best moments", icon: Film },
+      { id: "clipping",  name: "Clipping",      desc: "Extract best moments", icon: Film },
+      { id: "ytimport", name: "Import Video",   desc: "Import from YouTube, TikTok, Vimeo, and 1,800+ platforms", icon: Download },
     ],
   },
   {

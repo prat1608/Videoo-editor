@@ -1926,6 +1926,8 @@ svg {
   bottom: calc(100% + 8px);
   left: 0;
   min-width: 120px;
+  max-height: 260px;
+  overflow-y: auto;
   background: var(--theme-background-z1);
   border: 0.6px solid var(--border);
   border-radius: 12px;
@@ -4380,6 +4382,7 @@ svg {
   flex: 1;
   overflow-x: auto;
   scrollbar-width: none;
+  margin-left: 8px;
 }
 
 .home-image-settings::-webkit-scrollbar {
@@ -7526,6 +7529,17 @@ svg {
   background: rgba(255, 255, 255, 0.18);
   border-color: rgba(255, 255, 255, 0.4);
 }
+
+/* ── yt-import card overlays ─────────────────────────────────── */
+
+
+
+.gen-filter-pill.is-active {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.28);
+  color: #fff;
+}
+
 
 /* ── Trending video card popover (motion.so style) ───────────── */
 

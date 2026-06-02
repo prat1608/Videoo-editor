@@ -32,6 +32,9 @@ import {
   Search,
   SlidersHorizontal,
   Smile,
+  Download,
+  Film,
+  Globe,
   X,
   Play,
   Pause,
@@ -142,6 +145,38 @@ const homeAimgTemplates = [
 ];
 
 
+
+const PLATFORM_LOGOS = {
+  "YouTube":     <img src="https://cdn.simpleicons.org/youtube" width="14" height="14" alt="YouTube" style={{ display: "block", flexShrink: 0 }} />,
+  "TikTok":      <img src="https://cdn.simpleicons.org/tiktok/ffffff" width="14" height="14" alt="TikTok" style={{ display: "block", flexShrink: 0 }} />,
+  "Instagram":   <img src="https://cdn.simpleicons.org/instagram" width="14" height="14" alt="Instagram" style={{ display: "block", flexShrink: 0 }} />,
+  "Facebook":    <img src="https://cdn.simpleicons.org/facebook" width="14" height="14" alt="Facebook" style={{ display: "block", flexShrink: 0 }} />,
+  "X / Twitter": <img src="https://cdn.simpleicons.org/x/ffffff" width="14" height="14" alt="X" style={{ display: "block", flexShrink: 0 }} />,
+  "Vimeo":       <img src="https://cdn.simpleicons.org/vimeo" width="14" height="14" alt="Vimeo" style={{ display: "block", flexShrink: 0 }} />,
+  "Twitch":      <img src="https://cdn.simpleicons.org/twitch" width="14" height="14" alt="Twitch" style={{ display: "block", flexShrink: 0 }} />,
+  "Reddit":      <img src="https://cdn.simpleicons.org/reddit" width="14" height="14" alt="Reddit" style={{ display: "block", flexShrink: 0 }} />,
+  "Kick":        <img src="https://cdn.simpleicons.org/kick" width="14" height="14" alt="Kick" style={{ display: "block", flexShrink: 0 }} />,
+  "Dailymotion": <img src="https://cdn.simpleicons.org/dailymotion" width="14" height="14" alt="Dailymotion" style={{ display: "block", flexShrink: 0 }} />,
+  "LinkedIn":    <img src="https://cdn.simpleicons.org/linkedin" width="14" height="14" alt="LinkedIn" style={{ display: "block", flexShrink: 0 }} />,
+  "Bilibili":    <img src="https://cdn.simpleicons.org/bilibili" width="14" height="14" alt="Bilibili" style={{ display: "block", flexShrink: 0 }} />,
+  "SoundCloud":  <img src="https://cdn.simpleicons.org/soundcloud" width="14" height="14" alt="SoundCloud" style={{ display: "block", flexShrink: 0 }} />,
+};
+
+const ytImportSampleVideos = [
+  { id: "yt-1",  name: "Notion Product Walkthrough",  platform: "YouTube",     channel: "Notion HQ",          views: "2.1M", duration: "0:15",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-notion.mp4" },
+  { id: "yt-2",  name: "Dribbble Design Reel",        platform: "Vimeo",       channel: "Dribbble",           views: "3.4M", duration: "0:20",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-dribbble.mp4" },
+  { id: "yt-3",  name: "Stripe Payments Demo",        platform: "YouTube",     channel: "Stripe",             views: "1.8M", duration: "0:25",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-stripe.mp4" },
+  { id: "yt-4",  name: "Raycast App Spotlight",       platform: "TikTok",      channel: "@raycastapp",        views: "5.6M", duration: "0:15",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-raycast.mp4" },
+  { id: "yt-5",  name: "Fitness App Reveal",          platform: "Instagram",   channel: "@fittech",           views: "920K", duration: "0:05",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/primitives/fitness-app-showcase/renders/fitness-app-showcase.mp4" },
+  { id: "yt-6",  name: "Spotify Bento Grid",          platform: "X / Twitter", channel: "@spotify",           views: "4.2M", duration: "0:26",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/compositions/spotify-bento/renders/spotify-bento.mp4" },
+  { id: "yt-7",  name: "X Post Overlay Pack",         platform: "Twitch",      channel: "DesignStream",       views: "183K", duration: "0:04",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/overlays/x-post-overlay/renders/x-post-overlay.mp4" },
+  { id: "yt-8",  name: "UI 3D Perspective Reveal",    platform: "Vimeo",       channel: "MotionLab",          views: "256K", duration: "0:13",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/primitives/ui-3d-reveal/renders/ui-3d-reveal.mp4" },
+  { id: "yt-9",  name: "Notion Dark Mode Tour",       platform: "YouTube",     channel: "ProductHunt",        views: "3.8M", duration: "0:15",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-notion.mp4" },
+  { id: "yt-10", name: "Design System Showcase",      platform: "Reddit",      channel: "r/design",           views: "611K", duration: "0:20",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-dribbble.mp4" },
+  { id: "yt-11", name: "Stripe Checkout Flow",        platform: "LinkedIn",    channel: "Stripe Engineering", views: "445K", duration: "0:25",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-stripe.mp4" },
+  { id: "yt-12", name: "Dev Tools Speed Run",         platform: "Kick",        channel: "CodeStream",         views: "87K",  duration: "0:15",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-raycast.mp4" },
+];
+
 const TOOL_SUGGESTION_CONFIG = {
   video:      { icon: Video,        label: "Generate Video",     slug: "generate-video" },
   image:      { icon: ImageUp,      label: "Generate Image",     slug: "generate-image" },
@@ -151,6 +186,7 @@ const TOOL_SUGGESTION_CONFIG = {
   autodemo:   { icon: Clapperboard, label: "Auto Demo",          slug: "autodemo" },
   roughcuts:  { icon: RefreshCw,    label: "Rough Cuts",         slug: "roughcuts" },
   clipping:   { icon: Scissors,     label: "Clipping",           slug: "clipping" },
+  ytimport:   { icon: Download,     label: "Import Video",       slug: "ytimport" },
 };
 
 const imageModels = ["Imagen 4", "Flux 1.1 Pro", "DALL·E 3", "Stable Diffusion 3.5"];
@@ -175,6 +211,14 @@ const voiceoverModels = ["ElevenLabs", "OpenAI TTS", "Cartesia"];
 const voiceOptions = ["Nova", "Onyx", "Alloy", "Echo", "Fable", "Shimmer"];
 const speedOptions = ["0.75x", "1x", "1.25x", "1.5x"];
 const languageOptions = ["English", "Spanish", "French", "German"];
+
+const ytimportPlatforms = [
+  "Any URL","YouTube","TikTok","Instagram","Facebook","X / Twitter",
+  "Vimeo","Twitch","Reddit","Kick","Dailymotion","LinkedIn","Pinterest",
+  "Snapchat","Rumble","Streamable","Loom","Bilibili","SoundCloud",
+];
+const ytimportQualityOptions = ["Best Available", "4K", "1080p", "720p", "480p", "360p"];
+const ytimportFormatOptions  = ["MP4", "WebM", "MKV"];
 
 
 const modelProviders = [
@@ -242,6 +286,8 @@ export default function HomeScreen() {
   const [audioSettings, setAudioSettings] = useState({ model: "Suno v4", mood: "Cinematic", duration: "30s", quality: "HD" });
   const [sfxSettings, setSfxSettings] = useState({ model: "ElevenLabs SFX", duration: "3s" });
   const [voiceoverSettings, setVoiceoverSettings] = useState({ model: "ElevenLabs", voice: "Nova", speed: "1x", language: "English" });
+  const [ytimportSettings, setYtimportSettings] = useState({ platform: "Any URL", quality: "Best Available", format: "MP4" });
+  function setYtimportSetting(key, value) { setYtimportSettings((s) => ({ ...s, [key]: value })); }
   const [playingId, setPlayingId] = useState(null);
   const [activeVideoCard, setActiveVideoCard] = useState(null);
   const [activeImageCard, setActiveImageCard] = useState(null);
@@ -252,6 +298,7 @@ export default function HomeScreen() {
   const [videoSearch, setVideoSearch] = useState("");
   const [audioSearch, setAudioSearch] = useState("");
   const [aimgSearch, setAimgSearch] = useState("");
+  const [ytimportSearch, setYtimportSearch] = useState("");
 
   const [imageErrorVisible, setImageErrorVisible] = useState(false);
   const hasPromptText = prompt.trim().length > 0;
@@ -294,7 +341,8 @@ export default function HomeScreen() {
     const autodemoMatch  = /\bauto\s*demo\b|\b(create|generate|make)\s+(?:a\s+)?(?:product\s+)?demo\b|\bdemo\s+video\b|\/autodemo\b/i.test(prompt);
     const roughcutsMatch = /\brough\s*cuts?\b|\b(create|make|assemble)\s+(?:a\s+)?(?:rough|first)\s+cut\b|\/roughcuts\b/i.test(prompt);
     const clippingMatch  = /\b(create|make|generate|extract)\s+(?:short\s+|social\s+)?clips?\b|\bclipping\b|\bhighlight\s+(?:reel|clips?)\b|\/clipping\b/i.test(prompt);
-    const detected = videoMatch ? "video" : imageMatch ? "image" : voiceoverMatch ? "voiceover" : audioMatch ? "audio" : sfxMatch ? "sfx" : autodemoMatch ? "autodemo" : roughcutsMatch ? "roughcuts" : clippingMatch ? "clipping" : null;
+    const ytimportMatch  = /\b(import|download)\s+(?:a\s+)?video\b|\byt-?dlp\b|\bimport\s+from\s+(?:youtube|tiktok|instagram|twitter|vimeo|twitch)\b|\/ytimport\b/i.test(prompt);
+    const detected = videoMatch ? "video" : imageMatch ? "image" : voiceoverMatch ? "voiceover" : audioMatch ? "audio" : sfxMatch ? "sfx" : autodemoMatch ? "autodemo" : roughcutsMatch ? "roughcuts" : clippingMatch ? "clipping" : ytimportMatch ? "ytimport" : null;
     if (detected !== promptSuggestion) {
       setPromptSuggestion(detected);
       setSuggestionDismissed(false);
@@ -428,6 +476,11 @@ export default function HomeScreen() {
                   { key: "vo-voice",    icon: Mic,        activeValue: voiceoverSettings.voice,    options: voiceOptions,    onSelect: (v) => setVoiceoverSetting("voice", v) },
                   { key: "vo-speed",    icon: Gauge,      activeValue: voiceoverSettings.speed,    options: speedOptions,    onSelect: (v) => setVoiceoverSetting("speed", v) },
                   { key: "vo-language", icon: LayoutGrid, activeValue: voiceoverSettings.language, options: languageOptions, onSelect: (v) => setVoiceoverSetting("language", v) },
+                ],
+                ytimport: [
+                  { key: "yt-platform", icon: Globe,    activeValue: ytimportSettings.platform, options: ytimportPlatforms,      onSelect: (v) => setYtimportSetting("platform", v) },
+                  { key: "yt-quality",  icon: Sparkles, activeValue: ytimportSettings.quality,  options: ytimportQualityOptions, onSelect: (v) => setYtimportSetting("quality", v) },
+                  { key: "yt-format",   icon: Film,     activeValue: ytimportSettings.format,   options: ytimportFormatOptions,  onSelect: (v) => setYtimportSetting("format", v) },
                 ],
               }}
               renderModelSelector={() => (
@@ -756,6 +809,71 @@ export default function HomeScreen() {
           </div>
         )}
 
+        {activeGrid === "ytimport" && (
+          <div className="home-style-grid-wrap">
+            <div className="gen-section-header">
+              <h2 className="image-style-title">Browse &amp; Import</h2>
+              <div className="gen-filter-bar">
+                <div className="gen-filter-pills">
+                  {["Any URL", "YouTube", "TikTok", "Instagram", "Vimeo", "Twitch"].map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      className={cn("gen-filter-pill", ytimportSettings.platform === p && "is-active")}
+                      onClick={() => setYtimportSetting("platform", p)}
+                    >
+                      {PLATFORM_LOGOS[p] ?? null}
+                      {p}
+                    </button>
+                  ))}
+                </div>
+                <div className="gen-search-right">
+                  <div className="gen-search-wrap">
+                    <Search size={13} />
+                    <input
+                      className="gen-search-input"
+                      placeholder="Search by title, platform or channel"
+                      value={ytimportSearch}
+                      onChange={(e) => setYtimportSearch(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="home-aimg-grid">
+              {ytImportSampleVideos
+                .filter((v) =>
+                  (ytimportSettings.platform === "Any URL" || v.platform === ytimportSettings.platform) &&
+                  (!ytimportSearch || v.name.toLowerCase().includes(ytimportSearch.toLowerCase()) || v.channel.toLowerCase().includes(ytimportSearch.toLowerCase()))
+                )
+                .map((vid, i) => (
+                  <div
+                    key={vid.id}
+                    role="button"
+                    tabIndex={0}
+                    className="aimg-template-card"
+                    style={{ animationDelay: `${i * 40}ms` }}
+                  >
+                    <div className="aimg-card-visual">
+                      <video src={vid.src} muted loop playsInline autoPlay className="aimg-card-video" />
+                      <div className="aimg-card-hover-overlay">
+                        <p className="aimg-card-hover-prompt">{vid.name}</p>
+                        <Link
+                          href="/editor"
+                          className="aimg-card-try-btn"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Download size={11} />
+                          Import
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
         {!hasPromptText && (
           <div className="home-main-inner home-main-inner--projects">
             <div className="home-projects-section">
@@ -806,6 +924,7 @@ export default function HomeScreen() {
             </div>
           </div>
         )}
+
       </main>
 
       {activeVideoCard && createPortal(

@@ -200,6 +200,7 @@ export function PromptBox({
                 autodemo:  "Auto Demo",
                 roughcuts: "Rough Cuts",
                 clipping:  "Clipping",
+                ytimport:  "Import Video",
                 aimg:      "AI Motion Graphics",
                 trim:      "Trim",
                 merge:     "Merge",
