@@ -33,6 +33,8 @@ import {
   SlidersHorizontal,
   Smile,
   X,
+  Play,
+  Pause,
 } from "lucide-react";
 import { PromptBox } from "@/components/prompt-box";
 import { HomeSidebar } from "@/components/home-sidebar";
@@ -869,6 +871,7 @@ export default function HomeScreen() {
                   onClick={() => {
                     setPrompt(activeVideoCard.prompt);
                     setActiveVideoCard(null);
+                    promptCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
                   }}
                 >
                   Use Prompt
@@ -912,7 +915,7 @@ export default function HomeScreen() {
                   <span className="trending-meta-label">CREATED</span>
                   <span className="trending-meta-date">{activeImageCard.created}</span>
                 </div>
-                <button type="button" className="trending-meta-use" onClick={() => { setPrompt(activeImageCard.prompt); setActiveImageCard(null); }}>Use Prompt</button>
+                <button type="button" className="trending-meta-use" onClick={() => { setPrompt(activeImageCard.prompt); setActiveImageCard(null); promptCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }); }}>Use Prompt</button>
               </div>
             </div>
           </div>
@@ -924,8 +927,26 @@ export default function HomeScreen() {
       {activeAudioCard && createPortal(
         <div className="trending-popover-backdrop" onClick={() => setActiveAudioCard(null)} onKeyDown={(e) => e.key === "Escape" && setActiveAudioCard(null)}>
           <div className="trending-popover" onClick={(e) => e.stopPropagation()}>
-            <div className="trending-popover-audio">
+            <div className={cn("trending-popover-audio", playingId === activeAudioCard.id && "is-playing")}>
               <img src={activeAudioCard.img} alt={activeAudioCard.title} className="trending-popover-audio-art" />
+              <div className="ga-scard-dim" />
+              {playingId === activeAudioCard.id && (
+                <div className="ga-scard-vinyl">
+                  <div className="ga-scard-vinyl-disc">
+                    <div className="ga-scard-vinyl-label">
+                      <img src={activeAudioCard.img} alt={activeAudioCard.title} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <button
+                type="button"
+                className="ga-scard-play-btn"
+                aria-label={playingId === activeAudioCard.id ? "Pause" : "Play"}
+                onClick={(e) => { e.stopPropagation(); setPlayingId((p) => p === activeAudioCard.id ? null : activeAudioCard.id); }}
+              >
+                {playingId === activeAudioCard.id ? <Pause /> : <Play />}
+              </button>
             </div>
             <div className="trending-popover-meta">
               <button type="button" className="trending-popover-close" onClick={() => setActiveAudioCard(null)} aria-label="Close"><X size={14} /></button>
@@ -970,7 +991,7 @@ export default function HomeScreen() {
                   <span className="trending-meta-label">CREATED</span>
                   <span className="trending-meta-date">{activeAudioCard.created}</span>
                 </div>
-                <button type="button" className="trending-meta-use" onClick={() => { setPrompt(activeAudioCard.prompt); setActiveAudioCard(null); }}>Use Prompt</button>
+                <button type="button" className="trending-meta-use" onClick={() => { setPrompt(activeAudioCard.prompt); setActiveAudioCard(null); promptCardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }); }}>Use Prompt</button>
               </div>
             </div>
           </div>

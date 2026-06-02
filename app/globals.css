@@ -7725,13 +7725,43 @@ svg {
 
 .trending-popover-audio {
   width: 300px;
-  height: 300px;
   flex-shrink: 0;
-  aspect-ratio: 1 / 1;
   border-radius: 16px;
   overflow: hidden;
   background: #0a0a0a;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+
+.trending-popover-audio .ga-scard-dim {
+  opacity: 1;
+}
+
+.trending-popover-audio .ga-scard-play-btn {
+  opacity: 1;
+  transform: scale(1);
+  border: none;
+  cursor: pointer;
+  width: 56px;
+  height: 56px;
+}
+
+.trending-popover-audio .ga-scard-play-btn:hover {
+  transform: scale(1.08);
+}
+
+.trending-popover-audio .ga-scard-play-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.trending-popover-audio.is-playing .ga-scard-play-btn {
+  z-index: 3;
+  opacity: 0;
+}
+
+.trending-popover-audio.is-playing:hover .ga-scard-play-btn {
+  opacity: 1;
 }
 
 .trending-popover-audio-art {
