@@ -29,6 +29,9 @@ import {
   Gauge,
   Mic,
   Repeat,
+  Search,
+  SlidersHorizontal,
+  Smile,
   X,
 } from "lucide-react";
 import { PromptBox } from "@/components/prompt-box";
@@ -136,6 +139,7 @@ const homeAimgTemplates = [
     prompt: "Cinematic UI perspective reveal, interface begins at rotateX(38deg) rotateY(-12deg) scale(0.78) with deep-blue #1E3A5F to violet #7C3AED gradient background, transitions to flat orthographic over 1.4s with perspective(1200px) ease-out, sequential layer pop-ins at 120ms offsets each with subtle depth-shadow, ambient iridescent light sweep across the surface at frame 60, 8px corner radius on panels, Inter 500 labels, 1920×1080, 24fps, 13-second sequence." },
 ];
 
+
 const TOOL_SUGGESTION_CONFIG = {
   video:      { icon: Video,        label: "Generate Video",     slug: "generate-video" },
   image:      { icon: ImageUp,      label: "Generate Image",     slug: "generate-image" },
@@ -241,13 +245,11 @@ export default function HomeScreen() {
   const [activeImageCard, setActiveImageCard] = useState(null);
   const [activeAudioCard, setActiveAudioCard] = useState(null);
   const [activeAimgCard, setActiveAimgCard] = useState(null);
-  const [aimgCategoryFilter, setAimgCategoryFilter] = useState("All");
-  const [videoCurationFilter, setVideoCurationFilter] = useState("All");
-  const [musicTagFilter, setMusicTagFilter] = useState("All");
 
-  const aimgCategories = ["All", ...Array.from(new Set(homeAimgTemplates.map((t) => t.category)))];
-  const videoCurations = ["All", ...Array.from(new Set(homeVideoClips.map((v) => v.curation)))];
-  const musicTags = ["All", ...Array.from(new Set(MUSIC_SHOWCASE.map((m) => m.tag)))];
+  const [imageSearch, setImageSearch] = useState("");
+  const [videoSearch, setVideoSearch] = useState("");
+  const [audioSearch, setAudioSearch] = useState("");
+  const [aimgSearch, setAimgSearch] = useState("");
 
   const [imageErrorVisible, setImageErrorVisible] = useState(false);
   const hasPromptText = prompt.trim().length > 0;
@@ -555,8 +557,22 @@ export default function HomeScreen() {
 
         {activeGrid === "image" && (
           <div className="home-style-grid-wrap">
-            <div className="home-gen-text-header">
-              <span className="image-style-title">Trending: 2026 picks</span>
+            <div className="gen-section-header">
+              <h2 className="image-style-title">Explore Styles</h2>
+              <div className="gen-filter-bar">
+                <div className="gen-filter-pills">
+                  <button type="button" className="gen-filter-pill"><LayoutGrid size={13} /> Style <ChevronDown size={11} /></button>
+                  <button type="button" className="gen-filter-pill"><Music4 size={13} /> Model <ChevronDown size={11} /></button>
+                  <button type="button" className="gen-filter-pill"><RectangleHorizontal size={13} /> Ratio <ChevronDown size={11} /></button>
+                </div>
+                <div className="gen-search-right">
+                  <div className="gen-search-wrap">
+                    <Search size={13} />
+                    <input className="gen-search-input" placeholder="Search by title, style or description" value={imageSearch} onChange={e => setImageSearch(e.target.value)} />
+                  </div>
+                  <button type="button" className="gen-filters-btn"><SlidersHorizontal size={13} /> Filters</button>
+                </div>
+              </div>
             </div>
             <div className="home-image-style-grid">
               {homeImageStyles.map((style, i) => (
@@ -586,24 +602,25 @@ export default function HomeScreen() {
 
         {activeGrid === "video" && (
           <div className="home-style-grid-wrap">
-            <div className="home-gen-text-header">
-              <span className="image-style-title">For You</span>
-            </div>
-            <div className="aimg-tabs">
-              {videoCurations.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  className={cn("aimg-tab", videoCurationFilter === c && "is-active")}
-                  onClick={() => setVideoCurationFilter(c)}
-                >
-                  {c}
-                </button>
-              ))}
+            <div className="gen-section-header">
+              <h2 className="image-style-title">Explore Videos</h2>
+              <div className="gen-filter-bar">
+                <div className="gen-filter-pills">
+                  <button type="button" className="gen-filter-pill"><LayoutGrid size={13} /> Style <ChevronDown size={11} /></button>
+                  <button type="button" className="gen-filter-pill"><Clock size={13} /> Duration <ChevronDown size={11} /></button>
+                  <button type="button" className="gen-filter-pill"><RectangleHorizontal size={13} /> Ratio <ChevronDown size={11} /></button>
+                </div>
+                <div className="gen-search-right">
+                  <div className="gen-search-wrap">
+                    <Search size={13} />
+                    <input className="gen-search-input" placeholder="Search by title, style or description" value={videoSearch} onChange={e => setVideoSearch(e.target.value)} />
+                  </div>
+                  <button type="button" className="gen-filters-btn"><SlidersHorizontal size={13} /> Filters</button>
+                </div>
+              </div>
             </div>
             <div className="home-aimg-grid">
               {homeVideoClips
-                .filter((v) => videoCurationFilter === "All" || v.curation === videoCurationFilter)
                 .map((vid, i) => (
                   <div
                     key={vid.name}
@@ -636,27 +653,29 @@ export default function HomeScreen() {
 
         {activeGrid === "audio" && (
           <div className="home-style-grid-wrap">
-            <div className="home-gen-text-header">
-              <span className="image-style-title">Vibe on them</span>
+            <div className="gen-section-header">
+              <h2 className="image-style-title">Explore Audio</h2>
+              <div className="gen-filter-bar">
+                <div className="gen-filter-pills">
+                  <button type="button" className="gen-filter-pill"><Music4 size={13} /> Genre <ChevronDown size={11} /></button>
+                  <button type="button" className="gen-filter-pill"><Mic size={13} /> Instrument <ChevronDown size={11} /></button>
+                  <button type="button" className="gen-filter-pill"><Smile size={13} /> Mood <ChevronDown size={11} /></button>
+                </div>
+                <div className="gen-search-right">
+                  <div className="gen-search-wrap">
+                    <Search size={13} />
+                    <input className="gen-search-input" placeholder="Search by title, genre or description" value={audioSearch} onChange={e => setAudioSearch(e.target.value)} />
+                  </div>
+                  <button type="button" className="gen-filters-btn"><SlidersHorizontal size={13} /> Filters</button>
+                </div>
+              </div>
             </div>
-            <div className="aimg-tabs">
-              {musicTags.map((tag) => (
-                <button
-                  key={tag}
-                  type="button"
-                  className={cn("aimg-tab", musicTagFilter === tag && "is-active")}
-                  onClick={() => setMusicTagFilter(tag)}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
+            <h2 className="image-style-title" style={{ marginBottom: "14px" }}>Vibe on them</h2>
             <div
               className="ga-scard-grid"
               style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: "14px" }}
             >
               {MUSIC_SHOWCASE
-                .filter((m) => musicTagFilter === "All" || m.tag === musicTagFilter)
                 .map((item) => (
                   <ShowcaseCard
                     key={item.id}
@@ -686,24 +705,25 @@ export default function HomeScreen() {
 
         {activeGrid === "aimg" && (
           <div className="home-style-grid-wrap">
-            <div className="home-gen-text-header">
-              <span className="image-style-title">Start with an example</span>
-            </div>
-            <div className="aimg-tabs">
-              {aimgCategories.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  className={cn("aimg-tab", aimgCategoryFilter === cat && "is-active")}
-                  onClick={() => setAimgCategoryFilter(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
+            <div className="gen-section-header">
+              <h2 className="image-style-title">Start with an example</h2>
+              <div className="gen-filter-bar">
+                <div className="gen-filter-pills">
+                  <button type="button" className="gen-filter-pill"><LayoutGrid size={13} /> Category <ChevronDown size={11} /></button>
+                  <button type="button" className="gen-filter-pill"><Clock size={13} /> Duration <ChevronDown size={11} /></button>
+                  <button type="button" className="gen-filter-pill"><Sparkles size={13} /> Style <ChevronDown size={11} /></button>
+                </div>
+                <div className="gen-search-right">
+                  <div className="gen-search-wrap">
+                    <Search size={13} />
+                    <input className="gen-search-input" placeholder="Search templates, styles or categories" value={aimgSearch} onChange={e => setAimgSearch(e.target.value)} />
+                  </div>
+                  <button type="button" className="gen-filters-btn"><SlidersHorizontal size={13} /> Filters</button>
+                </div>
+              </div>
             </div>
             <div className="home-aimg-grid">
               {homeAimgTemplates
-                .filter((t) => aimgCategoryFilter === "All" || t.category === aimgCategoryFilter)
                 .map((tmpl, i) => (
                   <div
                     key={tmpl.id}

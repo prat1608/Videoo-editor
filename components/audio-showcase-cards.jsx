@@ -417,7 +417,7 @@ export function MarketplaceView({ mode, items, playingId, onPlayToggle, onSelect
       <h2 className="image-style-title">For Every Mood</h2>
 
       {/* Category cards */}
-      <div className="ga-market-cats-wrap">
+      <div className="ga-market-cats-wrap mt-5">
         <div className="ga-market-cats" ref={catsRef}>
           {categories.map(cat => (
             <button key={cat.label} type="button" className="ga-market-cat">
