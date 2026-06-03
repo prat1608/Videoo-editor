@@ -9,19 +9,20 @@ import {
   BookOpen,
   ChevronDown,
   Clapperboard,
-  Download,
   FilePlus2,
   Film,
   Headphones,
   ImageUp,
   Layers,
+  ListVideo,
   Mic,
+  Monitor,
+  MonitorPlay,
   Music4,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
-  RefreshCw,
-  Scissors,
+  ScissorsLineDashed,
   Settings2,
   Sparkles,
   Video,
@@ -47,11 +48,17 @@ const toolsAndSkillsMenu = [
     group: "Skills",
     items: [
       { key: "autodemo",  label: "Autodemo",  icon: Clapperboard },
-      { key: "roughcuts", label: "Roughcuts", icon: RefreshCw },
-      { key: "clipping",  label: "Clipping",  icon: Scissors },
-      { key: "ytimport",  label: "Import Video", icon: Download },
+      { key: "roughcuts", label: "Roughcuts", icon: ScissorsLineDashed },
+      { key: "clipping",  label: "Clipping",  icon: ListVideo },
     ],
   },
+];
+
+const recordSourceMenu = [
+  { key: "audio", label: "Audio", icon: Mic },
+  { key: "camera", label: "Camera", icon: Video },
+  { key: "screen", label: "Screen", icon: Monitor },
+  { key: "screen-camera", label: "Screen + Camera", icon: MonitorPlay },
 ];
 
 const sidebarRecentProjects = [
@@ -68,28 +75,51 @@ const sidebarRecentProjects = [
   { id: 11, title: "Social Media Clip Cr...", color: "#1a1a2a" },
 ];
 
+const TOOLS_POPOVER_GAP = 16;
+
 export function HomeSidebar({ activePath = "/", onToolSelect }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [spacesOpen, setSpacesOpen] = useState(true);
+  const [recordPopoverOpen, setRecordPopoverOpen] = useState(false);
+  const [recordPopoverPos, setRecordPopoverPos] = useState({ top: 96, left: 256 });
   const [toolsPopoverOpen, setToolsPopoverOpen] = useState(false);
   const [toolsPopoverPos, setToolsPopoverPos] = useState({ top: 150, left: 256 });
 
+  const recordTriggerRef = useRef(null);
+  const recordPopoverRef = useRef(null);
   const toolsTriggerRef = useRef(null);
   const toolsPopoverRef = useRef(null);
 
   useEffect(() => {
-    if (!toolsPopoverOpen) return;
+    if (!recordPopoverOpen && !toolsPopoverOpen) return;
     function handleClickOutside(e) {
       if (
+        !recordTriggerRef.current?.contains(e.target) &&
+        !recordPopoverRef.current?.contains(e.target) &&
         !toolsTriggerRef.current?.contains(e.target) &&
         !toolsPopoverRef.current?.contains(e.target)
       ) {
+        setRecordPopoverOpen(false);
         setToolsPopoverOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [toolsPopoverOpen]);
+  }, [recordPopoverOpen, toolsPopoverOpen]);
+
+  function openRecordPopover() {
+    if (recordPopoverOpen) {
+      setRecordPopoverOpen(false);
+      return;
+    }
+    const rect = recordTriggerRef.current?.getBoundingClientRect();
+    setRecordPopoverPos({
+      top: rect?.top ?? 96,
+      left: (rect?.right ?? 220) + TOOLS_POPOVER_GAP,
+    });
+    setToolsPopoverOpen(false);
+    setRecordPopoverOpen(true);
+  }
 
   function openToolsPopover() {
     if (toolsPopoverOpen) {
@@ -99,9 +129,14 @@ export function HomeSidebar({ activePath = "/", onToolSelect }) {
     const rect = toolsTriggerRef.current?.getBoundingClientRect();
     setToolsPopoverPos({
       top: rect?.top ?? 150,
-      left: (rect?.right ?? 220) + 8,
+      left: (rect?.right ?? 220) + TOOLS_POPOVER_GAP,
     });
+    setRecordPopoverOpen(false);
     setToolsPopoverOpen(true);
+  }
+
+  function handleRecordSelect() {
+    setRecordPopoverOpen(false);
   }
 
   function handleToolSelect(key) {
@@ -129,7 +164,12 @@ export function HomeSidebar({ activePath = "/", onToolSelect }) {
           <span className="home-nav-icon"><FilePlus2 /></span>
           <span>New Project</span>
         </Link>
-        <button type="button" className="home-nav-item">
+        <button
+          ref={recordTriggerRef}
+          type="button"
+          className={cn("home-nav-item", recordPopoverOpen && "is-active")}
+          onClick={openRecordPopover}
+        >
           <span className="home-nav-icon"><Video /></span>
           <span>Record</span>
           <span className="home-nav-badge">New</span>
@@ -210,6 +250,36 @@ export function HomeSidebar({ activePath = "/", onToolSelect }) {
       </div>
 
     </aside>
+
+    {recordPopoverOpen && (
+      <div
+        ref={recordPopoverRef}
+        className="assets-popup home-record-popover"
+        style={{ position: "fixed", top: recordPopoverPos.top, left: recordPopoverPos.left }}
+      >
+        <div className="assets-popup-label">Record source</div>
+        {recordSourceMenu.map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            className="assets-popup-item"
+            onClick={handleRecordSelect}
+          >
+            <item.icon className="assets-popup-item-icon" />
+            <span>{item.label}</span>
+          </button>
+        ))}
+        <div className="assets-popup-sep" />
+        <button
+          type="button"
+          className="assets-popup-item"
+          onClick={handleRecordSelect}
+        >
+          <Settings2 className="assets-popup-item-icon" />
+          <span>Settings</span>
+        </button>
+      </div>
+    )}
 
     {toolsPopoverOpen && (
       <div

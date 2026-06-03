@@ -2,8 +2,50 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Check, ChevronDown, ImageUp, Mic, Monitor, MonitorPlay, Plus, Settings, SlidersHorizontal, Video, X } from "lucide-react";
+import { Bug, Check, ChevronDown, CircleAlert, CircleDot, ImageUp, Link as LinkIcon, ListChecks, Paperclip, Plus, SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const SUPPORTED_IMPORT_PLATFORMS = [
+  { label: "YouTube", domains: ["youtube.com", "youtu.be"] },
+  { label: "TikTok", domains: ["tiktok.com"] },
+  { label: "Instagram", domains: ["instagram.com"] },
+  { label: "Vimeo", domains: ["vimeo.com"] },
+  { label: "Twitch", domains: ["twitch.tv"] },
+  { label: "Loom", domains: ["loom.com"] },
+  { label: "Streamable", domains: ["streamable.com"] },
+  { label: "X / Twitter", domains: ["x.com", "twitter.com"] },
+  { label: "Facebook", domains: ["facebook.com", "fb.watch"] },
+];
+
+function getImportUrlStatus(value) {
+  const trimmed = value.trim();
+  if (!trimmed) return { state: "idle", message: "Paste a supported video link to start importing." };
+
+  let parsed;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    return { state: "invalid", message: "Enter a valid URL with http:// or https://." };
+  }
+
+  if (!["http:", "https:"].includes(parsed.protocol)) {
+    return { state: "invalid", message: "Only http:// and https:// links are supported." };
+  }
+
+  const hostname = parsed.hostname.replace(/^www\./, "").toLowerCase();
+  const platform = SUPPORTED_IMPORT_PLATFORMS.find((item) =>
+    item.domains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
+  );
+
+  if (!platform) {
+    return {
+      state: "unsupported",
+      message: "Supported links: YouTube, TikTok, Instagram, Vimeo, Twitch, Loom, Streamable, X, and Facebook.",
+    };
+  }
+
+  return { state: "ready", message: `${platform.label} link ready to import.`, platform: platform.label };
+}
 
 /**
  * Shared prompt box used on both the home screen and inside the editor chat panel.
@@ -38,6 +80,7 @@ import { cn } from "@/lib/utils";
  *
  * renderModelSelector  () => ReactNode
  * renderSendButton     () => ReactNode
+ * onImportFromUrl      (url: string) => void
  *
  * supportNarrow        boolean — enable narrow-mode settings trigger (editor)
  * renderSettingsContent () => ReactNode — settings dialog content for narrow mode
@@ -68,6 +111,7 @@ export function PromptBox({
 
   renderModelSelector,
   renderSendButton,
+  onImportFromUrl,
 
   supportNarrow = false,
   renderSettingsContent,
@@ -91,8 +135,14 @@ export function PromptBox({
   const [narrow, setNarrow] = useState(false);
   const [plusOpen, setPlusOpen] = useState(false);
   const [plusAnchorRect, setPlusAnchorRect] = useState(null);
+  const [planEnabled, setPlanEnabled] = useState(false);
+  const [debugModeEnabled, setDebugModeEnabled] = useState(false);
+  const [importUrlOpen, setImportUrlOpen] = useState(false);
+  const [importUrlValue, setImportUrlValue] = useState("");
+  const [importUrlTouched, setImportUrlTouched] = useState(false);
   const plusRef = useRef(null);
   const plusPopoverRef = useRef(null);
+  const importUrlInputRef = useRef(null);
 
   const isHome = variant === "home";
   const showImageGrid = activeGrid === "image";
@@ -139,16 +189,28 @@ export function PromptBox({
       if (!plusRef.current?.contains(e.target) && !plusPopoverRef.current?.contains(e.target)) {
         setPlusOpen(false);
         setPlusAnchorRect(null);
+        setImportUrlOpen(false);
+        setImportUrlValue("");
+        setImportUrlTouched(false);
       }
     }
     document.addEventListener("mousedown", handle);
     return () => document.removeEventListener("mousedown", handle);
   }, [plusOpen]);
 
+  useEffect(() => {
+    if (!importUrlOpen) return;
+    const id = requestAnimationFrame(() => importUrlInputRef.current?.focus());
+    return () => cancelAnimationFrame(id);
+  }, [importUrlOpen]);
+
   function togglePlus(e) {
     if (plusOpen) {
       setPlusOpen(false);
       setPlusAnchorRect(null);
+      setImportUrlOpen(false);
+      setImportUrlValue("");
+      setImportUrlTouched(false);
     } else {
       setPlusAnchorRect(e.currentTarget.getBoundingClientRect());
       setPlusOpen(true);
@@ -181,6 +243,100 @@ export function PromptBox({
 
   const hasModeChip = Boolean(activeGrid);
   const hasExtraChips = Boolean(extraChips);
+  const importUrlStatus = getImportUrlStatus(importUrlValue);
+  const canImportUrl = importUrlStatus.state === "ready";
+  const switchTrackStyle = {
+    position: "relative",
+    flexShrink: 0,
+    width: 28,
+    height: 18,
+    borderRadius: 999,
+    background: "rgba(255, 255, 255, 0.18)",
+    transition: "background 120ms ease",
+  };
+  const switchOnTrackStyle = {
+    ...switchTrackStyle,
+    background: "rgba(104, 109, 182, 0.85)",
+  };
+  const switchThumbStyle = {
+    position: "absolute",
+    top: 3,
+    left: 3,
+    width: 12,
+    height: 12,
+    borderRadius: "50%",
+    background: "#f4f4f5",
+    transition: "transform 120ms ease",
+  };
+  const importModalBackdropStyle = {
+    position: "fixed",
+    inset: 0,
+    zIndex: 10000,
+    display: "grid",
+    placeItems: "center",
+    padding: 20,
+    background: "rgba(0, 0, 0, 0.28)",
+  };
+  const importModalStyle = {
+    width: "min(560px, calc(100vw - 40px))",
+    borderRadius: 12,
+    background: "var(--theme-background-z1)",
+    border: "0.6px solid var(--border)",
+    boxShadow: "0 18px 46px rgba(0, 0, 0, 0.48)",
+    overflow: "hidden",
+  };
+  const importModalHeaderStyle = {
+    padding: "18px 20px 14px",
+    borderBottom: "0.6px solid var(--border)",
+  };
+  const importInputWrapStyle = {
+    margin: "18px 20px 0",
+    padding: "0 12px",
+    borderRadius: 10,
+    background: "rgba(0, 0, 0, 0.18)",
+    border: "0.6px solid rgba(255, 255, 255, 0.08)",
+    display: "block",
+  };
+  const importStatusStyle = {
+    margin: "0 20px",
+    color: importUrlStatus.state === "ready"
+      ? "#b0b3e8"
+      : ["invalid", "unsupported"].includes(importUrlStatus.state)
+        ? "#ff9b9b"
+        : "var(--text-dim)",
+  };
+  const importModalActionsStyle = {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: 10,
+    padding: "12px 20px 14px",
+    borderTop: "0.6px solid var(--border)",
+    background: "rgba(255, 255, 255, 0.018)",
+  };
+  const importCancelStyle = {
+    height: 36,
+    minWidth: 88,
+    padding: "0 16px",
+    borderRadius: 10,
+    border: "0.6px solid var(--border)",
+    background: "transparent",
+    color: "var(--text)",
+    fontSize: "0.86rem",
+    fontWeight: 650,
+    cursor: "pointer",
+  };
+  const importSubmitStyle = {
+    height: 36,
+    minWidth: 88,
+    padding: "0 16px",
+    border: canImportUrl ? 0 : "0.6px solid rgba(255, 255, 255, 0.08)",
+    borderRadius: 10,
+    background: canImportUrl ? "var(--primary)" : "rgba(255, 255, 255, 0.12)",
+    color: canImportUrl ? "#fafafa" : "rgba(250, 250, 250, 0.58)",
+    fontSize: "0.86rem",
+    fontWeight: 650,
+    cursor: canImportUrl ? "pointer" : "not-allowed",
+  };
 
   // Chips + refs + text input are scrollable in the editor; flat in home.
   const scrollableContent = (
@@ -516,32 +672,153 @@ export function PromptBox({
             zIndex: 9999,
           }}
         >
-          <div className="assets-popup-label">Record source</div>
-          {[
-            { Icon: Mic,         label: "Audio" },
-            { Icon: Video,       label: "Camera" },
-            { Icon: Monitor,     label: "Screen" },
-            { Icon: MonitorPlay, label: "Screen + Camera" },
-          ].map(({ Icon, label }) => (
-            <button
-              key={label}
-              type="button"
-              className="assets-popup-item"
-              onClick={() => { setPlusOpen(false); setPlusAnchorRect(null); }}
-            >
-              <Icon className="assets-popup-item-icon" />
-              <span>{label}</span>
-            </button>
-          ))}
-          <div className="assets-popup-sep" />
           <button
             type="button"
             className="assets-popup-item"
             onClick={() => { setPlusOpen(false); setPlusAnchorRect(null); }}
           >
-            <Settings className="assets-popup-item-icon" />
-            <span>Settings</span>
+            <Paperclip className="assets-popup-item-icon" />
+            <span>Attach media file</span>
           </button>
+          <button
+            type="button"
+            className="assets-popup-item"
+            onClick={() => { setPlusOpen(false); setPlusAnchorRect(null); }}
+          >
+            <CircleDot className="assets-popup-item-icon" />
+            <span>Record</span>
+          </button>
+          <button
+            type="button"
+            className="assets-popup-item"
+            onClick={() => {
+              setPlusOpen(false);
+              setPlusAnchorRect(null);
+              setImportUrlOpen(true);
+              setImportUrlTouched(false);
+            }}
+          >
+            <LinkIcon className="assets-popup-item-icon" />
+            <span>Import from URL</span>
+          </button>
+          <div className="assets-popup-sep" />
+          <button
+            type="button"
+            className="assets-popup-item assets-popup-toggle-item"
+            role="switch"
+            aria-checked={planEnabled}
+            onClick={() => setPlanEnabled((v) => !v)}
+          >
+            <ListChecks className="assets-popup-item-icon" />
+            <span style={{ flex: 1 }}>Plan</span>
+            <span
+              className={cn("assets-popup-switch", planEnabled && "is-on")}
+              style={planEnabled ? switchOnTrackStyle : switchTrackStyle}
+            >
+              <span
+                className="assets-popup-switch-thumb"
+                style={{
+                  ...switchThumbStyle,
+                  transform: planEnabled ? "translateX(10px)" : undefined,
+                }}
+              />
+            </span>
+          </button>
+          <button
+            type="button"
+            className="assets-popup-item assets-popup-toggle-item"
+            role="switch"
+            aria-checked={debugModeEnabled}
+            onClick={() => setDebugModeEnabled((v) => !v)}
+          >
+            <Bug className="assets-popup-item-icon" />
+            <span style={{ flex: 1 }}>Debug Mode</span>
+            <span
+              className={cn("assets-popup-switch", debugModeEnabled && "is-on")}
+              style={debugModeEnabled ? switchOnTrackStyle : switchTrackStyle}
+            >
+              <span
+                className="assets-popup-switch-thumb"
+                style={{
+                  ...switchThumbStyle,
+                  transform: debugModeEnabled ? "translateX(10px)" : undefined,
+                }}
+              />
+            </span>
+          </button>
+        </div>,
+        document.body
+      )}
+
+      {importUrlOpen && createPortal(
+        <div className="import-url-modal-backdrop" style={importModalBackdropStyle}>
+          <div className="import-url-modal" style={importModalStyle} role="dialog" aria-modal="true" aria-labelledby="import-url-title">
+            <div className="import-url-card-header" style={importModalHeaderStyle}>
+              <div className="import-url-card-title" id="import-url-title">
+                <LinkIcon />
+                <span>Import from URL</span>
+              </div>
+              <button
+                type="button"
+                className="import-url-close"
+                aria-label="Close import from URL"
+                onClick={() => {
+                  setImportUrlOpen(false);
+                  setImportUrlValue("");
+                  setImportUrlTouched(false);
+                }}
+              >
+                <X />
+              </button>
+            </div>
+            <form
+              className="import-url-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setImportUrlTouched(true);
+                if (!canImportUrl) return;
+                onImportFromUrl?.(importUrlValue.trim());
+                setImportUrlOpen(false);
+                setImportUrlValue("");
+                setImportUrlTouched(false);
+              }}
+            >
+              <div className={cn("import-url-input-wrap", importUrlTouched && importUrlStatus.state !== "ready" && importUrlStatus.state !== "idle" && "has-error")} style={importInputWrapStyle}>
+                <input
+                  ref={importUrlInputRef}
+                  type="url"
+                  className="import-url-input"
+                  placeholder="Paste video URL"
+                  value={importUrlValue}
+                  onChange={(e) => {
+                    setImportUrlValue(e.target.value);
+                    setImportUrlTouched(true);
+                  }}
+                />
+              </div>
+              <div className={cn("import-url-status", importUrlStatus.state)} style={importStatusStyle}>
+                {importUrlStatus.state === "ready" ? <Check /> : importUrlStatus.state !== "idle" ? <CircleAlert /> : null}
+                <span>{importUrlTouched || importUrlStatus.state === "ready" ? importUrlStatus.message : "Paste a supported video link to start importing."}</span>
+              </div>
+              <div className="import-url-modal-actions" style={importModalActionsStyle}>
+                <button
+                  type="button"
+                  className="import-url-cancel"
+                  style={importCancelStyle}
+                  onClick={() => {
+                    setImportUrlOpen(false);
+                    setImportUrlValue("");
+                    setImportUrlTouched(false);
+                  }}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="import-url-submit" style={importSubmitStyle} disabled={!canImportUrl}>
+                  Import
+                </button>
+              </div>
+            </form>
+          </div>
         </div>,
         document.body
       )}

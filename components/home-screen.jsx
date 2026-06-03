@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   ChevronDown,
@@ -259,6 +260,7 @@ const modelProviders = [
 ];
 
 export default function HomeScreen() {
+  const router = useRouter();
   const [prompt, setPrompt] = useState("");
   const [activeTab, setActiveTab] = useState("recent");
   const [modelOpen, setModelOpen] = useState(false);
@@ -573,6 +575,9 @@ export default function HomeScreen() {
                   <ArrowUp />
                 </button>
               )}
+              onImportFromUrl={(url) => {
+                router.push(`/editor?tool=ytimport&importUrl=${encodeURIComponent(url)}`);
+              }}
             />
           </div>
 

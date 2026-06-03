@@ -7,7 +7,9 @@ import { useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
   ArrowUpDown,
+  CheckCircle2,
   ChevronDown,
+  CircleAlert,
   Clock,
   Crop,
   CloudCheck,
@@ -82,6 +84,47 @@ const editorSuggestions = [
   { key: "music", label: "Create background music", icon: Music4 },
   { key: "reframe", label: "Reframe for 9:16", icon: Crop },
 ];
+
+const IMPORT_PLATFORMS = [
+  { label: "YouTube", domains: ["youtube.com", "youtu.be"] },
+  { label: "TikTok", domains: ["tiktok.com"] },
+  { label: "Instagram", domains: ["instagram.com"] },
+  { label: "Vimeo", domains: ["vimeo.com"] },
+  { label: "Twitch", domains: ["twitch.tv"] },
+  { label: "Loom", domains: ["loom.com"] },
+  { label: "Streamable", domains: ["streamable.com"] },
+  { label: "X / Twitter", domains: ["x.com", "twitter.com"] },
+  { label: "Facebook", domains: ["facebook.com", "fb.watch"] },
+];
+
+const IMPORT_STEPS = [
+  { key: "fetching", label: "Fetching media" },
+  { key: "preparing", label: "Preparing video" },
+  { key: "adding", label: "Adding to canvas" },
+];
+
+function detectImportPlatform(url) {
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+    return IMPORT_PLATFORMS.find((item) =>
+      item.domains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
+    )?.label ?? "URL";
+  } catch {
+    return "URL";
+  }
+}
+
+function shortenImportUrl(url) {
+  try {
+    const parsed = new URL(url);
+    const path = parsed.pathname.replace(/\/$/, "");
+    const displayPath = path && path !== "/" ? path : "";
+    const text = `${parsed.hostname.replace(/^www\./, "")}${displayPath}`;
+    return text.length > 34 ? `${text.slice(0, 31)}...` : text;
+  } catch {
+    return url.length > 34 ? `${url.slice(0, 31)}...` : url;
+  }
+}
 
 const imageStyles = [
   { name: "Illustration",   file: "Illustration.png"  },
@@ -627,10 +670,17 @@ export default function EditorScreen() {
   const searchParams = useSearchParams();
   const [activeGrid, setActiveGrid] = useState(null);
   const [selectedTools, setSelectedTools] = useState([]);
+  const [importJob, setImportJob] = useState(null);
+  const processedImportUrlRef = useRef(null);
 
   useEffect(() => {
     const tool = searchParams.get("tool");
     if (tool) setActiveGrid(tool);
+    const importUrl = searchParams.get("importUrl");
+    if (importUrl && processedImportUrlRef.current !== importUrl) {
+      processedImportUrlRef.current = importUrl;
+      startImportFromUrl(importUrl);
+    }
   }, [searchParams]);
   const [videoSettings, setVideoSettings] = useState({
     model: "Veo 3.1 Lite",
@@ -775,6 +825,49 @@ export default function EditorScreen() {
     if (chatPromptRef.current) chatPromptRef.current.textContent = "";
     setChatThreads((cur) => cur.map((t) => t.id === activeChatId ? { ...t, draft: "" } : t));
   }
+
+  function startImportFromUrl(url) {
+    const trimmedUrl = url.trim();
+    if (!trimmedUrl) return;
+    setRightPanelOpen(true);
+    setTimelineOpen(true);
+    setActiveGrid("ytimport");
+    setImportJob({
+      id: `import-${Date.now()}`,
+      url: trimmedUrl,
+      platform: detectImportPlatform(trimmedUrl),
+      displayUrl: shortenImportUrl(trimmedUrl),
+      status: "fetching",
+    });
+  }
+
+  function retryImportJob() {
+    if (!importJob?.url) return;
+    startImportFromUrl(importJob.url);
+  }
+
+  function removeImportJob() {
+    setImportJob(null);
+    if (activeGrid === "ytimport") setActiveGrid(null);
+  }
+
+  useEffect(() => {
+    if (!importJob || importJob.status === "complete" || importJob.status === "error") return;
+
+    const timers = [
+      setTimeout(() => setImportJob((job) => job?.id === importJob.id ? { ...job, status: "preparing" } : job), 900),
+      setTimeout(() => setImportJob((job) => job?.id === importJob.id ? { ...job, status: "adding" } : job), 1900),
+      setTimeout(() => {
+        setImportJob((job) => {
+          if (job?.id !== importJob.id) return job;
+          if (job.url.includes("simulate-error")) return { ...job, status: "error" };
+          return { ...job, status: "complete" };
+        });
+      }, 3100),
+    ];
+
+    return () => timers.forEach(clearTimeout);
+  }, [importJob?.id]);
   const visibleCollaborators = onlineCollaborators.slice(0, 3);
   const extraCollaboratorCount = Math.max(0, onlineCollaborators.length - visibleCollaborators.length);
 
@@ -1320,7 +1413,23 @@ export default function EditorScreen() {
                     >
                       <div className="infinite-grid" />
                       <div className="canvas-content">
-                        <div ref={canvasArtboardRef} className="canvas-artboard" aria-label="Canvas" />
+                        <div
+                          ref={canvasArtboardRef}
+                          className={cn("canvas-artboard", importJob && "has-import-job")}
+                          aria-label="Canvas"
+                        >
+                          {importJob && (
+                            <div className={cn("canvas-import-placeholder", importJob.status === "complete" && "is-complete", importJob.status === "error" && "is-error")}>
+                              <div className="canvas-import-icon">
+                                {importJob.status === "complete" ? <CheckCircle2 /> : importJob.status === "error" ? <CircleAlert /> : <LoaderCircle />}
+                              </div>
+                              <span className="canvas-import-title">
+                                {importJob.status === "complete" ? "Video added to canvas" : importJob.status === "error" ? "Import failed" : "Importing video..."}
+                              </span>
+                              <span className="canvas-import-source">{importJob.platform} · {importJob.displayUrl}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1456,10 +1565,18 @@ export default function EditorScreen() {
                         onPointerDown={startPlayheadDrag}
                       />
                       <div className="track upload-track">
-                        <Card className="upload-card">
-                          <Upload />
-                          <span>Upload Media</span>
-                        </Card>
+                        {importJob ? (
+                          <Card className={cn("timeline-import-card", importJob.status === "complete" && "is-complete", importJob.status === "error" && "is-error")}>
+                            {importJob.status === "complete" ? <CheckCircle2 /> : importJob.status === "error" ? <CircleAlert /> : <LoaderCircle />}
+                            <span>{importJob.status === "complete" ? "Imported video" : importJob.status === "error" ? "Import failed" : "Importing from URL"}</span>
+                            <small>{importJob.displayUrl}</small>
+                          </Card>
+                        ) : (
+                          <Card className="upload-card">
+                            <Upload />
+                            <span>Upload Media</span>
+                          </Card>
+                        )}
                       </div>
                     </div>
                   </CollapsibleContent>
@@ -1565,6 +1682,44 @@ export default function EditorScreen() {
 
                 <CollapsibleContent forceMount className="min-h-0 chat-panel-content">
                   <div className="chat-content-area">
+                    {importJob && (
+                      <div className={cn("import-process-card", importJob.status === "complete" && "is-complete", importJob.status === "error" && "is-error")}>
+                        <div className="import-process-card-top">
+                          <div className="import-process-icon">
+                            {importJob.status === "complete" ? <CheckCircle2 /> : importJob.status === "error" ? <CircleAlert /> : <LoaderCircle />}
+                          </div>
+                          <div className="import-process-copy">
+                            <h3>{importJob.status === "complete" ? "Added to canvas" : importJob.status === "error" ? "Import failed" : "Importing video from URL"}</h3>
+                            <p>{importJob.platform} · {importJob.displayUrl}</p>
+                          </div>
+                        </div>
+                        <div className="import-process-steps">
+                          {IMPORT_STEPS.map((step) => {
+                            const stepIndex = IMPORT_STEPS.findIndex((item) => item.key === step.key);
+                            const currentIndex = IMPORT_STEPS.findIndex((item) => item.key === importJob.status);
+                            const isDone = importJob.status === "complete" || currentIndex > stepIndex;
+                            const isActive = importJob.status === step.key;
+                            return (
+                              <div key={step.key} className={cn("import-process-step", isDone && "is-done", isActive && "is-active", importJob.status === "error" && "is-muted")}>
+                                <span className="import-process-step-dot" />
+                                <span>{step.label}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {importJob.status === "error" && (
+                          <div className="import-process-actions">
+                            <button type="button" onClick={retryImportJob}>Try again</button>
+                            <button type="button" onClick={removeImportJob}>Remove</button>
+                          </div>
+                        )}
+                        {importJob.status === "complete" && (
+                          <div className="import-process-actions">
+                            <button type="button" onClick={removeImportJob}>Remove</button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     {showVideoGrid && (
                       <div className="video-style-panel">
                         <div className="video-template-grid">
@@ -1829,6 +1984,7 @@ export default function EditorScreen() {
                           <span className="chat-send-rotator"><SendArrowGlyph /></span>
                         </Button>
                       )}
+                      onImportFromUrl={startImportFromUrl}
                       supportNarrow
                       renderSettingsContent={() => (
                         <>
