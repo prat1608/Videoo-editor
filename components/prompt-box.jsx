@@ -2,8 +2,38 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bug, Check, ChevronDown, CircleAlert, CircleDot, ImageUp, Link as LinkIcon, ListChecks, Paperclip, Plus, SlidersHorizontal, X } from "lucide-react";
+import { AudioLines, AudioWaveform, Bot, Check, CircleAlert, CircleDot, Clapperboard, Film, Headphones, Image, ImageUp, Layers, Link as LinkIcon, ListChecks, Mic, Mic2, Music2, Palette, Paperclip, Plus, SlidersHorizontal, Type, Volume2, Wand2, X, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const MODEL_LOGO_MAP = {
+  "Imagen 4":             Image,
+  "Veo 3.1 Lite":         Clapperboard,
+  "Veo 3.0":              Clapperboard,
+  "DALL·E 3":             Palette,
+  "OpenAI TTS":           AudioLines,
+  "Flux 1.1 Pro":         Zap,
+  "Stable Diffusion 3.5": Layers,
+  "Stability Audio":      AudioWaveform,
+  "Kling 1.6 Pro":        Film,
+  "Wan 2.1":              Wand2,
+  "Hailuo":               Bot,
+  "Suno v4":              Music2,
+  "Udio 2.0":             Headphones,
+  "MusicGen 2":           AudioWaveform,
+  "Audiocraft":           AudioWaveform,
+  "ElevenLabs":           Mic,
+  "ElevenLabs SFX":       Volume2,
+  "Cartesia":             Mic2,
+};
+
+const MODEL_CHIP_KEYS = new Set(["model", "img-model", "aud-model", "sfx-model", "vo-model"]);
+
+function ModelLogo({ model }) {
+  const Icon = MODEL_LOGO_MAP[model];
+  if (!Icon) return null;
+  return <Icon size={13} />;
+}
+import { DesignSystemModal } from "./design-system-modal";
 
 const SUPPORTED_IMPORT_PLATFORMS = [
   { label: "YouTube", domains: ["youtube.com", "youtu.be"] },
@@ -136,10 +166,12 @@ export function PromptBox({
   const [plusOpen, setPlusOpen] = useState(false);
   const [plusAnchorRect, setPlusAnchorRect] = useState(null);
   const [planEnabled, setPlanEnabled] = useState(false);
-  const [debugModeEnabled, setDebugModeEnabled] = useState(false);
+  const [designSystemOpen, setDesignSystemOpen] = useState(false);
   const [importUrlOpen, setImportUrlOpen] = useState(false);
   const [importUrlValue, setImportUrlValue] = useState("");
   const [importUrlTouched, setImportUrlTouched] = useState(false);
+  const [dsTheme, setDsTheme] = useState(null);
+  const [dsFont, setDsFont] = useState(null);
   const plusRef = useRef(null);
   const plusPopoverRef = useRef(null);
   const importUrlInputRef = useRef(null);
@@ -243,6 +275,7 @@ export function PromptBox({
 
   const hasModeChip = Boolean(activeGrid);
   const hasExtraChips = Boolean(extraChips);
+  const hasDsChips = Boolean(dsTheme || dsFont);
   const importUrlStatus = getImportUrlStatus(importUrlValue);
   const canImportUrl = importUrlStatus.state === "ready";
   const switchTrackStyle = {
@@ -341,9 +374,27 @@ export function PromptBox({
   // Chips + refs + text input are scrollable in the editor; flat in home.
   const scrollableContent = (
     <>
-      {/* Mode chip row + extra tool chips */}
-      {(hasModeChip || hasExtraChips) && (
+      {/* Mode chip row + extra tool chips + design system chips */}
+      {(hasModeChip || hasExtraChips || hasDsChips) && (
         <div className={c.chipRow}>
+          {dsTheme && (
+            <div className="chat-tool-chip">
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: dsTheme.bg, border: "1px solid rgba(255,255,255,0.18)", flexShrink: 0, marginRight: 3 }} />
+              <span>{dsTheme.name}</span>
+              <button type="button" className="chat-tool-chip-remove" aria-label="Remove theme" onClick={() => setDsTheme(null)}>
+                <X size={10} />
+              </button>
+            </div>
+          )}
+          {dsFont && (
+            <div className="chat-tool-chip">
+              <Type size={11} style={{ marginRight: 3, flexShrink: 0 }} />
+              <span>{dsFont.name}</span>
+              <button type="button" className="chat-tool-chip-remove" aria-label="Remove font" onClick={() => setDsFont(null)}>
+                <X size={10} />
+              </button>
+            </div>
+          )}
           {hasModeChip && (
             <div className="chat-tool-chip">
               <span>{{
@@ -605,9 +656,10 @@ export function PromptBox({
                       className={cn("video-gen-chip", openChip === chip.key && "is-active")}
                       onClick={(e) => toggleChip(chip.key, e)}
                     >
-                      <chip.icon size={13} />
+                      {MODEL_CHIP_KEYS.has(chip.key) && MODEL_LOGO_MAP[chip.activeValue]
+                        ? <ModelLogo model={chip.activeValue} />
+                        : <chip.icon size={13} />}
                       <span>{chip.activeValue}</span>
-                      <ChevronDown size={11} />
                     </button>
                   </div>
                 ))}
@@ -724,28 +776,16 @@ export function PromptBox({
               />
             </span>
           </button>
-          <button
-            type="button"
-            className="assets-popup-item assets-popup-toggle-item"
-            role="switch"
-            aria-checked={debugModeEnabled}
-            onClick={() => setDebugModeEnabled((v) => !v)}
-          >
-            <Bug className="assets-popup-item-icon" />
-            <span style={{ flex: 1 }}>Debug Mode</span>
-            <span
-              className={cn("assets-popup-switch", debugModeEnabled && "is-on")}
-              style={debugModeEnabled ? switchOnTrackStyle : switchTrackStyle}
+          {!isHome && (
+            <button
+              type="button"
+              className="assets-popup-item"
+              onClick={() => { setPlusOpen(false); setPlusAnchorRect(null); setDesignSystemOpen(true); }}
             >
-              <span
-                className="assets-popup-switch-thumb"
-                style={{
-                  ...switchThumbStyle,
-                  transform: debugModeEnabled ? "translateX(10px)" : undefined,
-                }}
-              />
-            </span>
-          </button>
+              <Layers className="assets-popup-item-icon" />
+              <span>Design system</span>
+            </button>
+          )}
         </div>,
         document.body
       )}
@@ -839,6 +879,12 @@ export function PromptBox({
         </div>,
         document.body
       )}
+
+      <DesignSystemModal
+        open={designSystemOpen}
+        onClose={() => setDesignSystemOpen(false)}
+        onApply={(t, f) => { setDsTheme(t); setDsFont(f); }}
+      />
     </>
   );
 }

@@ -15,6 +15,8 @@ import {
   ImageUp,
   Layers,
   ListVideo,
+  ArrowRight,
+  Ban,
   Mic,
   Monitor,
   MonitorPlay,
@@ -47,7 +49,7 @@ const toolsAndSkillsMenu = [
   {
     group: "Skills",
     items: [
-      { key: "autodemo",  label: "Autodemo",  icon: Clapperboard },
+      { key: "autodemo",  label: "Autodemo",  icon: Clapperboard,      disabled: true },
       { key: "roughcuts", label: "Roughcuts", icon: ScissorsLineDashed },
       { key: "clipping",  label: "Clipping",  icon: ListVideo },
     ],
@@ -84,6 +86,7 @@ export function HomeSidebar({ activePath = "/", onToolSelect }) {
   const [recordPopoverPos, setRecordPopoverPos] = useState({ top: 96, left: 256 });
   const [toolsPopoverOpen, setToolsPopoverOpen] = useState(false);
   const [toolsPopoverPos, setToolsPopoverPos] = useState({ top: 150, left: 256 });
+  const [disabledTooltipKey, setDisabledTooltipKey] = useState(null);
 
   const recordTriggerRef = useRef(null);
   const recordPopoverRef = useRef(null);
@@ -141,6 +144,7 @@ export function HomeSidebar({ activePath = "/", onToolSelect }) {
 
   function handleToolSelect(key) {
     setToolsPopoverOpen(false);
+    setDisabledTooltipKey(null);
     onToolSelect?.(key);
   }
 
@@ -291,20 +295,42 @@ export function HomeSidebar({ activePath = "/", onToolSelect }) {
           <div key={group.group} className="home-tools-popover-group">
             <div className="home-tools-popover-group-label">{group.group}</div>
             {group.items.map((item) => (
-              <button
+              <div
                 key={item.key}
-                type="button"
-                className="home-tools-popover-item"
-                onClick={() => handleToolSelect(item.key)}
+                className="home-tools-popover-item-wrap"
+                onMouseEnter={() => setDisabledTooltipKey(item.disabled ? item.key : null)}
               >
-                <item.icon size={14} />
-                <span>{item.label}</span>
-              </button>
+                <button
+                  type="button"
+                  className={cn("home-tools-popover-item", item.disabled && "is-disabled")}
+                  onClick={() => !item.disabled && handleToolSelect(item.key)}
+                >
+                  <item.icon size={14} />
+                  <span>{item.label}</span>
+                  {item.disabled && <Ban size={11} className="home-tools-popover-item-lock" />}
+                </button>
+                {item.disabled && disabledTooltipKey === item.key && (
+                  <div className="home-tools-disabled-tooltip">
+                    <div className="home-tools-disabled-tooltip-body">
+                      <p className="home-tools-disabled-tooltip-title">Skill not available</p>
+                      <p className="home-tools-disabled-tooltip-desc">Enable this skill in Settings to get started.</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="home-tools-disabled-tooltip-btn"
+                      onClick={() => { setToolsPopoverOpen(false); handleToolSelect("settings"); }}
+                    >
+                      Open Settings <ArrowRight size={11} />
+                    </button>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         ))}
       </div>
     )}
+
     </>
   );
 }

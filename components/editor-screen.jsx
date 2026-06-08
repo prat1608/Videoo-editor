@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
+  ArrowLeft,
   ArrowUpDown,
   CheckCircle2,
   ChevronDown,
+  ChevronRight,
+  ChevronsLeft,
   CircleAlert,
   Clock,
   Crop,
@@ -27,10 +31,12 @@ import {
   Minus,
   MousePointer2,
   Music4,
+  Palette,
   Pipette,
   Plus,
   RectangleHorizontal,
   Redo2,
+  RefreshCw,
   RotateCcw,
   RotateCw,
   Scissors,
@@ -518,39 +524,497 @@ function SimpleCardPanel({ title, cards }) {
   );
 }
 
-function MediaPanel() {
+const brandKitThemes = [
+  { id: "broadside", name: "Broadside", description: "Industrial newsprint poster — raw cream on ink, Barlow display, fire-orange register", swatches: ["#E8501A", "#0D0D0D", "#F5F0E8", "#C73E10"] },
+  { id: "midnight",  name: "Midnight",  description: "Deep indigo editorial — cool blue on near-black",                                      swatches: ["#1B3A6B", "#080D1A", "#E8F0FF", "#4A80D0"] },
+  { id: "forest",    name: "Forest",    description: "Organic editorial — sage green on dark earth",                                         swatches: ["#2D5A3D", "#0D1A11", "#F0F7F2", "#7BC67A"] },
+  { id: "ember",     name: "Ember",     description: "Smouldering burgundy — deep red on near-black",                                        swatches: ["#7C1D2A", "#140508", "#FFF0F0", "#C0394A"] },
+  { id: "arctic",    name: "Arctic",    description: "Icy minimalism — pale steel on deep slate",                                            swatches: ["#B8D4E8", "#0A1520", "#E8F4FF", "#5A9EC8"] },
+  { id: "noir",      name: "Noir",      description: "Pure contrast — stark white on absolute black",                                        swatches: ["#F5F5F5", "#080808", "#CCCCCC", "#444444"] },
+];
+
+const brandKitFonts = [
+  { id: "barlow",     name: "Barlow",     label: "Barlow 900 · IBM Plex Mono" },
+  { id: "playfair",   name: "Editorial",  label: "Playfair Display · Inter" },
+  { id: "space",      name: "Space",      label: "Space Grotesk · Space Mono" },
+  { id: "oswald",     name: "Oswald",     label: "Oswald 700 · Roboto Mono" },
+  { id: "bebas",      name: "Bebas",      label: "Bebas Neue · Source Code Pro" },
+  { id: "montserrat", name: "Montserrat", label: "Montserrat 900 · Fira Code" },
+];
+
+function parseColor(raw) {
+  const s = raw.trim();
+  if (/^#([0-9a-fA-F]{3}){1,2}$/.test(s)) return s;
+  if (/^rgba?\(/.test(s)) return s;
+  return null;
+}
+
+function rgbaToHex(rgba) {
+  const m = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (!m) return "#000000";
+  return "#" + [m[1], m[2], m[3]].map(n => parseInt(n).toString(16).padStart(2, "0")).join("");
+}
+
+function colorToHex(c) {
+  if (!c) return "#000000";
+  if (c.startsWith("#")) return c;
+  return rgbaToHex(c);
+}
+
+function AddThemeModal({ open, onClose, onAdd }) {
+  const [name, setName] = useState("");
+  const [colors, setColors] = useState([
+    { id: 1, hex: "#E8501A", text: "#E8501A" },
+    { id: 2, hex: "#0D0D0D", text: "#0D0D0D" },
+    { id: 3, hex: "#F5F0E8", text: "#F5F0E8" },
+    { id: 4, hex: "#C73E10", text: "#C73E10" },
+  ]);
+  const [nextId, setNextId] = useState(5);
+  const [nameError, setNameError] = useState("");
+
+  useEffect(() => {
+    if (open) {
+      setName("");
+      setColors([
+        { id: 1, hex: "#E8501A", text: "#E8501A" },
+        { id: 2, hex: "#0D0D0D", text: "#0D0D0D" },
+        { id: 3, hex: "#F5F0E8", text: "#F5F0E8" },
+        { id: 4, hex: "#C73E10", text: "#C73E10" },
+      ]);
+      setNextId(5);
+      setNameError("");
+    }
+  }, [open]);
+
+  if (!open) return null;
+
+  function updateColorHex(id, hex) {
+    setColors(prev => prev.map(c => c.id === id ? { ...c, hex, text: hex } : c));
+  }
+
+  function updateColorText(id, text) {
+    setColors(prev => prev.map(c => {
+      if (c.id !== id) return c;
+      const parsed = parseColor(text);
+      return { ...c, text, hex: parsed ? colorToHex(parsed) : c.hex };
+    }));
+  }
+
+  function addColor() {
+    if (colors.length >= 8) return;
+    setColors(prev => [...prev, { id: nextId, hex: "#888888", text: "#888888" }]);
+    setNextId(n => n + 1);
+  }
+
+  function removeColor(id) {
+    if (colors.length <= 1) return;
+    setColors(prev => prev.filter(c => c.id !== id));
+  }
+
+  function handleAdd() {
+    if (!name.trim()) { setNameError("Theme name is required"); return; }
+    setNameError("");
+    onAdd({
+      id: `custom-${Date.now()}`,
+      name: name.trim(),
+      description: "Custom theme",
+      swatches: colors.map(c => c.hex),
+      custom: true,
+    });
+    onClose();
+  }
+
+  return createPortal(
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 99999,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: "rgba(0,0,0,0.7)", backdropFilter: "blur(5px)",
+      }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        style={{
+          background: "#141414", borderRadius: 16, width: 420,
+          boxShadow: "0 30px 80px rgba(0,0,0,0.8)", border: "1px solid #242424",
+          display: "flex", flexDirection: "column", overflow: "hidden",
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px 14px", borderBottom: "1px solid #1e1e1e" }}>
+          <span style={{ color: "#fff", fontSize: 14, fontWeight: 600 }}>New Theme</span>
+          <button
+            type="button" onClick={onClose}
+            style={{ background: "rgba(255,255,255,0.06)", border: "none", borderRadius: 7, padding: 6, cursor: "pointer", color: "#666", display: "flex", lineHeight: 0 }}
+          >
+            <X size={14} />
+          </button>
+        </div>
+
+        <div style={{ padding: "18px 20px", display: "flex", flexDirection: "column", gap: 18 }}>
+          {/* Name field */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ color: "#888", fontSize: 11.5, fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase" }}>Theme Name</label>
+            <input
+              type="text"
+              placeholder="e.g. Ocean, Sunset, Corporate…"
+              value={name}
+              onChange={e => { setName(e.target.value); setNameError(""); }}
+              style={{
+                background: "#1a1a1a", border: `1px solid ${nameError ? "#e05252" : "#2e2e30"}`,
+                borderRadius: 8, padding: "9px 12px", color: "#fff", fontSize: 13,
+                outline: "none", width: "100%", boxSizing: "border-box",
+              }}
+            />
+            {nameError && <span style={{ color: "#e05252", fontSize: 11.5 }}>{nameError}</span>}
+          </div>
+
+          {/* Colors */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <label style={{ color: "#888", fontSize: 11.5, fontWeight: 500, letterSpacing: "0.04em", textTransform: "uppercase" }}>Colors</label>
+              <span style={{ color: "#555", fontSize: 11 }}>{colors.length}/8</span>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 240, overflowY: "auto", scrollbarWidth: "thin", scrollbarColor: "#2a2a2a transparent" }}>
+              {colors.map((c) => (
+                <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {/* Native color picker */}
+                  <div style={{ position: "relative", width: 32, height: 32, borderRadius: 8, overflow: "hidden", border: "1px solid #2e2e30", flexShrink: 0 }}>
+                    <div style={{ width: "100%", height: "100%", background: c.hex }} />
+                    <input
+                      type="color"
+                      value={c.hex}
+                      onChange={e => updateColorHex(c.id, e.target.value)}
+                      style={{ position: "absolute", inset: 0, opacity: 0, width: "100%", height: "100%", cursor: "pointer", padding: 0, border: "none" }}
+                    />
+                  </div>
+                  {/* Text input */}
+                  <input
+                    type="text"
+                    value={c.text}
+                    onChange={e => updateColorText(c.id, e.target.value)}
+                    placeholder="#hex or rgba(…)"
+                    style={{
+                      flex: 1, background: "#1a1a1a", border: "1px solid #2e2e30",
+                      borderRadius: 8, padding: "7px 10px", color: "#d0d0d0",
+                      fontSize: 12, fontFamily: "monospace", outline: "none",
+                    }}
+                  />
+                  {/* Remove */}
+                  <button
+                    type="button" onClick={() => removeColor(c.id)}
+                    disabled={colors.length <= 1}
+                    style={{
+                      background: "none", border: "none", cursor: colors.length <= 1 ? "not-allowed" : "pointer",
+                      color: colors.length <= 1 ? "#333" : "#555", padding: 4, borderRadius: 6, lineHeight: 0,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {colors.length < 8 && (
+              <button
+                type="button" onClick={addColor}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6, width: "100%", padding: "7px 10px",
+                  background: "none", border: "1px dashed #2e2e30", borderRadius: 8,
+                  color: "#666", fontSize: 12, cursor: "pointer", marginTop: 2,
+                }}
+              >
+                <Plus size={13} /> Add Color
+              </button>
+            )}
+          </div>
+
+          {/* Preview swatches */}
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            {colors.map(c => (
+              <div key={c.id} style={{ width: 22, height: 22, borderRadius: 7, background: c.hex, border: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }} />
+            ))}
+            {name.trim() && (
+              <span style={{ marginLeft: 6, color: "#ccc", fontSize: 12, fontWeight: 500 }}>{name.trim()}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ display: "flex", gap: 8, padding: "14px 20px 18px", justifyContent: "flex-end", borderTop: "1px solid #1e1e1e" }}>
+          <button
+            type="button" onClick={onClose}
+            style={{ padding: "8px 18px", borderRadius: 8, border: "1px solid #2e2e30", background: "transparent", color: "#888", fontSize: 13, fontWeight: 500, cursor: "pointer" }}
+          >
+            Cancel
+          </button>
+          <button
+            type="button" onClick={handleAdd}
+            style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "#d6d6d6", color: "#3a3a3a", fontSize: 13, fontWeight: 600, cursor: "pointer" }}
+          >
+            Add to Presets
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+function BrandKitPanel() {
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [typographyOpen, setTypographyOpen] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState(brandKitThemes[0]);
+  const [selectedFont, setSelectedFont] = useState(brandKitFonts[0]);
+  const [addThemeOpen, setAddThemeOpen] = useState(false);
+  const [customThemes, setCustomThemes] = useState([]);
+
+  const brandVideos = [
+    { id: 1, src: "/video-styles/Ocean waves.mp4", duration: "00:13" },
+    { id: 2, src: "/video-styles/Portrait.mp4", duration: "06:37" },
+  ];
+
   return (
     <>
-      <section className="panel-section">
-        <p className="section-title">Upload media</p>
-        <PanelButton className="empty-dropzone">
-          <strong>Drop video, image or GIF files</strong>
-          <small>Drag them straight into the canvas or timeline</small>
-        </PanelButton>
+      {/* Design system header */}
+      <section className="panel-section bk-theme-header-section">
+        <h2 className="bk-theme-name">Design System</h2>
+        <p className="bk-theme-desc">Define your brand's visual foundation — colors, typography, and style across all content.</p>
       </section>
 
-      <section className="panel-section two-up">
-        <PanelButton className="preset-card">
-          <span>
-            <strong>Brand Intro</strong>
-            <small>5 clips</small>
-          </span>
-        </PanelButton>
-        <PanelButton className="preset-card">
-          <span>
-            <strong>Social Reel</strong>
-            <small>9:16</small>
-          </span>
-        </PanelButton>
+      {/* Palette accordion */}
+      <section className="panel-section">
+        <div className="bk-accordion">
+          <button type="button" className="bk-accordion-header" onClick={() => setPaletteOpen((v) => !v)}>
+            <span>Palette</span>
+            <ChevronDown size={13} className={cn("bk-chevron", paletteOpen && "is-open")} />
+          </button>
+          {paletteOpen && (
+            <div className="bk-accordion-body">
+              {brandKitThemes.map((t) => (
+                <div
+                  key={t.id}
+                  className={cn("bk-accordion-item", selectedTheme.id === t.id && "is-selected")}
+                  onClick={() => setSelectedTheme(t)}
+                >
+                  <div className="bk-swatches">
+                    {t.swatches.map((c, i) => (
+                      <span key={i} className="bk-swatch" style={{ background: c }} />
+                    ))}
+                  </div>
+                  <span className="bk-item-name">{t.name}</span>
+                </div>
+              ))}
+              {customThemes.map((t) => (
+                <div
+                  key={t.id}
+                  className={cn("bk-accordion-item", selectedTheme.id === t.id && "is-selected")}
+                  onClick={() => setSelectedTheme(t)}
+                >
+                  <div className="bk-swatches">
+                    {t.swatches.slice(0, 4).map((c, i) => (
+                      <span key={i} className="bk-swatch" style={{ background: c }} />
+                    ))}
+                  </div>
+                  <span className="bk-item-name">{t.name}</span>
+                  <span style={{ marginLeft: "auto", fontSize: 9, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "#888", background: "#2a2a2a", border: "1px solid #3a3a3a", borderRadius: 4, padding: "2px 5px", flexShrink: 0 }}>Custom</span>
+                </div>
+              ))}
+              <div className="bk-accordion-divider" />
+              <button type="button" className="bk-add-item" onClick={() => setAddThemeOpen(true)}>
+                <Plus size={14} />
+                <span>Add Theme</span>
+              </button>
+            </div>
+          )}
+          <AddThemeModal
+            open={addThemeOpen}
+            onClose={() => setAddThemeOpen(false)}
+            onAdd={(theme) => {
+              setCustomThemes(prev => [...prev, theme]);
+              setSelectedTheme(theme);
+            }}
+          />
+        </div>
+      </section>
+
+      {/* Typography accordion */}
+      <section className="panel-section">
+        <div className="bk-accordion">
+          <button type="button" className="bk-accordion-header" onClick={() => setTypographyOpen((v) => !v)}>
+            <span>Typography</span>
+            <ChevronDown size={13} className={cn("bk-chevron", typographyOpen && "is-open")} />
+          </button>
+          {typographyOpen && (
+            <div className="bk-accordion-body">
+              {brandKitFonts.map((f) => (
+                <div
+                  key={f.id}
+                  className={cn("bk-accordion-item bk-font-item", selectedFont.id === f.id && "is-selected")}
+                  onClick={() => setSelectedFont(f)}
+                >
+                  <div className="bk-font-item-text">
+                    <span className="bk-item-name">{f.name}</span>
+                    <span className="bk-item-sub">{f.label}</span>
+                  </div>
+                </div>
+              ))}
+              <div className="bk-accordion-divider" />
+              <button type="button" className="bk-add-item">
+                <Plus size={14} />
+                <span>Add Font</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <div className="bk-divider" />
+
+      <section className="panel-section">
+        <div className="media-section-header">
+          <span className="media-section-title">Videos</span>
+          <button type="button" className="media-show-all">
+            Show all <ChevronRight size={14} />
+          </button>
+        </div>
+        <div className="media-video-grid">
+          <div className="media-video-card media-add-card">
+            <Film size={20} className="media-add-icon" />
+            <span className="media-add-label">Add Video</span>
+          </div>
+          {brandVideos.map((video) => (
+            <div key={video.id} className="media-video-card">
+              <AutoplayVideo src={video.src} className="media-video-thumb" />
+              <span className="media-video-duration">{video.duration}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="panel-section">
+        <div className="media-section-header">
+          <span className="media-section-title">Images</span>
+        </div>
+        <div className="media-video-grid">
+          <div className="media-video-card media-add-card">
+            <ImageUp size={20} className="media-add-icon" />
+            <span className="media-add-label">Add Image</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="panel-section">
+        <div className="media-section-header">
+          <span className="media-section-title">Audio</span>
+        </div>
+        <div className="media-add-card media-audio-add-card">
+          <Mic size={20} className="media-add-icon" />
+          <span className="media-add-label">Add Audio</span>
+        </div>
       </section>
     </>
   );
 }
 
-function PanelContent({ panel, selectedTools, onToggle }) {
+function MediaPanel({ onOpenBrandKit }) {
+  const [activeTab, setActiveTab] = useState("video");
+
+  const stockVideos = [
+    { id: 1, duration: "01:04" },
+    { id: 2, src: "/video-styles/Ocean waves.mp4", duration: "00:17" },
+    { id: 3, duration: "00:09" },
+    { id: 4, src: "/video-styles/Abstract.mp4", duration: "00:14" },
+  ];
+
+  const generatedVideos = [
+    { id: 1, duration: "00:00" },
+    { id: 2, src: "/video-styles/Lifestyle.mp4", duration: "00:05" },
+  ];
+
+  return (
+    <>
+      <section className="panel-section">
+        <div className="media-tabs">
+          <button
+            type="button"
+            className={cn("media-tab", activeTab === "video" && "is-active")}
+            onClick={() => setActiveTab("video")}
+          >
+            Video
+          </button>
+          <button
+            type="button"
+            className={cn("media-tab", activeTab === "image" && "is-active")}
+            onClick={() => setActiveTab("image")}
+          >
+            Image
+          </button>
+        </div>
+      </section>
+
+      <section className="panel-section">
+        <Button type="button" variant="secondary" className="media-action-btn" onClick={onOpenBrandKit}>
+          <Palette size={16} />
+          <span>Brand Kit</span>
+        </Button>
+      </section>
+
+      <section className="panel-section">
+        <Button type="button" variant="secondary" className="media-action-btn">
+          <Sparkles size={16} />
+          <span>Generate Video</span>
+        </Button>
+      </section>
+
+      <section className="panel-section">
+        <div className="media-section-header">
+          <span className="media-section-title">Stock Video</span>
+          <button type="button" className="media-show-all">
+            Show all <ChevronRight size={14} />
+          </button>
+        </div>
+        <div className="media-video-grid">
+          {stockVideos.map((video) => (
+            <div key={video.id} className="media-video-card">
+              {video.src && <AutoplayVideo src={video.src} className="media-video-thumb" />}
+              <span className="media-video-duration">{video.duration}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="panel-section">
+        <div className="media-section-header">
+          <span className="media-section-title">Generated Video</span>
+          <div className="media-section-actions">
+            <button type="button" className="media-icon-btn" aria-label="Refresh">
+              <RefreshCw size={14} />
+            </button>
+            <button type="button" className="media-show-all">
+              Show all <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
+        <div className="media-video-grid">
+          {generatedVideos.map((video) => (
+            <div key={video.id} className="media-video-card">
+              {video.src && <AutoplayVideo src={video.src} className="media-video-thumb" />}
+              <span className="media-video-duration">{video.duration}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function PanelContent({ panel, selectedTools, onToggle, brandKitOpen, onOpenBrandKit }) {
   switch (panel) {
     case "media":
-      return <MediaPanel />;
+      return brandKitOpen ? <BrandKitPanel /> : <MediaPanel onOpenBrandKit={onOpenBrandKit} />;
     case "audio":
       return (
         <SimpleCardPanel
@@ -645,6 +1109,7 @@ export default function EditorScreen() {
   ];
   const [activePanel, setActivePanel] = useState("files");
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
+  const [mediaBrandKitOpen, setMediaBrandKitOpen] = useState(false);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
   const [chatPanelWidth, setChatPanelWidth] = useState(660);
   const [timelineOpen, setTimelineOpen] = useState(true);
@@ -1237,15 +1702,27 @@ export default function EditorScreen() {
           <Collapsible open={isLeftPanelVisible} asChild>
             <div className={cn("left-panel", !isLeftPanelVisible && "is-collapsed")}>
               <div className="panel-header">
-                <h1>{railItems.find((item) => item.key === activePanel)?.label ?? "Panel"}</h1>
-                <div className="panel-actions">
-                  <IconButton icon={Upload} label="Upload" />
-                  <IconButton icon={Trash2} label="Delete" />
-                </div>
+                {activePanel === "media" && mediaBrandKitOpen ? (
+                  <>
+                    <button type="button" className="panel-back-btn" onClick={() => setMediaBrandKitOpen(false)}>
+                      <ArrowLeft size={15} />
+                      <span>Brandkit</span>
+                    </button>
+                    <IconButton icon={ChevronsLeft} label="Collapse panel" onClick={() => setLeftPanelOpen(false)} />
+                  </>
+                ) : (
+                  <>
+                    <h1>{railItems.find((item) => item.key === activePanel)?.label ?? "Panel"}</h1>
+                    <div className="panel-actions">
+                      <IconButton icon={Upload} label="Upload" />
+                      <IconButton icon={ChevronsLeft} label="Collapse panel" onClick={() => setLeftPanelOpen(false)} />
+                    </div>
+                  </>
+                )}
               </div>
 
               <CollapsibleContent forceMount className="panel-scroll">
-                {activePanel ? <PanelContent panel={activePanel} selectedTools={selectedTools} onToggle={toggleToolChip} /> : null}
+                {activePanel ? <PanelContent panel={activePanel} selectedTools={selectedTools} onToggle={toggleToolChip} brandKitOpen={mediaBrandKitOpen} onOpenBrandKit={() => setMediaBrandKitOpen(true)} /> : null}
               </CollapsibleContent>
             </div>
           </Collapsible>
