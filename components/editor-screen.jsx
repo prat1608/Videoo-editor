@@ -57,6 +57,7 @@ import {
   Zap,
 } from "lucide-react";
 import logoMark from "@/assets/Logo.svg";
+import { DEFAULT_PROJECT_ID, getProjectTitle } from "@/lib/projects";
 
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -193,6 +194,13 @@ const voiceProfiles = [
   { name: "Echo",    desc: "Smooth, conversational" },
   { name: "Fable",   desc: "British, articulate" },
   { name: "Shimmer", desc: "Bright, energetic" },
+];
+
+const recordSources = [
+  { name: "Screen", desc: "Record a browser, app, or full display" },
+  { name: "Camera", desc: "Capture camera footage for talking-head clips" },
+  { name: "Audio", desc: "Record voiceover or microphone notes" },
+  { name: "Screen + Camera", desc: "Capture a walkthrough with presenter overlay" },
 ];
 
 const EDITOR_TOOL_SUGGESTION_CONFIG = {
@@ -1133,6 +1141,8 @@ export default function EditorScreen() {
   const [videoStartImage, setVideoStartImage] = useState(null);
   const [videoEndImage, setVideoEndImage] = useState(null);
   const searchParams = useSearchParams();
+  const currentProjectId = searchParams.get("projectId") || DEFAULT_PROJECT_ID;
+  const currentProjectTitle = getProjectTitle(currentProjectId);
   const [activeGrid, setActiveGrid] = useState(null);
   const [selectedTools, setSelectedTools] = useState([]);
   const [importJob, setImportJob] = useState(null);
@@ -1166,6 +1176,7 @@ export default function EditorScreen() {
   const [selectedAudioMood, setSelectedAudioMood] = useState(null);
   const [selectedSfxCategory, setSelectedSfxCategory] = useState(null);
   const [selectedVoice, setSelectedVoice] = useState(null);
+  const [selectedRecordSource, setSelectedRecordSource] = useState("Screen");
   const [promptSuggestion, setPromptSuggestion] = useState(null);
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
   const [videoTemplatesExpanded, setVideoTemplatesExpanded] = useState(false);
@@ -1242,6 +1253,7 @@ export default function EditorScreen() {
   const showAudioGrid     = activeGrid === "audio";
   const showSfxGrid       = activeGrid === "sfx";
   const showVoiceoverGrid = activeGrid === "voiceover";
+  const showRecordGrid    = activeGrid === "record";
 
   useLayoutEffect(() => {
     if (!chatDraft) {
@@ -1754,7 +1766,7 @@ export default function EditorScreen() {
                 <div className={cn("topbar-center", compactTopbar && "is-compact", denseTopbar && "is-dense")}>
                   <div className="project-meta">
                     <SyncStatus state={syncState} />
-                    <span className="project-name">Untitled Project</span>
+                    <span className="project-name">{currentProjectTitle}</span>
                   </div>
                 </div>
 
@@ -2190,11 +2202,31 @@ export default function EditorScreen() {
                             <button type="button" onClick={removeImportJob}>Remove</button>
                           </div>
                         )}
-                        {importJob.status === "complete" && (
-                          <div className="import-process-actions">
-                            <button type="button" onClick={removeImportJob}>Remove</button>
-                          </div>
-                        )}
+                    {importJob.status === "complete" && (
+                      <div className="import-process-actions">
+                        <button type="button" onClick={removeImportJob}>Remove</button>
+                      </div>
+                    )}
+                      </div>
+                    )}
+                    {showRecordGrid && (
+                      <div className="image-style-panel">
+                        <div className="image-style-header">
+                          <span className="image-style-title">Recording setup</span>
+                        </div>
+                        <div className="image-style-grid">
+                          {recordSources.map((source, i) => (
+                            <button
+                              key={source.name}
+                              type="button"
+                              className={cn("gen-text-card", `bento-item-${i}`, selectedRecordSource === source.name && "is-selected")}
+                              onClick={() => setSelectedRecordSource(source.name)}
+                            >
+                              <span className="gen-text-card-name">{source.name}</span>
+                              <span className="gen-text-card-desc">{source.desc}</span>
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                     {showVideoGrid && (
@@ -2465,6 +2497,25 @@ export default function EditorScreen() {
                       supportNarrow
                       renderSettingsContent={() => (
                         <>
+                          {showRecordGrid && (
+                            <>
+                              <div className="vsd-row">
+                                <span className="vsd-label">Source</span>
+                                <div className="vsd-res-pills">
+                                  {recordSources.map((source) => (
+                                    <button
+                                      key={source.name}
+                                      type="button"
+                                      className={cn("vsd-res-btn", selectedRecordSource === source.name && "is-active")}
+                                      onClick={() => setSelectedRecordSource(source.name)}
+                                    >
+                                      {source.name}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            </>
+                          )}
                           {showVideoGrid && (
                             <>
                               <div className="vsd-row">

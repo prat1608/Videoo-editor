@@ -1,5 +1,7 @@
 import localFont from "next/font/local";
+import { Suspense } from "react";
 import "./globals.css";
+import { DesktopTabShell } from "@/components/desktop-tabs";
 
 const geistSans = localFont({
   src: "./fonts/Geist[wght].woff2",
@@ -23,7 +25,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>{children}</body>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <Suspense fallback={<div className="desktop-shell"><div className="desktop-shell-content">{children}</div></div>}>
+          <DesktopTabShell>{children}</DesktopTabShell>
+        </Suspense>
+      </body>
     </html>
   );
 }

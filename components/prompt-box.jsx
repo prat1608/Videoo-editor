@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { AudioLines, AudioWaveform, Bot, Check, CircleAlert, CircleDot, Clapperboard, Film, Headphones, Image, ImageUp, Layers, Link as LinkIcon, ListChecks, Mic, Mic2, Music2, Palette, Paperclip, Plus, SlidersHorizontal, Type, Volume2, Wand2, X, Zap } from "lucide-react";
+import { AudioLines, AudioWaveform, Bot, Check, ChevronDown, CircleAlert, CircleDot, Clapperboard, Film, Headphones, Image, ImageUp, Layers, Link as LinkIcon, ListChecks, Mic, Mic2, Music2, Palette, Paperclip, Plus, SlidersHorizontal, Type, Volume2, Wand2, X, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const MODEL_LOGO_MAP = {
@@ -14,7 +14,9 @@ const MODEL_LOGO_MAP = {
   "Flux 1.1 Pro":         Zap,
   "Stable Diffusion 3.5": Layers,
   "Stability Audio":      AudioWaveform,
+  "Kling V3 Video":       Film,
   "Kling 1.6 Pro":        Film,
+  "Kling 1.6":            Film,
   "Wan 2.1":              Wand2,
   "Hailuo":               Bot,
   "Suno v4":              Music2,
@@ -24,6 +26,9 @@ const MODEL_LOGO_MAP = {
   "ElevenLabs":           Mic,
   "ElevenLabs SFX":       Volume2,
   "Cartesia":             Mic2,
+  "Sora":                 Clapperboard,
+  "Runway Gen-3":         Film,
+  "Luma Dream Machine":   Wand2,
 };
 
 const MODEL_CHIP_KEYS = new Set(["model", "img-model", "aud-model", "sfx-model", "vo-model"]);
@@ -409,6 +414,7 @@ export function PromptBox({
                 clipping:  "Clipping",
                 ytimport:  "Import Video",
                 aimg:      "AI Motion Graphics",
+                record:    "Record",
                 trim:      "Trim",
                 merge:     "Merge",
                 speed:     "Speed",
@@ -658,8 +664,10 @@ export function PromptBox({
                     >
                       {MODEL_CHIP_KEYS.has(chip.key) && MODEL_LOGO_MAP[chip.activeValue]
                         ? <ModelLogo model={chip.activeValue} />
-                        : <chip.icon size={13} />}
+                        : chip.icon ? <chip.icon size={12} /> : null
+                      }
                       <span>{chip.activeValue}</span>
+                      {MODEL_CHIP_KEYS.has(chip.key) && <ChevronDown size={12} />}
                     </button>
                   </div>
                 ))}

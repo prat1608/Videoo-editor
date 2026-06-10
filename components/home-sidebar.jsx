@@ -32,6 +32,7 @@ import {
   Wand2,
 } from "lucide-react";
 import logoMark from "@/assets/Logo.svg";
+import { getProjectHref, recentProjects } from "@/lib/projects";
 import { cn } from "@/lib/utils";
 
 const toolsAndSkillsMenu = [
@@ -61,20 +62,6 @@ const recordSourceMenu = [
   { key: "camera", label: "Camera", icon: Video },
   { key: "screen", label: "Screen", icon: Monitor },
   { key: "screen-camera", label: "Screen + Camera", icon: MonitorPlay },
-];
-
-const sidebarRecentProjects = [
-  { id: 1, title: "Untitled Project", color: "#5a3a4a" },
-  { id: 2, title: "Rough Cuts Project", color: "#2a2a3a" },
-  { id: 3, title: "Make roughcuts", color: "#3a2a2a" },
-  { id: 4, title: "Lion in Snowy Mount...", color: "#1a1a1a" },
-  { id: 5, title: "/generate-image ima...", color: "#1a1a1a" },
-  { id: 6, title: "Untitled Project", color: "#252525" },
-  { id: 7, title: "Untitled Project", color: "#30263a" },
-  { id: 8, title: "Untitled Project", color: "#3a2a1a" },
-  { id: 9, title: "Untitled Project", color: "#1a2a3a" },
-  { id: 10, title: "Untitled Project", color: "#232323" },
-  { id: 11, title: "Social Media Clip Cr...", color: "#1a1a2a" },
 ];
 
 const TOOLS_POPOVER_GAP = 16;
@@ -164,7 +151,7 @@ export function HomeSidebar({ activePath = "/", onToolSelect }) {
       </div>
 
       <nav className="home-sidebar-nav">
-        <Link href="/editor" className="home-nav-item">
+        <Link href="/new" className="home-nav-item">
           <span className="home-nav-icon"><FilePlus2 /></span>
           <span>New Project</span>
         </Link>
@@ -220,11 +207,11 @@ export function HomeSidebar({ activePath = "/", onToolSelect }) {
       <div className="home-sidebar-section home-recent-section">
         <div className="home-sidebar-section-label">Recent</div>
         <div className="home-recent-list">
-          {sidebarRecentProjects.map((project) => (
-            <button key={project.id} type="button" className="home-recent-item">
+          {recentProjects.map((project) => (
+            <Link key={project.id} href={getProjectHref(project.id)} className="home-recent-item">
               <span className="home-recent-thumb" style={{ background: project.color }} />
               <span className="home-recent-title">{project.title}</span>
-            </button>
+            </Link>
           ))}
         </div>
       </div>

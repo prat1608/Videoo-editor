@@ -43,13 +43,9 @@ import {
 import { PromptBox } from "@/components/prompt-box";
 import { HomeSidebar } from "@/components/home-sidebar";
 import { IMAGE_STYLES, getImageStyleUrl } from "@/lib/image-styles";
+import { getProjectHref, recentProjects } from "@/lib/projects";
 import { ShowcaseCard, MarketplaceView, MUSIC_SHOWCASE, SHOWCASE_DATA } from "@/components/audio-showcase-cards";
 import { cn } from "@/lib/utils";
-
-const recentProjectsMain = [
-  { id: 1, title: "Untitled Project", time: "Last edited 9 hrs ago", color: "#5a3a4a" },
-  { id: 2, title: "Rough Cuts Project", time: "Last edited 9 hrs ago", color: "#2a2a3a" },
-];
 
 const actionChips = [
   { key: "generate", label: "Generate", icon: Sparkles },
@@ -127,22 +123,39 @@ const homeVideoClips = [
 ];
 
 const homeAimgTemplates = [
-  { id: "notion-showcase",      name: "Notion Showcase",     category: "Product",    gradient: "135deg,#1a1a1a 0%,#2d2d2d 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-notion.mp4",     zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/notion-showcase.zip",     model: "HyperFrames", style: "Product Walkthrough", curation: "Official", created: "2026", duration: "15s",
+  // ── 16:9 ──────────────────────────────────────────────────────────────────
+  { id: "notion-showcase",      name: "Notion Showcase",     category: "Product",    ratio: "16 / 9", aspectRatio: "16:9", gradient: "135deg,#1a1a1a 0%,#2d2d2d 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-notion.mp4",     zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/notion-showcase.zip",     model: "HyperFrames", style: "Product Walkthrough", curation: "Official", created: "2026", duration: "15s",
     prompt: "Minimalist SaaS product walkthrough, pure white canvas, Inter typeface at 18px with 160% line-height, UI panels slide in from bottom with cubic-bezier(0.16,1,0.3,1) ease, database rows populate sequentially with 40ms stagger, soft drop shadows at 0 8px 32px rgba(0,0,0,0.08), accent color #000 on white, 1920×1080, 24fps, 15-second sequence, Notion brand identity." },
-  { id: "dribbble-showcase",    name: "Dribbble Showcase",   category: "Design",     gradient: "135deg,#ea4c89 0%,#c32361 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-dribbble.mp4",   zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/dribbble-showcase.zip",   model: "HyperFrames", style: "Design Showcase",    curation: "Official", created: "2026", duration: "20s",
+  { id: "dribbble-showcase",    name: "Dribbble Showcase",   category: "Design",     ratio: "16 / 9", aspectRatio: "16:9", gradient: "135deg,#ea4c89 0%,#c32361 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-dribbble.mp4",   zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/dribbble-showcase.zip",   model: "HyperFrames", style: "Design Showcase",    curation: "Official", created: "2026", duration: "20s",
     prompt: "Playful design portfolio reel, shot cards scale from 0.92 to 1.0 with spring stiffness 280 damping 22, hot-pink #EA4C89 accent on midnight background, 3×3 masonry grid assembles with 60ms column-stagger, hover states reveal like-count with +1 float animation, confetti burst on final frame, Inter Display 700 titles, 1920×1080, 60fps, 20-second loop." },
-  { id: "stripe-showcase",      name: "Stripe Showcase",     category: "Fintech",    gradient: "135deg,#635bff 0%,#00d4ff 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-stripe.mp4",     zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/stripe-showcase.zip",     model: "HyperFrames", style: "Product Walkthrough", curation: "Official", created: "2026", duration: "25s",
+  { id: "stripe-showcase",      name: "Stripe Showcase",     category: "Fintech",    ratio: "16 / 9", aspectRatio: "16:9", gradient: "135deg,#635bff 0%,#00d4ff 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-stripe.mp4",     zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/stripe-showcase.zip",     model: "HyperFrames", style: "Product Walkthrough", curation: "Official", created: "2026", duration: "25s",
     prompt: "Premium fintech product film, indigo #635BFF to cyan #00D4FF gradient hero, payment card materialises with 800ms ease-out scale from 0 with soft ambient occlusion, transaction rows stream in at 90ms intervals with green success pulses, code editor panel slides in from right showing Stripe API response JSON, glassmorphism panels at 12px blur 0.08 opacity, SF Mono code type, 1920×1080, 24fps, 25 seconds." },
-  { id: "raycast-showcase",     name: "Raycast Showcase",    category: "Developer",  gradient: "135deg,#ff6b35 0%,#f7c59f 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-raycast.mp4",    zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/raycast-showcase.zip",    model: "HyperFrames", style: "App Demo",           curation: "Official", created: "2026", duration: "15s",
+  { id: "raycast-showcase",     name: "Raycast Showcase",    category: "Developer",  ratio: "16 / 9", aspectRatio: "16:9", gradient: "135deg,#ff6b35 0%,#f7c59f 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-raycast.mp4",    zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/raycast-showcase.zip",    model: "HyperFrames", style: "App Demo",           curation: "Official", created: "2026", duration: "15s",
     prompt: "Developer tool spotlight, command-palette spawns with 180ms backdrop-blur transition from 0 to 20px, result rows highlight sequentially at 55ms each with orange-amber #FF6B35 selection glow, keyboard shortcut badges pop with scale(1.12) bounce, dark charcoal #1C1C1E shell with hairline borders at rgba(255,255,255,0.08), monospace JetBrains Mono labels, ambient particle dust at 4% opacity, 1920×1080, 60fps, 15-second demo." },
-  { id: "fitness-app-showcase", name: "Fitness App",         category: "Mobile App", gradient: "135deg,#00b09b 0%,#96c93d 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/primitives/fitness-app-showcase/renders/fitness-app-showcase.mp4", zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/fitness-app-showcase.zip", model: "HyperFrames", style: "App Demo",           curation: "Official", created: "2026", duration: "5.5s",
-    prompt: "High-energy fitness app reveal, activity ring animates from 0° to 312° with stroke-dashoffset over 900ms ease-in-out, teal #00B09B to lime #96C93D gradient fills, step counter increments with rolling digit animation at 30fps, heart-rate graph draws live with cubic spline interpolation, mobile UI floats on subtle 3D Y-axis tilt 6°, frosted glass metric cards blur 16px, SF Pro Rounded numerals, 1920×1080, 5.5-second loop." },
-  { id: "spotify-bento",        name: "Spotify Bento",       category: "Music",      gradient: "135deg,#1db954 0%,#191414 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/compositions/spotify-bento/renders/spotify-bento.mp4",       zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/spotify-bento.zip",       model: "HyperFrames", style: "Bento Grid",         curation: "Official", created: "2026", duration: "26.5s",
+  { id: "spotify-bento",        name: "Spotify Bento",       category: "Music",      ratio: "16 / 9", aspectRatio: "16:9", gradient: "135deg,#1db954 0%,#191414 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/compositions/spotify-bento/renders/spotify-bento.mp4",       zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/spotify-bento.zip",       model: "HyperFrames", style: "Bento Grid",         curation: "Official", created: "2026", duration: "26.5s",
     prompt: "Infinite-scroll bento album grid, 12 album art tiles arranged in asymmetric 4-column layout pan continuously rightward at 48px/s with seamless wrap-around, Spotify green #1DB954 progress bars pulse beneath each tile, waveform visualiser oscillates at 60fps, pure black #191414 background, circular album art with 8px radius and 1px rgba(255,255,255,0.12) border, Circular Std Bold titles, slow zoom on hero tile, 1920×1080, 26.5-second seamless loop." },
-  { id: "x-post-overlay",       name: "X Post Overlay",      category: "Social",     gradient: "135deg,#000000 0%,#1a1a1a 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/overlays/x-post-overlay/renders/x-post-overlay.mp4",      zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/x-post-overlay.zip",      model: "HyperFrames", style: "Overlay",            curation: "Official", created: "2026", duration: "4s",
-    prompt: "Broadcast-ready X post overlay, card slides up from -120px to 0 over 420ms with cubic-bezier(0.34,1.56,0.64,1) spring overshoot, avatar renders with crisp 40px circle clip and 1.5px white border, reply/repost/like counters tick up individually with 80ms stagger, pure black #000 background with subtle noise texture at 2% opacity, X logo mark in white at 14px, system-ui font stack at 15px/140%, 4-second hold then fade-out, 1920×1080, 60fps." },
-  { id: "ui-3d-reveal",         name: "UI 3D Reveal",        category: "UI/UX",      gradient: "135deg,#1e3a5f 0%,#7c3aed 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/primitives/ui-3d-reveal/renders/ui-3d-reveal.mp4",        zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/ui-3d-reveal.zip",        model: "HyperFrames", style: "3D Perspective",     curation: "Official", created: "2026", duration: "13s",
+  { id: "ui-3d-reveal",         name: "UI 3D Reveal",        category: "UI/UX",      ratio: "16 / 9", aspectRatio: "16:9", gradient: "135deg,#1e3a5f 0%,#7c3aed 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/primitives/ui-3d-reveal/renders/ui-3d-reveal.mp4",        zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/ui-3d-reveal.zip",        model: "HyperFrames", style: "3D Perspective",     curation: "Official", created: "2026", duration: "13s",
     prompt: "Cinematic UI perspective reveal, interface begins at rotateX(38deg) rotateY(-12deg) scale(0.78) with deep-blue #1E3A5F to violet #7C3AED gradient background, transitions to flat orthographic over 1.4s with perspective(1200px) ease-out, sequential layer pop-ins at 120ms offsets each with subtle depth-shadow, ambient iridescent light sweep across the surface at frame 60, 8px corner radius on panels, Inter 500 labels, 1920×1080, 24fps, 13-second sequence." },
+
+  // ── 9:16 ──────────────────────────────────────────────────────────────────
+  { id: "tiktok-app-story",     name: "TikTok App Story",    category: "Mobile App", ratio: "9 / 16", aspectRatio: "9:16", gradient: "135deg,#010101 0%,#69c9d0 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/primitives/fitness-app-showcase/renders/fitness-app-showcase.mp4", zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/fitness-app-showcase.zip", model: "HyperFrames", style: "App Story",          curation: "Official", created: "2026", duration: "9s",
+    prompt: "Vertical TikTok-format app story, 1080×1920, mobile UI slides in from bottom edge with spring physics stiffness 320 damping 28, activity metric cards stack with 60ms stagger, electric teal #69C9D0 accent on near-black background, bold SF Pro Rounded numerals at 48px, progress ring draws in 800ms ease-in-out, subtle film-grain overlay at 4% opacity, looping 9-second sequence optimised for autoplay mute." },
+  { id: "reels-product-reveal", name: "Reels Product Reveal",category: "Product",    ratio: "9 / 16", aspectRatio: "9:16", gradient: "135deg,#833ab4 0%,#fd1d1d 50%,#fcb045 100%", src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcas/tpl-raycast.mp4", zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/raycast-showcase.zip", model: "HyperFrames", style: "Reels Reveal",       curation: "Official", created: "2026", duration: "12s",
+    prompt: "Vertical Instagram Reels product reveal, 1080×1920, hero product shot scales from 0.85 to 1 with cubic-bezier(0.34,1.56,0.64,1) spring overshoot, Instagram gradient #833AB4→#FD1D1D→#FCB045 accent bar sweeps across at frame 12, feature callout cards pop in sequentially with 80ms stagger, semi-transparent frosted glass panels blur 14px, bold Inter Display 800 at 36px, 12-second sequence with hold frame at end." },
+  { id: "stories-countdown",    name: "Stories Countdown",   category: "Social",     ratio: "9 / 16", aspectRatio: "9:16", gradient: "135deg,#f7971e 0%,#ffd200 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-notion.mp4",    zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/notion-showcase.zip",    model: "HyperFrames", style: "Stories",            curation: "Official", created: "2026", duration: "6s",
+    prompt: "Vertical stories countdown timer, 1080×1920, circular stroke-dashoffset countdown ring from 360° to 0° over 5s ease-linear, warm amber #F7971E to golden #FFD200 gradient fill, large numeral center-stage at 120px SF Pro Rounded Black, soft pulsing glow halo synced to each second tick, dark vignette edges, smooth fade-in and scale-up on launch frame, 6-second loop." },
+
+  // ── 1:1 ──────────────────────────────────────────────────────────────────
+  { id: "instagram-square",     name: "Instagram Post",      category: "Social",     ratio: "1 / 1",  aspectRatio: "1:1",  gradient: "135deg,#833ab4 0%,#fd1d1d 50%,#fcb045 100%", src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-dribbble.mp4",   zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/dribbble-showcase.zip",   model: "HyperFrames", style: "Square Post",        curation: "Official", created: "2026", duration: "6s",
+    prompt: "Square 1080×1080 Instagram post, bold design shot cards scale in from 0.9 with spring ease, hot-pink to coral gradient frame border 3px, album art arranged in tight 2×2 grid with 8px gap, each tile fades in with 50ms stagger, Circular Std Bold title at 32px centred, subtle inner shadow, 6-second loop optimised for feed autoplay." },
+  { id: "linkedin-square",      name: "LinkedIn Announcement",category: "Business",  ratio: "1 / 1",  aspectRatio: "1:1",  gradient: "135deg,#0077b5 0%,#00a0dc 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/showcase/tpl-stripe.mp4",     zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/stripe-showcase.zip",     model: "HyperFrames", style: "Announcement",       curation: "Official", created: "2026", duration: "8s",
+    prompt: "Square 1080×1080 LinkedIn announcement post, professional midnight background, LinkedIn blue #0077B5 accent headline slides up from +40px with ease-out 600ms, supporting stat counters roll up with 80ms stagger, clean Inter 600 body text at 18px with 170% line-height, subtle geometric grid pattern at 6% opacity, company logo badge top-right, 8-second sequence with 2-second hold." },
+  { id: "product-square",       name: "Product Square",      category: "Product",    ratio: "1 / 1",  aspectRatio: "1:1",  gradient: "135deg,#232526 0%,#414345 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/compositions/spotify-bento/renders/spotify-bento.mp4",       zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/spotify-bento.zip",       model: "HyperFrames", style: "Product Square",     curation: "Official", created: "2026", duration: "10s",
+    prompt: "Square 1080×1080 product showcase, dark charcoal #232526 background, product hero scales in with cubic-bezier(0.16,1,0.3,1) over 700ms, white feature label pills fade in sequentially at 90ms intervals, ambient rim light sweep from left to right over 1.2s, crisp drop shadow 0 20px 60px rgba(0,0,0,0.6), Inter 700 product name at 40px, 10-second cinematic sequence." },
+  { id: "x-post-overlay",       name: "X Post Overlay",      category: "Social",     ratio: "16 / 9", aspectRatio: "16:9", gradient: "135deg,#000000 0%,#1a1a1a 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/overlays/x-post-overlay/renders/x-post-overlay.mp4",      zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/x-post-overlay.zip",      model: "HyperFrames", style: "Overlay",            curation: "Official", created: "2026", duration: "4s",
+    prompt: "Broadcast-ready X post overlay, card slides up from -120px to 0 over 420ms with cubic-bezier(0.34,1.56,0.64,1) spring overshoot, avatar renders with crisp 40px circle clip and 1.5px white border, reply/repost/like counters tick up individually with 80ms stagger, pure black #000 background with subtle noise texture at 2% opacity, X logo mark in white at 14px, system-ui font stack at 15px/140%, 4-second hold then fade-out, 1920×1080, 60fps." },
+  { id: "fitness-app-showcase", name: "Fitness App",         category: "Mobile App", ratio: "16 / 9", aspectRatio: "16:9", gradient: "135deg,#00b09b 0%,#96c93d 100%",  src: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/primitives/fitness-app-showcase/renders/fitness-app-showcase.mp4", zipUrl: "https://gen-os-static.s3.us-east-2.amazonaws.com/hyperframes/templates/zips/fitness-app-showcase.zip", model: "HyperFrames", style: "App Demo",           curation: "Official", created: "2026", duration: "5.5s",
+    prompt: "High-energy fitness app reveal, activity ring animates from 0° to 312° with stroke-dashoffset over 900ms ease-in-out, teal #00B09B to lime #96C93D gradient fills, step counter increments with rolling digit animation at 30fps, heart-rate graph draws live with cubic spline interpolation, mobile UI floats on subtle 3D Y-axis tilt 6°, frosted glass metric cards blur 16px, SF Pro Rounded numerals, 1920×1080, 5.5-second loop." },
 ];
 
 
@@ -195,10 +208,11 @@ const imageRatioOptions = ["1:1", "4:3", "3:4", "16:9", "9:16"];
 const imageResolutionOptions = ["512px", "768px", "1024px", "2048px"];
 const imageQualityOptions = ["Standard", "HD"];
 
-const videoModels = ["Sora", "Runway Gen-3", "Kling 1.6", "Luma Dream Machine"];
+const videoModels = ["Sora", "Runway Gen-3", "Kling V3 Video", "Kling 1.6", "Luma Dream Machine"];
 const videoRatioOptions = ["16:9", "9:16", "1:1", "4:3"];
-const videoDurationOptions = ["5s", "10s", "15s", "30s"];
+const videoDurationOptions = ["5s", "6s", "10s", "15s", "30s"];
 const videoQualityOptions = ["360p", "720p", "1080p", "4K"];
+const klingCameraMotionOptions = ["Auto", "Static", "Pan Left", "Pan Right", "Zoom In", "Zoom Out", "Orbit Left", "Orbit Right"];
 
 const audioModels = ["Suno v4", "Udio 2.0", "MusicGen 2"];
 const audioMoodOptions = ["Cinematic", "Ambient", "Electronic", "Jazz", "Hip-Hop", "Acoustic", "Lo-Fi", "Corporate"];
@@ -275,7 +289,7 @@ export default function HomeScreen() {
   const [activeGrid, setActiveGrid] = useState(null);
 
   const [imageSettings, setImageSettings] = useState({ model: "Imagen 4", ratio: "1:1", resolution: "1024px", quality: "Standard" });
-  const [videoSettings, setVideoSettings] = useState({ model: "Sora", ratio: "16:9", duration: "5s", quality: "1080p" });
+  const [videoSettings, setVideoSettings] = useState({ model: "Kling V3 Video", ratio: "16:9", duration: "6s", quality: "720p", cameraMotion: "Auto", audio: "On" });
   const [selectedAttachment, setSelectedAttachment] = useState(null);
   const modelRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -392,6 +406,18 @@ export default function HomeScreen() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isFocused]);
 
+  const isKlingModel = videoSettings.model.toLowerCase().includes("kling");
+  const videoChips = [
+    { key: "model",        icon: LayoutGrid,          activeValue: videoSettings.model,        options: videoModels,              onSelect: (v) => setVideoSettings((s) => ({ ...s, model: v })) },
+    { key: "duration",     icon: Clock,               activeValue: videoSettings.duration,     options: videoDurationOptions,     onSelect: (v) => setVideoSettings((s) => ({ ...s, duration: v })) },
+    { key: "ratio",        icon: RectangleHorizontal, activeValue: videoSettings.ratio,        options: videoRatioOptions,        onSelect: (v) => setVideoSettings((s) => ({ ...s, ratio: v })) },
+    { key: "quality",      icon: Gauge,               activeValue: videoSettings.quality,      options: videoQualityOptions,      onSelect: (v) => setVideoSettings((s) => ({ ...s, quality: v })) },
+    ...(isKlingModel ? [
+      { key: "cameraMotion", icon: Clapperboard,      activeValue: videoSettings.cameraMotion, options: klingCameraMotionOptions, onSelect: (v) => setVideoSettings((s) => ({ ...s, cameraMotion: v })) },
+      { key: "audio",        icon: Music,             activeValue: videoSettings.audio === "On" ? "Audio On" : "Audio Off", options: ["Audio On", "Audio Off"], onSelect: (v) => setVideoSettings((s) => ({ ...s, audio: v === "Audio On" ? "On" : "Off" })) },
+    ] : []),
+  ];
+
   return (
     <div className={cn("home-shell", isFocused && "is-focused", activeGrid && "has-grid")}>
       <HomeSidebar
@@ -457,12 +483,7 @@ export default function HomeScreen() {
                   { key: "resolution", icon: ArrowUpDown,         activeValue: imageSettings.resolution, options: imageResolutionOptions, onSelect: (v) => setImageSettings((s) => ({ ...s, resolution: v })) },
                   { key: "quality",    icon: Sparkles,            activeValue: imageSettings.quality,    options: imageQualityOptions,   onSelect: (v) => setImageSettings((s) => ({ ...s, quality: v })) },
                 ],
-                video: [
-                  { key: "model",    icon: LayoutGrid,          activeValue: videoSettings.model,    options: videoModels,         onSelect: (v) => setVideoSettings((s) => ({ ...s, model: v })) },
-                  { key: "ratio",    icon: RectangleHorizontal, activeValue: videoSettings.ratio,    options: videoRatioOptions,   onSelect: (v) => setVideoSettings((s) => ({ ...s, ratio: v })) },
-                  { key: "duration", icon: Clock,               activeValue: videoSettings.duration, options: videoDurationOptions, onSelect: (v) => setVideoSettings((s) => ({ ...s, duration: v })) },
-                  { key: "quality",  icon: Sparkles,            activeValue: videoSettings.quality,  options: videoQualityOptions, onSelect: (v) => setVideoSettings((s) => ({ ...s, quality: v })) },
-                ],
+                video: videoChips,
                 audio: [
                   { key: "aud-model",    icon: LayoutGrid, activeValue: audioSettings.model,    options: audioModels,          onSelect: (v) => setAudioSetting("model", v) },
                   { key: "aud-mood",     icon: Music4,     activeValue: audioSettings.mood,     options: audioMoodOptions,     onSelect: (v) => setAudioSetting("mood", v) },
@@ -668,7 +689,6 @@ export default function HomeScreen() {
                 <div className="gen-filter-pills">
                   <button type="button" className="gen-filter-pill"><LayoutGrid size={13} /> Style <ChevronDown size={11} /></button>
                   <button type="button" className="gen-filter-pill"><Clock size={13} /> Duration <ChevronDown size={11} /></button>
-                  <button type="button" className="gen-filter-pill"><RectangleHorizontal size={13} /> Ratio <ChevronDown size={11} /></button>
                 </div>
                 <div className="gen-search-right">
                   <div className="gen-search-wrap">
@@ -691,7 +711,7 @@ export default function HomeScreen() {
                     onClick={() => setActiveVideoCard(vid)}
                     onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setActiveVideoCard(vid)}
                   >
-                    <div className="aimg-card-visual">
+                    <div className="aimg-card-visual" style={{ aspectRatio: vid.ratio }}>
                       <video src={vid.src} muted loop playsInline autoPlay className="aimg-card-video" />
                       <div className="aimg-card-hover-overlay">
                         <p className="aimg-card-hover-prompt">{vid.prompt}</p>
@@ -794,7 +814,7 @@ export default function HomeScreen() {
                     onClick={() => setActiveAimgCard(tmpl)}
                     onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setActiveAimgCard(tmpl)}
                   >
-                    <div className="aimg-card-visual">
+                    <div className="aimg-card-visual" style={{ aspectRatio: tmpl.ratio ?? "16 / 9" }}>
                       <video src={tmpl.src} muted loop playsInline autoPlay className="aimg-card-video" />
                       <div className="aimg-card-hover-overlay">
                         <p className="aimg-card-hover-prompt">{tmpl.prompt}</p>
@@ -910,8 +930,8 @@ export default function HomeScreen() {
 
               <div className="home-projects-list">
                 {activeTab === "recent"
-                  ? recentProjectsMain.map((project) => (
-                      <Link key={project.id} href="/editor" className="home-project-card">
+                  ? recentProjects.slice(0, 2).map((project) => (
+                      <Link key={project.id} href={getProjectHref(project.id)} className="home-project-card">
                         <div
                           className="home-project-thumb"
                           style={{ background: project.color }}

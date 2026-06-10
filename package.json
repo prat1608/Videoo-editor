@@ -1,10 +1,46 @@
 {
   "name": "videoo-editor",
+  "version": "0.1.0",
   "private": true,
+  "description": "Desktop app shell for Videoo Editor",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "electron:dev": "concurrently -k \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "dev:all": "concurrently --kill-others-on-fail \"npm run dev\" \"wait-on http://localhost:3000 && electron .\" \"wait-on http://localhost:3000 && open -a 'Google Chrome' http://localhost:3000\"",
+    "electron:build": "npm run build && node scripts/prepare-electron-build.js && electron-builder --dir",
+    "electron:dist": "npm run build && node scripts/prepare-electron-build.js && electron-builder"
+  },
+  "build": {
+    "appId": "com.videoo.editor",
+    "productName": "Videoo Editor",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      ".next/standalone/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      ".next/standalone/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.video",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "AudioVideo"
+    }
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
@@ -24,5 +60,12 @@
     "react-dom": "^19.2.4",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.2"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3",
+    "electron": "^42.4.0",
+    "electron-builder": "^26.15.2",
+    "playwright": "^1.60.0",
+    "wait-on": "^9.0.10"
   }
 }
