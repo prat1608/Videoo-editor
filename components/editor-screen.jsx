@@ -40,6 +40,7 @@ import {
   RotateCcw,
   RotateCw,
   Scissors,
+  Search,
   Settings2,
   Shapes,
   SkipBack,
@@ -60,8 +61,9 @@ import logoMark from "@/assets/Logo.svg";
 import { DEFAULT_PROJECT_ID, getProjectTitle } from "@/lib/projects";
 
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   DropdownMenu,
@@ -1079,33 +1081,179 @@ function PanelContent({ panel, selectedTools, onToggle, brandKitOpen, onOpenBran
   }
 }
 
+const TOOLS_CATEGORIES = ["All", "Generation", "Skills", "Basic"];
+
+const SECTION_CATEGORY_MAP = {
+  generation: "Generation",
+  skills: "Skills",
+  basic: "Basic",
+};
+
+const TOOL_CARD_META = {
+  generation: {
+    eyebrow: "AI generator",
+    tags: ["Prompt", "Creative"],
+    footer: "Creates new assets",
+    action: "Add tool",
+  },
+  skills: {
+    eyebrow: "Workflow skill",
+    tags: ["AI assist", "Automation"],
+    footer: "Runs in editor",
+    action: "Use skill",
+  },
+  basic: {
+    eyebrow: "Edit tool",
+    tags: ["Timeline", "Precision"],
+    footer: "Manual control",
+    action: "Add tool",
+  },
+};
+
+const TOOL_TILE_IMAGES = {
+  "generate-image": "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  "generate-video": "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  "generate-music": "https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  "generate-voiceover": "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  "generate-sfx": "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  autodemo: "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  roughcuts: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  clipping: "https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  ytimport: "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  trim: "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  merge: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  speed: "https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  reverse: "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  rotate: "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+  crop: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
+};
+
 function ToolsPanel({ selectedTools, onToggle }) {
+  const [query, setQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  const filteredSections = toolsSections
+    .map((section) => {
+      const sectionCat = SECTION_CATEGORY_MAP[section.id] ?? "All";
+      return {
+        ...section,
+        sectionCat,
+        tools: section.tools.filter((tool) => {
+          const matchCat = activeCategory === "All" || sectionCat === activeCategory;
+          const matchQ =
+            !query ||
+            tool.name.toLowerCase().includes(query.toLowerCase()) ||
+            tool.desc.toLowerCase().includes(query.toLowerCase());
+          return matchCat && matchQ;
+        }),
+      };
+    })
+    .filter((s) => s.tools.length > 0);
+
   return (
-    <>
-      {toolsSections.map((section) => (
-        <section className="panel-section" key={section.id}>
-          <p className="section-title">{section.title}</p>
-          <div className="tools-grid">
-            {section.tools.map((tool) => (
-              <button
-                key={tool.id}
-                type="button"
-                className={cn("tool-card", selectedTools?.some((t) => t.id === tool.id) && "is-selected")}
-                onClick={() => onToggle?.(tool)}
-              >
-                <span className="tool-card-icon">
-                  <tool.icon />
-                </span>
-                <span className="tool-card-body">
-                  <span className="tool-card-name">{tool.name}</span>
-                  <span className="tool-card-desc">{tool.desc}</span>
-                </span>
-              </button>
+    <div className="ts-panel">
+      <section className="panel-section ts-control-surface">
+        <div className="ts-search-field">
+          <Search className="ts-search-icon" />
+          <Input
+            className="ts-search-input"
+            placeholder="Search tools..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {query && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="ts-search-clear"
+              onClick={() => setQuery("")}
+              aria-label="Clear search"
+            >
+              <X />
+            </Button>
+          )}
+        </div>
+
+        <Tabs value={activeCategory} onValueChange={setActiveCategory} className="ts-tabs">
+          <TabsList className="ts-tabs-list">
+            {TOOLS_CATEGORIES.map((cat) => (
+              <TabsTrigger key={cat} value={cat} className="ts-tabs-trigger">
+                {cat}
+              </TabsTrigger>
             ))}
+          </TabsList>
+        </Tabs>
+      </section>
+
+      {filteredSections.map((section) => (
+        <section className="panel-section ts-tool-section" key={section.id}>
+          <div className="ts-section-header">
+            <div>
+              <p className="section-title">{section.title}</p>
+              <span className="ts-section-count">{section.tools.length} available</span>
+            </div>
+          </div>
+          <div className="ts-grid">
+            {section.tools.map((tool) => {
+              const selected = selectedTools?.some((t) => t.id === tool.id);
+              const cardMeta = TOOL_CARD_META[section.id] ?? TOOL_CARD_META.basic;
+              const tileImage = TOOL_TILE_IMAGES[tool.id] ?? TOOL_TILE_IMAGES["generate-video"];
+
+              return (
+                <Card
+                  key={tool.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${selected ? "Remove" : "Add"} ${tool.name}`}
+                  className={cn("ts-card", `ts-card-${section.id}`, selected && "is-selected")}
+                  onClick={() => onToggle?.(tool)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onToggle?.(tool);
+                    }
+                  }}
+                >
+                  <CardContent className="ts-card-content">
+                    <div
+                      className="ts-card-image"
+                      style={{ backgroundImage: `url("${tileImage}")` }}
+                      aria-hidden="true"
+                    >
+                      <span className="ts-card-image-tint" />
+                      {/* <span className={cn("ts-card-glyph", `is-${section.id}`)}>
+                        <tool.icon />
+                      </span> */}
+                      <span className="ts-card-try">
+                        {selected ? "Added" : "Try it"}
+                      </span>
+                    </div>
+                    <div className="ts-card-copy">
+                      <span className="ts-card-name">{tool.name}</span>
+                      {/* <span className="ts-card-desc">{tool.desc}</span> */}
+                      <span className="ts-card-meta">
+                        {cardMeta.eyebrow}
+                        {selected && <CheckCircle2 />}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </section>
       ))}
-    </>
+
+      {filteredSections.length === 0 && (
+        <section className="panel-section">
+          <Card className="ts-empty">
+            <Search />
+            <p>No tools match &ldquo;{query}&rdquo;</p>
+          </Card>
+        </section>
+      )}
+    </div>
   );
 }
 
@@ -1119,12 +1267,12 @@ export default function EditorScreen() {
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
   const [mediaBrandKitOpen, setMediaBrandKitOpen] = useState(false);
   const [rightPanelOpen, setRightPanelOpen] = useState(true);
-  const [chatPanelWidth, setChatPanelWidth] = useState(660);
+  const [chatPanelWidth, setChatPanelWidth] = useState(560);
   const [timelineOpen, setTimelineOpen] = useState(true);
-  const [timelineHeight, setTimelineHeight] = useState(196);
+  const [timelineHeight, setTimelineHeight] = useState(168);
   const [syncState] = useState("saved");
   const [interactionMode, setInteractionMode] = useState("hand");
-  const [canvasZoom, setCanvasZoom] = useState(80);
+  const [canvasZoom, setCanvasZoom] = useState(70);
   const [zoomMenuOpen, setZoomMenuOpen] = useState(false);
   const [timelineScale, setTimelineScale] = useState(100);
   const [timelineRulerWidth, setTimelineRulerWidth] = useState(0);
@@ -1726,7 +1874,7 @@ export default function EditorScreen() {
                   <>
                     <h1>{railItems.find((item) => item.key === activePanel)?.label ?? "Panel"}</h1>
                     <div className="panel-actions">
-                      <IconButton icon={Upload} label="Upload" />
+                      {/* <IconButton icon={Upload} label="Upload" /> */}
                       <IconButton icon={ChevronsLeft} label="Collapse panel" onClick={() => setLeftPanelOpen(false)} />
                     </div>
                   </>
@@ -1752,7 +1900,7 @@ export default function EditorScreen() {
             <section
               className={cn("editor-shell", !timelineOpen && "timeline-collapsed")}
               style={{
-                gridTemplateRows: timelineOpen ? `52px minmax(0, 1fr) ${timelineHeight}px` : "52px minmax(0, 1fr) 50px",
+              gridTemplateRows: timelineOpen ? `48px minmax(0, 1fr) ${timelineHeight}px` : "48px minmax(0, 1fr) 46px",
               }}
             >
               <header className={cn("topbar", compactTopbar && "is-compact", denseTopbar && "is-dense")}>

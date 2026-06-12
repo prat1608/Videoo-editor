@@ -4,113 +4,138 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Clapperboard,
-  Download,
-  FilePlus2,
-  Film,
-  ImageUp,
-  Mic,
-  Music4,
-  Search,
+  ArrowUp,
+  ArrowUpRight,
+  AudioLines,
+  ChevronDown,
+  FileText,
+  Layers,
+  Plus,
+  RefreshCw,
+  Scissors,
   Sparkles,
-  Video,
 } from "lucide-react";
-import { createNewProjectHref, newProjectOptions } from "@/lib/new-projects";
 import { getProjectHref, recentProjects } from "@/lib/projects";
 import { cn } from "@/lib/utils";
 
-const optionIcons = {
-  empty: FilePlus2,
-  record: Video,
-  video: Film,
-  image: ImageUp,
-  audio: Music4,
-  voiceover: Mic,
-  import: Download,
-  aimg: Sparkles,
-};
+const actionChips = [
+  { key: "generate", label: "Generate", icon: Sparkles },
+  { key: "script", label: "Script & Strategy", icon: FileText },
+  { key: "repurpose", label: "Repurpose", icon: RefreshCw },
+  { key: "edit", label: "Edit", icon: Scissors },
+  { key: "captions", label: "Captions & Voice", icon: AudioLines },
+];
 
 export function NewProjectScreen() {
   const router = useRouter();
-  const [search, setSearch] = useState("");
-  const normalizedSearch = search.trim().toLowerCase();
+  const [prompt, setPrompt] = useState("");
+  const [activeTab, setActiveTab] = useState("recent");
 
-  const filteredOptions = useMemo(() => {
-    if (!normalizedSearch) return newProjectOptions;
-    return newProjectOptions.filter((option) =>
-      `${option.label} ${option.description}`.toLowerCase().includes(normalizedSearch)
-    );
-  }, [normalizedSearch]);
-
-  const filteredProjects = useMemo(() => {
-    if (!normalizedSearch) return recentProjects;
-    return recentProjects.filter((project) =>
-      `${project.title} ${project.time}`.toLowerCase().includes(normalizedSearch)
-    );
-  }, [normalizedSearch]);
+  const projectRows = useMemo(() => recentProjects.slice(0, 2), []);
 
   return (
-    <main className="new-project-page">
-      <section className="new-project-panel" aria-labelledby="new-project-title">
-        <div className="new-project-location">
-          <span>Create project in:</span>
-          <span className="new-project-space-dot" />
-          <button type="button" className="new-project-space-button">
-            Pratiksha Ekbote&apos;s team / Team project
+    <main className="home-main">
+      <div className="home-focused-topbar" aria-label="Project actions">
+        <button type="button" className="home-focused-credits">
+          <Sparkles />
+          <span>1,462 credits</span>
+        </button>
+        <button type="button" className="home-focused-space">
+          <Layers />
+          <span>Default Space</span>
+        </button>
+        <Link href={getProjectHref("untitled-editor")} className="home-focused-open-editor">
+          <span>Open Editor</span>
+          <ArrowUpRight />
+        </Link>
+      </div>
+
+      <div className="home-main-inner">
+        <h1 className="home-greeting">What do you want to create today?</h1>
+
+        <div className="new-project-composer">
+          <textarea
+            value={prompt}
+            onChange={(event) => setPrompt(event.target.value)}
+            placeholder="Describe a scene, trim, or effect..."
+            aria-label="Describe a scene, trim, or effect"
+          />
+          <div className="new-project-composer-footer">
+            <button type="button" className="new-project-plus" aria-label="Attach media">
+              <Plus />
+            </button>
+            <div className="new-project-composer-actions">
+              <button type="button" className="new-project-model">
+                <Layers />
+                <span>DeepSeek V4 Flash</span>
+                <ChevronDown />
+              </button>
+              <button
+                type="button"
+                className="new-project-send"
+                aria-label="Create from prompt"
+                onClick={() => router.push(getProjectHref(`untitled-${Date.now()}`))}
+              >
+                <ArrowUp />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="new-project-chips" aria-label="Creation modes">
+          {actionChips.map((chip) => (
+            <button key={chip.key} type="button" className="new-project-chip">
+              <chip.icon />
+              <span>{chip.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <section className="new-project-recents-panel" aria-label="Recent projects">
+        <div className="new-project-recents-header">
+          <div className="new-project-recents-tabs" role="tablist" aria-label="Project lists">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "recent"}
+              className={cn("new-project-recents-tab", activeTab === "recent" && "is-active")}
+              onClick={() => setActiveTab("recent")}
+            >
+              Recent projects
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "examples"}
+              className={cn("new-project-recents-tab", activeTab === "examples" && "is-active")}
+              onClick={() => setActiveTab("examples")}
+            >
+              Examples
+            </button>
+          </div>
+          <button type="button" className="new-project-view-all">
+            <span>View all</span>
+            <ArrowUpRight />
           </button>
         </div>
 
-        <h1 id="new-project-title" className="new-project-title">New project</h1>
-
-        <div className="new-project-options" aria-label="Project creation options">
-          {filteredOptions.map((option) => {
-            const Icon = optionIcons[option.id] ?? Clapperboard;
-            return (
-              <button
-                key={option.id}
-                type="button"
-                className="new-project-option"
-                aria-label={`Create ${option.label}`}
-                onClick={() => router.push(createNewProjectHref(option.id))}
-              >
-                <span className="new-project-option-icon" style={{ background: option.accent }}>
-                  <Icon />
+        <div className="new-project-recents-list">
+          {activeTab === "recent" ? (
+            projectRows.map((project, index) => (
+              <Link key={project.id} href={getProjectHref(project.id)} className="new-project-recent-row">
+                <span className={cn("new-project-recent-thumb", index === 0 ? "is-garage" : "is-autodemo")}>
+                  <span />
                 </span>
-                <span className="new-project-option-label">{option.label}</span>
-                <span className="new-project-option-desc">{option.description}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <label className="new-project-search">
-          <Search />
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search"
-            aria-label="Search creation options and recent projects"
-          />
-        </label>
-
-        <div className="new-project-recents">
-          <h2>Recent projects</h2>
-          <div className="new-project-recents-list">
-            {filteredProjects.length > 0 ? (
-              filteredProjects.map((project, index) => (
-                <Link key={project.id} href={getProjectHref(project.id)} className="new-project-recent-row">
-                  <span className={cn("new-project-recent-thumb", index === 0 && "is-bright")} style={{ background: project.color }}>
-                    {index === 0 && <FilePlus2 />}
-                  </span>
-                  <span className="new-project-recent-name">{project.title}</span>
-                  <span className="new-project-recent-time">{project.time.replace("Last edited ", "")}</span>
-                  {index === 1 && <span className="new-project-avatar">P</span>}
-                </Link>
-              ))
-            ) : (
-              <p className="new-project-empty">No matching recent projects.</p>
-            )}
-          </div>
+                <span className="new-project-recent-copy">
+                  <strong>{project.title}</strong>
+                  <small>{project.time}</small>
+                </span>
+              </Link>
+            ))
+          ) : (
+            <p className="new-project-empty">No examples available yet.</p>
+          )}
         </div>
       </section>
     </main>

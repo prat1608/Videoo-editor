@@ -253,11 +253,11 @@ export function DesktopTabShell({ children }) {
     );
   }
 
-  const isEditorRoute = pathname?.startsWith("/editor");
+  const isFocusedWorkspaceRoute = pathname?.startsWith("/editor");
 
   return (
-    <div className={cn("desktop-shell", desktopPlatform && `desktop-shell--${desktopPlatform}`, isEditorRoute && "desktop-shell--editor")}>
-      {!isEditorRoute && (
+    <div className={cn("desktop-shell", desktopPlatform && `desktop-shell--${desktopPlatform}`, isFocusedWorkspaceRoute && "desktop-shell--editor")}>
+      {!isFocusedWorkspaceRoute && (
         <header className="desktop-tabs-chrome">
           <div className="desktop-tabs-list" role="tablist" aria-label="Open Videoo tabs">
             {renderTab(HOME_TAB)}
