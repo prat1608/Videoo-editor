@@ -39,6 +39,11 @@
   --surface-shadow: 0 0 0 0.6px rgba(255, 255, 255, 0.04), 0 22px 44px rgba(0, 0, 0, 0.34);
   --shell-gap: 12px;
   --shell-ease: 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  --editor-left-rail-width: 46px;
+  --editor-left-sidebar-width: 420px;
+  --editor-left-sidebar-width-all: 404px;
+  --editor-left-panel-width: calc(var(--editor-left-sidebar-width) - var(--editor-left-rail-width));
+  --editor-left-panel-width-all: calc(var(--editor-left-sidebar-width-all) - var(--editor-left-rail-width));
   --radius-3xl: 24px;
   --radius-lg: 20px;
   --radius-md: 14px;
@@ -858,8 +863,8 @@ svg {
 
 .left-sidebar-shell {
   display: flex;
-  flex: 0 0 372px;
-  min-width: 372px;
+  flex: 0 0 var(--editor-left-sidebar-width);
+  min-width: var(--editor-left-sidebar-width);
   overflow: hidden;
   background: linear-gradient(180deg, #1d1d1e 0%, #171717 100%);
   position: relative;
@@ -897,8 +902,8 @@ svg {
 }
 
 .app-shell.is-all-sections-visible .left-sidebar-shell:not(.is-collapsed) {
-  flex-basis: 356px;
-  min-width: 356px;
+  flex-basis: var(--editor-left-sidebar-width-all);
+  min-width: var(--editor-left-sidebar-width-all);
 }
 
 .app-shell.left-panel-open .left-sidebar-shell:not(.is-collapsed) {
@@ -988,7 +993,7 @@ svg {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  width: 318px;
+  width: var(--editor-left-panel-width);
   min-width: 0;
   transition:
     width var(--shell-ease),
@@ -1006,7 +1011,7 @@ svg {
 }
 
 .app-shell.is-all-sections-visible .left-panel:not(.is-collapsed) {
-  width: 302px;
+  width: var(--editor-left-panel-width-all);
 }
 
 .panel-header {
@@ -1070,6 +1075,12 @@ svg {
 .panel-scroll {
   overflow: auto;
   padding: 14px 14px 20px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.panel-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .panel-section {
@@ -1314,8 +1325,12 @@ svg {
   gap: 2px;
   max-height: 340px;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #333 transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.bk-accordion-body::-webkit-scrollbar {
+  display: none;
 }
 
 .bk-accordion-item {
@@ -4318,7 +4333,7 @@ svg {
     top: 0;
     left: 56px;
     bottom: 0;
-    width: 320px;
+    width: min(var(--editor-left-panel-width), calc(100vw - 56px));
     z-index: 10;
     box-shadow: var(--shadow);
   }
@@ -7179,7 +7194,6 @@ svg {
   overflow: hidden;
   color: rgba(245, 245, 245, 0.88);
   font-size: 0.78rem;
-  font-weight: 700;
   line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
