@@ -13,7 +13,9 @@ import {
   ChevronDown,
   ChevronRight,
   ChevronsLeft,
+  Captions,
   CircleAlert,
+  CircleDot,
   Clock,
   Crop,
   CloudCheck,
@@ -33,6 +35,7 @@ import {
   Music4,
   Palette,
   Pipette,
+  Plug,
   Plus,
   RectangleHorizontal,
   Redo2,
@@ -41,7 +44,6 @@ import {
   RotateCw,
   Scissors,
   Search,
-  Settings2,
   Shapes,
   SkipBack,
   SkipForward,
@@ -63,7 +65,7 @@ import { DEFAULT_PROJECT_ID, getProjectTitle } from "@/lib/projects";
 import { Avatar, AvatarFallback, AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   DropdownMenu,
@@ -257,15 +259,22 @@ const toolsSections = [
   },
 ];
 
-const railItems = [
+const railTopItems = [
+  { key: "tools", label: "Tools & Skills", icon: Plug },
   { key: "files", label: "Files", icon: FileText },
-  { key: "media", label: "Media", icon: ImageUp },
+  { key: "media", label: "Media", icon: CloudUpload },
   { key: "audio", label: "Audio", icon: Music4 },
   { key: "text", label: "Text", icon: Type },
+  { key: "captions", label: "Captions", icon: Captions },
   { key: "elements", label: "Elements", icon: Shapes },
-  { key: "tools", label: "Tools & Skills", icon: Zap },
-  { key: "settings", label: "Settings", icon: Settings2 },
+  { key: "record", label: "Record", icon: CircleDot },
 ];
+
+const railBottomItems = [
+  { key: "aimg", label: "AIMG", icon: Sparkles },
+];
+
+const railItems = [...railTopItems, ...railBottomItems];
 
 function PanelBottomGlyph() {
   return (
@@ -1023,6 +1032,17 @@ function MediaPanel({ onOpenBrandKit }) {
 
 function PanelContent({ panel, selectedTools, onToggle, brandKitOpen, onOpenBrandKit }) {
   switch (panel) {
+    case "aimg":
+      return (
+        <SimpleCardPanel
+          title="AIMG"
+          cards={[
+            { title: "Generate Image", subtitle: "Create visuals from a prompt" },
+            { title: "Image Style", subtitle: "Pick a look for generated media" },
+            { title: "Enhance Prompt", subtitle: "Refine image direction" },
+          ]}
+        />
+      );
     case "media":
       return brandKitOpen ? <BrandKitPanel /> : <MediaPanel onOpenBrandKit={onOpenBrandKit} />;
     case "audio":
@@ -1045,6 +1065,17 @@ function PanelContent({ panel, selectedTools, onToggle, brandKitOpen, onOpenBran
           ]}
         />
       );
+    case "captions":
+      return (
+        <SimpleCardPanel
+          title="Captions"
+          cards={[
+            { title: "Auto Captions", subtitle: "Generate timed subtitles" },
+            { title: "Lower Third", subtitle: "Name and title preset" },
+            { title: "Kinetic Captions", subtitle: "Animated word highlights" },
+          ]}
+        />
+      );
     case "elements":
       return (
         <section className="panel-section two-up">
@@ -1062,6 +1093,13 @@ function PanelContent({ panel, selectedTools, onToggle, brandKitOpen, onOpenBran
             </PanelButton>
           ))}
         </section>
+      );
+    case "record":
+      return (
+        <SimpleCardPanel
+          title="Record"
+          cards={recordSources.map((source) => ({ title: source.name, subtitle: source.desc }))}
+        />
       );
     case "tools":
       return <ToolsPanel selectedTools={selectedTools} onToggle={onToggle} />;
@@ -1081,178 +1119,107 @@ function PanelContent({ panel, selectedTools, onToggle, brandKitOpen, onOpenBran
   }
 }
 
-const TOOLS_CATEGORIES = ["All", "Generation", "Skills", "Basic"];
-
-const SECTION_CATEGORY_MAP = {
-  generation: "Generation",
-  skills: "Skills",
-  basic: "Basic",
-};
-
-const TOOL_CARD_META = {
-  generation: {
-    eyebrow: "AI generator",
-    tags: ["Prompt", "Creative"],
-    footer: "Creates new assets",
-    action: "Add tool",
-  },
-  skills: {
-    eyebrow: "Workflow skill",
-    tags: ["AI assist", "Automation"],
-    footer: "Runs in editor",
-    action: "Use skill",
-  },
-  basic: {
-    eyebrow: "Edit tool",
-    tags: ["Timeline", "Precision"],
-    footer: "Manual control",
-    action: "Add tool",
-  },
-};
-
-const TOOL_TILE_IMAGES = {
-  "generate-image": "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  "generate-video": "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  "generate-music": "https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  "generate-voiceover": "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  "generate-sfx": "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  autodemo: "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  roughcuts: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  clipping: "https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  ytimport: "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  trim: "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  merge: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  speed: "https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  reverse: "https://images.pexels.com/photos/257904/pexels-photo-257904.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  rotate: "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-  crop: "https://images.pexels.com/photos/1181671/pexels-photo-1181671.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop",
-};
-
 function ToolsPanel({ selectedTools, onToggle }) {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const filteredSections = toolsSections
-    .map((section) => {
-      const sectionCat = SECTION_CATEGORY_MAP[section.id] ?? "All";
-      return {
-        ...section,
-        sectionCat,
-        tools: section.tools.filter((tool) => {
-          const matchCat = activeCategory === "All" || sectionCat === activeCategory;
-          const matchQ =
-            !query ||
-            tool.name.toLowerCase().includes(query.toLowerCase()) ||
-            tool.desc.toLowerCase().includes(query.toLowerCase());
-          return matchCat && matchQ;
-        }),
-      };
-    })
-    .filter((s) => s.tools.length > 0);
+  const toolsAndSkills = toolsSections.flatMap((section) =>
+    section.tools.map((tool) => ({ ...tool, sectionId: section.id, sectionTitle: section.title }))
+  );
+  const visibleTools = toolsAndSkills.filter((tool) => {
+    const matchesCategory =
+      activeCategory === "All" ||
+      (activeCategory === "Generation" && tool.sectionId === "generation") ||
+      (activeCategory === "Skills" && tool.sectionId === "skills") ||
+      (activeCategory === "Basic" && tool.sectionId === "basic");
+    const normalizedQuery = query.trim().toLowerCase();
+    const matchesQuery =
+      !normalizedQuery ||
+      tool.name.toLowerCase().includes(normalizedQuery) ||
+      tool.desc.toLowerCase().includes(normalizedQuery);
+
+    return matchesCategory && matchesQuery;
+  });
 
   return (
     <div className="ts-panel">
-      <section className="panel-section ts-control-surface">
-        <div className="ts-search-field">
-          <Search className="ts-search-icon" />
-          <Input
-            className="ts-search-input"
-            placeholder="Search tools..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          {query && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="ts-search-clear"
-              onClick={() => setQuery("")}
-              aria-label="Clear search"
-            >
-              <X />
-            </Button>
-          )}
+      <section className="panel-section ts-featured-section">
+        <h3 className="ts-featured-title">Tools &amp; Skills</h3>
+        <div className="ts-control-surface">
+          <div className="ts-search-field">
+            <Search className="ts-search-icon" />
+            <Input
+              className="ts-search-input"
+              placeholder="Search tools and skills"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            {query && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="ts-search-clear"
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+              >
+                <X />
+              </Button>
+            )}
+          </div>
+
+          <div className="ts-filter-chips" aria-label="Tool categories">
+            {["All", "Generation", "Skills", "Basic"].map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                className={cn("ts-filter-chip", activeCategory === cat && "is-active")}
+                onClick={() => setActiveCategory(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <Tabs value={activeCategory} onValueChange={setActiveCategory} className="ts-tabs">
-          <TabsList className="ts-tabs-list">
-            {TOOLS_CATEGORIES.map((cat) => (
-              <TabsTrigger key={cat} value={cat} className="ts-tabs-trigger">
-                {cat}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </section>
+        <div className="ts-featured-list">
+          {visibleTools.map((tool) => {
+            const selected = selectedTools?.some((t) => t.id === tool.id);
+            const actionLabel = tool.sectionId === "skills" ? "Use skill" : "Use tool";
 
-      {filteredSections.map((section) => (
-        <section className="panel-section ts-tool-section" key={section.id}>
-          <div className="ts-section-header">
-            <div>
-              <p className="section-title">{section.title}</p>
-              <span className="ts-section-count">{section.tools.length} available</span>
-            </div>
-          </div>
-          <div className="ts-grid">
-            {section.tools.map((tool) => {
-              const selected = selectedTools?.some((t) => t.id === tool.id);
-              const cardMeta = TOOL_CARD_META[section.id] ?? TOOL_CARD_META.basic;
-              const tileImage = TOOL_TILE_IMAGES[tool.id] ?? TOOL_TILE_IMAGES["generate-video"];
-
-              return (
-                <Card
-                  key={tool.id}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${selected ? "Remove" : "Add"} ${tool.name}`}
-                  className={cn("ts-card", `ts-card-${section.id}`, selected && "is-selected")}
+            return (
+              <div className="ts-featured-row" key={tool.id}>
+                <button
+                  type="button"
+                  className="ts-featured-main"
                   onClick={() => onToggle?.(tool)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      onToggle?.(tool);
-                    }
-                  }}
+                  aria-label={`${selected ? "Remove" : "Use"} ${tool.name}`}
                 >
-                  <CardContent className="ts-card-content">
-                    <div
-                      className="ts-card-image"
-                      style={{ backgroundImage: `url("${tileImage}")` }}
-                      aria-hidden="true"
-                    >
-                      <span className="ts-card-image-tint" />
-                      {/* <span className={cn("ts-card-glyph", `is-${section.id}`)}>
-                        <tool.icon />
-                      </span> */}
-                      <span className="ts-card-try">
-                        {selected ? "Added" : "Try it"}
-                      </span>
-                    </div>
-                    <div className="ts-card-copy">
-                      <span className="ts-card-name">{tool.name}</span>
-                      {/* <span className="ts-card-desc">{tool.desc}</span> */}
-                      <span className="ts-card-meta">
-                        {cardMeta.eyebrow}
-                        {selected && <CheckCircle2 />}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </section>
-      ))}
+                  <span className="ts-featured-copy">
+                    <span className="ts-featured-name">{tool.name}</span>
+                    <span className="ts-featured-desc">{tool.desc}</span>
+                  </span>
+                </button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className={cn("ts-featured-action", selected && "is-selected")}
+                  onClick={() => onToggle?.(tool)}
+                >
+                  {selected ? <CheckCircle2 /> : <span>{actionLabel}</span>}
+                </Button>
+              </div>
+            );
+          })}
+        </div>
 
-      {filteredSections.length === 0 && (
-        <section className="panel-section">
+        {visibleTools.length === 0 && (
           <Card className="ts-empty">
             <Search />
-            <p>No tools match &ldquo;{query}&rdquo;</p>
+            <p>No tools or skills found</p>
           </Card>
-        </section>
-      )}
+        )}
+      </section>
     </div>
   );
 }
@@ -1838,7 +1805,28 @@ export default function EditorScreen() {
             </Link>
 
             <nav className="rail-nav" aria-label="Editor tools">
-              {railItems.map((item) => (
+              {railTopItems.map((item) => (
+                <Tooltip key={item.key}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className={cn("rail-button", activePanel === item.key && "is-active")}
+                      data-panel={item.key}
+                      aria-label={item.label}
+                      onClick={() => togglePanel(item.key)}
+                    >
+                      <item.icon />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">{item.label}</TooltipContent>
+                </Tooltip>
+              ))}
+            </nav>
+
+            <nav className="rail-nav rail-nav-bottom" aria-label="Editor AI image tools">
+              {railBottomItems.map((item) => (
                 <Tooltip key={item.key}>
                   <TooltipTrigger asChild>
                     <Button
